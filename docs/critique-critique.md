@@ -186,6 +186,8 @@ Normally, personal conflicts are best left to be resolved at a personal level, b
 A way forward
 -------------
 
+One important fact that every single person working in OpenPGP agrees upon is that OpenPGP is in a precarious position. Disagreements over governance and personal animosity have left it to stagnate, even as privacy and security technologies in general have advanced. Without fundamental changes in how OpenPGP functions as a community of human beings, it faces another lost decade at best, if not outright collapse. Actions that deliberately or carelessly foster further division are *not constructive*. We all have a responsibility to conduct ourselves in a professional manner for the sake of the community that some of us still believe in, even if it does not look particularly inspiring right now.
+
 At this point in time, the OpenPGP community desperately needs to see some acts of good faith.
 We strongly suggest that these should include the following:
 
