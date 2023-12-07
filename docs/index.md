@@ -11,5 +11,5 @@ Blog entries by date
 Links
 -----
 
-[PGPKeys.EU OpenPGP keyserver](https://pgpkeys.eu/)
-[PGPKeys.EU github project](https://github.com/pgpkeys-eu)
+* [PGPKeys.EU OpenPGP keyserver](https://pgpkeys.eu/)
+* [PGPKeys.EU github project](https://github.com/pgpkeys-eu)
