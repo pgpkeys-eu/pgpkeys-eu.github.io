@@ -191,14 +191,16 @@ One important fact that every single person working in OpenPGP agrees upon is th
 At this point in time, the OpenPGP community desperately needs to see some acts of good faith.
 We strongly suggest that these should include the following:
 
-* The librepgp.org website shall be shut down. The draft-koch-librepgp I-D[^3] shall remain active as a reference.
-* The OpenPGP Working Group shall, in accordance with its draft charter, begin the process of adopting the WKD protocol as described in draft-koch-openpgp-webkey-service[^16] as a WG standards track document, engaging in good faith with its author at all times.
-* GnuPG shall merge [https://dev.gnupg.org/T4393](https://dev.gnupg.org/T4393), and desist from vetoing constructive contributions for personal reasons.
-* The OpenPGP WG shall, as a matter of good faith, endeavour for the duration of its new charter to maintain in its work queue at all times at least one of the unchartered items already implemented in v5,[^6] with reference to existing v5 implementations, to the extent that security and practicality concerns permit.
+* The librepgp.org website should be shut down. The draft-koch-librepgp I-D[^3] shall remain active as a reference.
+* The OpenPGP Working Group should, in accordance with its draft charter, begin the process of adopting the WKD protocol as described in draft-koch-openpgp-webkey-service[^16] as a WG standards track document, engaging in good faith with its author at all times.
+* GnuPG should merge [https://dev.gnupg.org/T4393](https://dev.gnupg.org/T4393), and desist from vetoing constructive contributions for personal reasons.
+* The OpenPGP WG should, as a matter of good faith, endeavour for the duration of its new charter to maintain in its work queue at all times at least one of the unchartered items already implemented in v5,[^6] with reference to existing v5 implementations, to the extent that security and practicality concerns permit.
 
 If these things should happen, in whatever order but preferably the order listed, we can then begin the process of discussing the medium-term future of OpenPGP in a professional manner. This SHOULD include a commitment by all implementations to at minimum consume both v5 and v6 artifacts on a best-effort basis, even if they have a preference for which standard to ahdere to when generating artifacts. This should be sufficient to ensure that end users are not adversely affected by ongoing disagreements between implementations on the long term path forward.
 
 A.
+
+(Edited 2023-12-07T18:00:00 to clarify language)
 
 References
 ==========
