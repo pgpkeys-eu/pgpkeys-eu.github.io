@@ -87,10 +87,10 @@ The only change to ECDH is that instead of using OpenPGP-specific OIDs to identi
 
 > The new draft not only allow the use of GCM as a third encryption mode but adds a couple of other required algorithms:
 >
->    ^18
+>    HKDF
 >    Argon2
 
-^18 and Argon2 were added to address several known and potential weaknesses in the cryptographic layer of OpenPGP.[^18] [^19] [^20]
+HKDF and Argon2 were added to address several known and potential weaknesses in the cryptographic layer of OpenPGP.[^18] [^19] [^20]
 LibrePGP does not acknowledge the existence of these issues.
 
 >    Optional modes (EAX, OCB, GCM, and a way to define even more)
@@ -191,7 +191,7 @@ We strongly suggest that these should include the following:
 
 * The librepgp.org website shall be shut down. The draft-koch-librepgp I-D[^3] shall remain active as a reference.
 * The OpenPGP Working Group shall, in accordance with its draft charter, begin the process of adopting the WKD protocol as described in draft-koch-openpgp-webkey-service[^16] as a WG standards track document, engaging in good faith with its author at all times.
-* GnuPG shall merge [https://dev.gnupg.org/T4393], and desist from vetoing constructive contributions for personal reasons.
+* GnuPG shall merge [https://dev.gnupg.org/T4393](https://dev.gnupg.org/T4393), and desist from vetoing constructive contributions for personal reasons.
 * The OpenPGP WG shall, as a matter of good faith, endeavour for the duration of its new charter to maintain in its work queue at all times at least one of the unchartered items already implemented in v5,[^6] with reference to existing v5 implementations, to the extent that security and practicality concerns permit.
 
 If these things should happen, in whatever order but preferably the order listed, we can then begin the process of discussing the medium-term future of OpenPGP in a professional manner. This SHOULD include a commitment by all implementations to at minimum consume both v5 and v6 artifacts on a best-effort basis, even if they have a preference for which standard to ahdere to when generating artifacts. This should be sufficient to ensure that end users are not adversely affected by ongoing disagreements between implementations on the long term path forward.
@@ -199,33 +199,33 @@ If these things should happen, in whatever order but preferably the order listed
 References
 ==========
 
-[^1]: [https://librepgp.org]
-[^2]: [https://openpgp-wg.gitlab.io/rfc4880bis]
+[^1]: [https://librepgp.org](https://librepgp.org)
+[^2]: [https://openpgp-wg.gitlab.io/rfc4880bis](https://openpgp-wg.gitlab.io/rfc4880bis)
 [^3]: [https://datatracker.ietf.org/doc/html/draft-koch-librepgp]
 [^4]: [https://mailarchive.ietf.org/arch/msg/openpgp/O1Rz2VLuGj2UKiHiJ4U2djDD5oI/]
-[^5]: [https://datatracker.ietf.org/doc/charter-ietf-openpgp/03/]
-[^6]: [https://mailarchive.ietf.org/arch/msg/openpgp/aqBy97lj2P4DVxTds0eKZDVdmms/]
-[^7]: [https://datatracker.ietf.org/doc/charter-ietf-openpgp/]
-[^8]: [https://datatracker.ietf.org/doc/html/rfc7282#section-3]
-[^9]: [https://mailarchive.ietf.org/arch/msg/openpgp/yz6EnZilyk_90j569KDPu4I3muY/]
-[^10]: [https://mailarchive.ietf.org/arch/msg/openpgp/ZTYD5VJsG1k2jJBbn5zIAf5o7d4/]
-[^11]: [https://www.rfc-editor.org/rfc/rfc2119]
-[^12]: [https://openpgp-wg.gitlab.io/rfc4880bis/#name-aead-algorithms]
-[^13]: [https://mailarchive.ietf.org/arch/msg/openpgp/QYD_NH2JHRI5tb6oL-dM6GWyiQQ/]
-[^14]: [https://gitlab.com/openpgp-wg/rfc4880bis/-/merge_requests/204]
-[^15]: [https://mailarchive.ietf.org/arch/msg/openpgp/iS0EENyd98XAnXWzHnplBAReY9E/]
-[^16]: [https://datatracker.ietf.org/doc/html/draft-koch-openpgp-webkey-service]
-[^17]: [https://mailarchive.ietf.org/arch/msg/openpgp/1mOQRoQ-2yNCiz3zjCniYKnpOUI/]
-[^18]: [https://mailarchive.ietf.org/arch/msg/openpgp/9uAm5Y3eSPApxiN-wPOgsqFw5HU/]
-[^19]: [https://www.kopenpgp.com/]
-[^20]: [https://www.password-hashing.net/]
-[^21]: [https://mailarchive.ietf.org/arch/msg/openpgp/u6ZdubpZubjAlerB7WgNzhnXDko/]
-[^22]: [https://mailarchive.ietf.org/arch/msg/openpgp/8OHMKF9p_h6lNj185mqzTgL8VJo/]
-[^23]: [https://mailarchive.ietf.org/arch/msg/openpgp/l_DMs2LJz4ziymVOB1piBolmxhY/]
-[^24]: [https://github.com/ProtonMail/go-crypto/pull/182]
-[^25]: [https://mailarchive.ietf.org/arch/msg/openpgp/VoAlcewlAYdqsK4RQH-Wcx23438/]
-[^26]: [https://mailarchive.ietf.org/arch/msg/openpgp/EQC4wCPfwDm-CKLbYLGsOC5hQpE/]
-[^27]: [https://www.ietf.org/standards/process/appeals/]
-[^28]: [https://mailarchive.ietf.org/arch/msg/openpgp/XxZt89Eh7XUenuVRajbgtcWzWdA/]
-[^29]: [https://mailarchive.ietf.org/arch/msg/openpgp/SPsdWpf2Kjtkel5z3jfaGAupROI/]
-[^30]: [https://mailarchive.ietf.org/arch/msg/openpgp/yZqJMLJ0cv_jGlp0NIclIYJ1HQY/]
+[^5]: [https://datatracker.ietf.org/doc/charter-ietf-openpgp/03/](https://datatracker.ietf.org/doc/charter-ietf-openpgp/03/)
+[^6]: [https://mailarchive.ietf.org/arch/msg/openpgp/aqBy97lj2P4DVxTds0eKZDVdmms/](https://mailarchive.ietf.org/arch/msg/openpgp/aqBy97lj2P4DVxTds0eKZDVdmms/)
+[^7]: [https://datatracker.ietf.org/doc/charter-ietf-openpgp/](https://datatracker.ietf.org/doc/charter-ietf-openpgp/)
+[^8]: [https://datatracker.ietf.org/doc/html/rfc7282#section-3](https://datatracker.ietf.org/doc/html/rfc7282#section-3)
+[^9]: [https://mailarchive.ietf.org/arch/msg/openpgp/yz6EnZilyk_90j569KDPu4I3muY/](https://mailarchive.ietf.org/arch/msg/openpgp/yz6EnZilyk_90j569KDPu4I3muY/)
+[^10]: [https://mailarchive.ietf.org/arch/msg/openpgp/ZTYD5VJsG1k2jJBbn5zIAf5o7d4/](https://mailarchive.ietf.org/arch/msg/openpgp/ZTYD5VJsG1k2jJBbn5zIAf5o7d4/)
+[^11]: [https://www.rfc-editor.org/rfc/rfc2119](https://www.rfc-editor.org/rfc/rfc2119)
+[^12]: [https://openpgp-wg.gitlab.io/rfc4880bis/#name-aead-algorithms](https://openpgp-wg.gitlab.io/rfc4880bis/#name-aead-algorithms)
+[^13]: [https://mailarchive.ietf.org/arch/msg/openpgp/QYD_NH2JHRI5tb6oL-dM6GWyiQQ/](https://mailarchive.ietf.org/arch/msg/openpgp/QYD_NH2JHRI5tb6oL-dM6GWyiQQ/)
+[^14]: [https://gitlab.com/openpgp-wg/rfc4880bis/-/merge_requests/204](https://gitlab.com/openpgp-wg/rfc4880bis/-/merge_requests/204)
+[^15]: [https://mailarchive.ietf.org/arch/msg/openpgp/iS0EENyd98XAnXWzHnplBAReY9E/](https://mailarchive.ietf.org/arch/msg/openpgp/iS0EENyd98XAnXWzHnplBAReY9E/)
+[^16]: [https://datatracker.ietf.org/doc/html/draft-koch-openpgp-webkey-service](https://datatracker.ietf.org/doc/html/draft-koch-openpgp-webkey-service)
+[^17]: [https://mailarchive.ietf.org/arch/msg/openpgp/1mOQRoQ-2yNCiz3zjCniYKnpOUI/](https://mailarchive.ietf.org/arch/msg/openpgp/1mOQRoQ-2yNCiz3zjCniYKnpOUI/)
+[^18]: [https://mailarchive.ietf.org/arch/msg/openpgp/9uAm5Y3eSPApxiN-wPOgsqFw5HU/](https://mailarchive.ietf.org/arch/msg/openpgp/9uAm5Y3eSPApxiN-wPOgsqFw5HU/)
+[^19]: [https://www.kopenpgp.com/](https://www.kopenpgp.com/)
+[^20]: [https://www.password-hashing.net/](https://www.password-hashing.net/)
+[^21]: [https://mailarchive.ietf.org/arch/msg/openpgp/u6ZdubpZubjAlerB7WgNzhnXDko/](https://mailarchive.ietf.org/arch/msg/openpgp/u6ZdubpZubjAlerB7WgNzhnXDko/)
+[^22]: [https://mailarchive.ietf.org/arch/msg/openpgp/8OHMKF9p_h6lNj185mqzTgL8VJo/](https://mailarchive.ietf.org/arch/msg/openpgp/8OHMKF9p_h6lNj185mqzTgL8VJo/)
+[^23]: [https://mailarchive.ietf.org/arch/msg/openpgp/l_DMs2LJz4ziymVOB1piBolmxhY/](https://mailarchive.ietf.org/arch/msg/openpgp/l_DMs2LJz4ziymVOB1piBolmxhY/)
+[^24]: [https://github.com/ProtonMail/go-crypto/pull/182](https://github.com/ProtonMail/go-crypto/pull/182)
+[^25]: [https://mailarchive.ietf.org/arch/msg/openpgp/VoAlcewlAYdqsK4RQH-Wcx23438/](https://mailarchive.ietf.org/arch/msg/openpgp/VoAlcewlAYdqsK4RQH-Wcx23438/)
+[^26]: [https://mailarchive.ietf.org/arch/msg/openpgp/EQC4wCPfwDm-CKLbYLGsOC5hQpE/](https://mailarchive.ietf.org/arch/msg/openpgp/EQC4wCPfwDm-CKLbYLGsOC5hQpE/)
+[^27]: [https://www.ietf.org/standards/process/appeals/](https://www.ietf.org/standards/process/appeals/)
+[^28]: [https://mailarchive.ietf.org/arch/msg/openpgp/XxZt89Eh7XUenuVRajbgtcWzWdA/](https://mailarchive.ietf.org/arch/msg/openpgp/XxZt89Eh7XUenuVRajbgtcWzWdA/)
+[^29]: [https://mailarchive.ietf.org/arch/msg/openpgp/SPsdWpf2Kjtkel5z3jfaGAupROI/](https://mailarchive.ietf.org/arch/msg/openpgp/SPsdWpf2Kjtkel5z3jfaGAupROI/)
+[^30]: [https://mailarchive.ietf.org/arch/msg/openpgp/yZqJMLJ0cv_jGlp0NIclIYJ1HQY/](https://mailarchive.ietf.org/arch/msg/openpgp/yZqJMLJ0cv_jGlp0NIclIYJ1HQY/)
