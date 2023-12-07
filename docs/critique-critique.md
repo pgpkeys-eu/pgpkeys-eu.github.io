@@ -2,7 +2,7 @@
 A Critique on "A Critique on the OpenPGP Updates"
 =================================================
 
-A proposed fork of the OpenPGP standard, called "LibrePGP" and initiated by GnuPG's maintainer Werner Koch, has made a series of statements on its own website [[^1]] in order to justify its existence. Some of these criticisms have merit, but most are misleading at best. We address the points raised individually here.
+A proposed fork of the OpenPGP standard, called "LibrePGP" and initiated by GnuPG's maintainer Werner Koch, has made a series of statements on its own website[^1] in order to justify its existence. Some of these criticisms have merit, but most are misleading at best. We address the points raised individually here.
 
 The Critique
 ============
@@ -10,7 +10,7 @@ The Critique
 > The IETF OpenPGP Working Group (WG) at some point decided to give up on its charter to produce an updated specification and instead started to re-invent that standard.
 > Whether this is in line with IETF rules is questionable.
 
-The crypto-refresh draft [[^2]] and LibrePGP [[^3]] are both backwards-compatible with RFC4880, RFC5581, and RFC6687. [[^4]] Neither of them attempt to re-invent any existing standard. Crypto-refresh leaves out many extensions that are included in LibrePGP, in part because the Working Group was *not* willing to overstep the limitations of the current charter. [[^5]] Items included in LibrePGP that were intentionally left out of crypto-refresh include: [[^6]]
+The crypto-refresh draft[^2] and LibrePGP[^3] are both backwards-compatible with RFC4880, RFC5581, and RFC6687.[^4] Neither of them attempt to re-invent any existing standard. Crypto-refresh leaves out many extensions that are included in LibrePGP, in part because the Working Group was *not* willing to overstep the limitations of the current charter.[^5] Items included in LibrePGP that were intentionally left out of crypto-refresh include:[^6]
 
 - Restricted Encryption key flag
 - Timestamping usage key flag
@@ -18,12 +18,12 @@ The crypto-refresh draft [[^2]] and LibrePGP [[^3]] are both backwards-compatibl
 - Attested Certifications subpacket
 - Key Block subpacket
 
-These proposed extensions to OpenPGP are compatible with the crypto-refresh draft, and can be specified at a future date once the WG is re-chartered. [[^7]]
+These proposed extensions to OpenPGP are compatible with the crypto-refresh draft, and can be specified at a future date once the WG is re-chartered.[^7]
 
 > Considering that new features and discussions for larger updates of the specification delayed a new RFC for many years and were the reason for closing the WG in 2017 and re-opening in 2020,
 > we proposed to go back to the last commonly agreed upon draft or to conclude the WG on the grounds that no rough consensus could be found.
 
-Rough consensus *was* found; LibrePGP dissents from it. [[^8]] [[^9]] And one thing that the majority of the WG can agree upon was that the "last commonly agreed upon draft" was not agreed upon at all.
+Rough consensus *was* found; LibrePGP dissents from it.[^8] [^9] And one thing that the majority of the WG can agree upon was that the "last commonly agreed upon draft" was not agreed upon at all.
 
 01 Symmetric Mode
 -----------------
@@ -33,7 +33,7 @@ Rough consensus *was* found; LibrePGP dissents from it. [[^8]] [[^9]] And one th
 > Meanwhile we have GCM in CMS (the core of S/MIME) because Microsoft decided to go this way.
 > However, OpenPGP has made its decisions based on technical soundness and not based on larger vendor, government, or committee decision.
 
-This is the strongest concern that LibrePGP has raised. GCM is hard to get right, but it is widely implemented and its limitations are well-understood. [[^10]] Anyone who needs to support GCM in OpenPGP has a large number of well-tested libraries to choose from. Anyone who does not need GCM is not required to implement anything. GCM is OPTIONAL. [[^11]]
+This is the strongest concern that LibrePGP has raised. GCM is hard to get right, but it is widely implemented and its limitations are well-understood.[^10] Anyone who needs to support GCM in OpenPGP has a large number of well-tested libraries to choose from. Anyone who does not need GCM is not required to implement anything. GCM is OPTIONAL.[^11]
 
 > The WG once decided to go with OCB and EAX. EAX was only added to avoid possible patent problems.
 > However, in the 4.5 years since the introduction of EAX, the OCB patent expired.
@@ -48,13 +48,13 @@ Perhaps, but this is speculation, and no date is suggested.
 > Our suggestion was: Drop all the new AEAD ideas and use what has been deployed and agreed upon in the OpenPGP WG a long time ago.
 > Further, turn OCB into MUST WG a long time ago. Further, turn OCB into MUST and EAX into MAY (only for backward compatibility with deployed implementations).
 
-Again, this is *already the case* in crypto-refresh: [[^12]]
+Again, this is *already the case* in crypto-refresh:[^12]
 
 > 9.6. AEAD Algorithms 
 > ...
 > Implementations MUST implement OCB. Implementations MAY implement EAX, GCM and other algorithms.
 
-LibrePGP's concerns are genuine, but have already been addressed. [[^8]]
+LibrePGP's concerns are genuine, but have already been addressed.[^8]
 
 02 Padding Packet
 -----------------
@@ -64,14 +64,14 @@ LibrePGP's concerns are genuine, but have already been addressed. [[^8]]
 > This is especially concerning for institutional users efforts regarding Data Leak Prevention (DLP).
 > Suggestions to use padding based on a verifiable seed, were rejected despite that this is the standard method to do padding.
 
-OpenPGP already contains numerous potential covert channels. [[^13]] Unencrypted padding packets are in many ways *safer* than those other covert channels, because they are obvious and can (if necessary) be detected and/or removed at e.g. a gateway appliance. The choice of whether to allow padding packets in a given context can still be made at the application layer.
+OpenPGP already contains numerous potential covert channels.[^13] Unencrypted padding packets are in many ways *safer* than those other covert channels, because they are obvious and can (if necessary) be detected and/or removed at e.g. a gateway appliance. The choice of whether to allow padding packets in a given context can still be made at the application layer.
 
-The proposal to mandate verifiable-seed padding was considered in the WG, but consensus could not be reached. [[^14]] Many details of how it would work in practice remain unclear. [[^15]] Updated guidance for how best to generate padding can still be issued at a later date if consensus is forthcoming.
+The proposal to mandate verifiable-seed padding was considered in the WG, but consensus could not be reached.[^14] Many details of how it would work in practice remain unclear.[^15] Updated guidance for how best to generate padding can still be issued at a later date if consensus is forthcoming.
 
 > This padding idea has come up in discussion every once in a while over the last 25 years and has always been rejected
 > because it does not belong into the encryption layer but into the application (plaintext) layer.
 
-This is not always true. For example, when downloading keys from a keystore, OpenPGP *is* the application layer. It is not clear for example how else to implement padding in ^16, which only serves binary TPKs. [[^16]]
+This is not always true. For example, when downloading keys from a keystore, OpenPGP *is* the application layer. It is not clear for example how else to implement padding in ^16, which only serves binary TPKs.[^16]
 
 03 Changes to the ECDH Encryption
 ---------------------------------
@@ -80,7 +80,7 @@ This is not always true. For example, when downloading keys from a keystore, Ope
 > For OpenPGP ECDH has been specified in RFC-6637 from 2012 and been implemented by PGP and GnuPG even a year earlier.
 > Instead of keeping this solid specification some details have been changed without a sound reason.
 
-The only change to ECDH is that instead of using OpenPGP-specific OIDs to identify ECDH curves (which were never intended to be permanent OID allocations), the new crypto-refresh will use industry-standard OIDs (in v6 packets *only*). [[^17]]
+The only change to ECDH is that instead of using OpenPGP-specific OIDs to identify ECDH curves (which were never intended to be permanent OID allocations), the new crypto-refresh will use industry-standard OIDs (in v6 packets *only*).[^17]
 
 04 Proliferation for Algorithms
 -------------------------------
@@ -90,7 +90,7 @@ The only change to ECDH is that instead of using OpenPGP-specific OIDs to identi
 >    ^18
 >    Argon2
 
-^18 and Argon2 were added to address several known and potential weaknesses in the cryptographic layer of OpenPGP. [[^18]] [[^19]] [[^20]]
+^18 and Argon2 were added to address several known and potential weaknesses in the cryptographic layer of OpenPGP.[^18] [^19] [^20]
 LibrePGP does not acknowledge the existence of these issues.
 
 >    Optional modes (EAX, OCB, GCM, and a way to define even more)
@@ -107,7 +107,7 @@ OpenPGP has always been highly extensible, so it's unclear what the specific obj
 
 This appears to say that it was OK to make a political compromise for the benefit of users who have to comply with some national regulations, but for some reason it is not OK to make a political compromise for the sake of users who have to comply with other national regulations. It might be fair to say that Werner regrets his previous decision and has decided not to repeat that mistake, but that is his personal viewpoint. Others obviously disagree.
 
-Supporting extra algorithms comes at a cost. Whether this cost is "justifiable" is to some extent subjective. Some people think the cost of including GCM is too high, which is fair. If so, they are not required to implement GCM, since GCM is [^11].
+Supporting extra algorithms comes at a cost. Whether this cost is "justifiable" is to some extent subjective. Some people think the cost of including GCM is too high, which is fair. If so, they are not required to implement GCM, since GCM is OPTIONAL.[^11]
 
 05 Removal of Useful Real-world Features
 ----------------------------------------
@@ -118,7 +118,7 @@ OpenPGP is a long-established standard and has accumulated many features over ti
 > This has been removed along with deprecating the traditional t flag to distinguish between binary and text data.
 > Having the ability to easily detect MIME data is for example required to process attachments from web mail clients or in air-gaped environments.
 
-The `t` flag was deprecated because it did not specify which character set was being used. UTF-8 has long been the standard encoding in OpenPGP, and all "text" usage is therefore already covered by `u`. [[^21]]
+The `t` flag was deprecated because it did not specify which character set was being used. UTF-8 has long been the standard encoding in OpenPGP, and all "text" usage is therefore already covered by `u`.[^21]
 
 > The designated revoker feature has also been deprecated with the rationale that a better method is to achieve this with an "escrowed" revocation, pre-created by the user.
 > In fact, GnuPG creates such a revocation certificate since version 2.1 (released in 2014), to mitigate the common problem of a forgotten password.
@@ -139,7 +139,7 @@ No evidence is given that escrowed revocations are less suited to a corporate en
 > and that signatures could not be detached and reattached (which is obvioulsy wrong).
 > A later proposed fix for v4 signature packets (Meta Hash subpacket, see discussion) was not considered.
 
-An even later proposed fix, to store the metadata in a Signature Notation subpacket, *did* find initial support. [[^22]] Since this merely extends an existing feature of OpenPGP, does not require changes to the wire format, and is therefore currently unchartered, the details were deferred to a future document.
+An even later proposed fix, to store the metadata in a Signature Notation subpacket, *did* find initial support.[^22] Since this merely extends an existing feature of OpenPGP, does not require changes to the wire format, and is therefore currently unchartered, the details were deferred to a future document.
 
 07 Salted Signature Issue
 -------------------------
@@ -148,7 +148,7 @@ An even later proposed fix, to store the metadata in a Signature Notation subpac
 > No research for that statement has been cited just an assumption and a concern related to fault attacks on EdDSA which is about the development of Wireguard-like protocol.
 > However, such fault attacks can be more securely detected by checking the signature after verification in the same way as the mitigation to Lenstra's attack on RSA's CRT.
 
-The existence of practical prefix attacks is an assumption. The question is: is it a *reasonable* assumption? The WG felt it best to err on the side of caution. [[^23]]
+The existence of practical prefix attacks is an assumption. The question is: is it a *reasonable* assumption? The WG felt it best to err on the side of caution.[^23]
 
 > Anyway, the major concern here is that this adds another 32 octet covert channel to each message (and also blow the signature up by 64 octets)
 > In this case it is not an optional feature as with the padding packet.
@@ -164,22 +164,22 @@ The section heading is overblown. The crypto-refresh draft and the LibrePGP draf
 > In general the crypto-refresh draft tends to ignore the requirements of long term storage needs and considers online communication and software deployment pattern as the major OpenPGP usage.
 > Data and software life-cycle management has not been adequately taken in consideration and thus the draft regresses heavily from 30 years of PGP history.
 
-No example of "ignoring the requirements of long term storage needs" has been given, unless this refers to the ^11 GCM mode, which being [^11] can be ignored by such applications.
+No example of "ignoring the requirements of long term storage needs" has been given, unless this refers to the OPTIONAL GCM mode, which being OPTIONAL[^11] can be ignored by such applications.
 
 Conclusion
 ==========
 
-Of the complaints explicitly raised by LibrePGP, one (GCM) is substantial. The Working Group agreed with those concerns, but balanced them with the requirements of some users for regulatory compliance. OpenPGP has precedent here, having already included Brainpool and Camellia ciphers on similar grounds. All such regulatory-driven extensions to OpenPGP have historically been marked ^11, and GCM is no different. OpenPGP crypto-refresh has conformed to established precedent here.
+Of the complaints explicitly raised by LibrePGP, one (GCM) is substantial. The Working Group agreed with those concerns, but balanced them with the requirements of some users for regulatory compliance. OpenPGP has precedent here, having already included Brainpool and Camellia ciphers on similar grounds. All such regulatory-driven extensions to OpenPGP have historically been marked OPTIONAL[^11], and GCM is no different. OpenPGP crypto-refresh has conformed to established precedent here.
 
-The strongest implicit complaint is that several implementations have already spent significant time developing support for v5 (LibrePGP) artifacts, and that support for v6 (crypto-refresh) would be burdensome. But it is worth pointing out that other implementations with working v5 code are also implementing v6 despite the extra workload incurred. [[^24]]
+The strongest implicit complaint is that several implementations have already spent significant time developing support for v5 (LibrePGP) artifacts, and that support for v6 (crypto-refresh) would be burdensome. But it is worth pointing out that other implementations with working v5 code are also implementing v6 despite the extra workload incurred.[^24]
 
-The other explicitly-stated complaints can be divided into two classes, neither of which holds up to scrutiny. Most of them are minor technical issues that have been blown out of proportion, e.g. the superficial change in the curve specifier format. Some have even been described, on the record, as acceptable compromises by Werner in previous discussions. [[^25]] [[^26]] It would appear therefore that these concerns have been included purely to bulk out the list of grievances.
+The other explicitly-stated complaints can be divided into two classes, neither of which holds up to scrutiny. Most of them are minor technical issues that have been blown out of proportion, e.g. the superficial change in the curve specifier format. Some have even been described, on the record, as acceptable compromises by Werner in previous discussions.[^25] [^26] It would appear therefore that these concerns have been included purely to bulk out the list of grievances.
 
-The remaining explicit complaints (touched upon in the preamble) concern IETF procedure, in which case there is a route of appeal via the IETF itself. [[^27]] It is not apparent that such an appeal has even been submitted, let alone ruled upon.
+The remaining explicit complaints (touched upon in the preamble) concern IETF procedure, in which case there is a route of appeal via the IETF itself.[^27] It is not apparent that such an appeal has even been submitted, let alone ruled upon.
 
-There is also one implicit complaint that is only hinted upon in the text, and that is the increasing breakdown in personal trust between Werner and the wider OpenPGP community. [[^28]]
+There is also one implicit complaint that is only hinted upon in the text, and that is the increasing breakdown in personal trust between Werner and the wider OpenPGP community.[^28]
 
-It is obvious that LibrePGP is an attempt to create facts on the ground that prejudice the conclusion of the IETF standardisation process, in order to maintain the pre-eminent position of one OpenPGP implementation (GnuPG) at the expense of others. It is also impossible to avoid concluding that the target of this power play is the rival implementation that is currently led by two ex-employees of Werner, with whom he has a long-standing and well-documented personal conflict. [[^29]] [[^30]]
+It is obvious that LibrePGP is an attempt to create facts on the ground that prejudice the conclusion of the IETF standardisation process, in order to maintain the pre-eminent position of one OpenPGP implementation (GnuPG) at the expense of others. It is also impossible to avoid concluding that the target of this power play is the rival implementation that is currently led by two ex-employees of Werner, with whom he has a long-standing and well-documented personal conflict.[^29] [^30]
 
 Normally, personal conflicts are best left to be resolved at a personal level, but not when they fester to the point where they threaten to destroy an entire community. The root cause of this is not technical but personal, and the solution is therefore not technical but personal.
 
@@ -189,10 +189,10 @@ A way forward
 At this point in time, the OpenPGP community desperately needs to see some acts of good faith.
 We strongly suggest that these should include the following:
 
-* The librepgp.org website shall be shut down. The draft-koch-librepgp I-D [[^3]] shall remain active as a reference.
-* The OpenPGP Working Group shall, in accordance with its draft charter, begin the process of adopting the ^16 protocol as described in draft-koch-openpgp-webkey-service[^16] as a WG standards track document, engaging in good faith with its author at all times.
-* GnuPG shall merge https://dev.gnupg.org/T4393, and desist from vetoing constructive contributions for personal reasons.
-* The OpenPGP WG shall, as a matter of good faith, endeavour for the duration of its new charter to maintain in its work queue at all times at least one of the unchartered items already implemented in v5, [[^6]] with reference to existing v5 implementations, to the extent that security and practicality concerns permit.
+* The librepgp.org website shall be shut down. The draft-koch-librepgp I-D[^3] shall remain active as a reference.
+* The OpenPGP Working Group shall, in accordance with its draft charter, begin the process of adopting the WKD protocol as described in draft-koch-openpgp-webkey-service[^16] as a WG standards track document, engaging in good faith with its author at all times.
+* GnuPG shall merge [https://dev.gnupg.org/T4393], and desist from vetoing constructive contributions for personal reasons.
+* The OpenPGP WG shall, as a matter of good faith, endeavour for the duration of its new charter to maintain in its work queue at all times at least one of the unchartered items already implemented in v5,[^6] with reference to existing v5 implementations, to the extent that security and practicality concerns permit.
 
 If these things should happen, in whatever order but preferably the order listed, we can then begin the process of discussing the medium-term future of OpenPGP in a professional manner. This SHOULD include a commitment by all implementations to at minimum consume both v5 and v6 artifacts on a best-effort basis, even if they have a preference for which standard to ahdere to when generating artifacts. This should be sufficient to ensure that end users are not adversely affected by ongoing disagreements between implementations on the long term path forward.
 
