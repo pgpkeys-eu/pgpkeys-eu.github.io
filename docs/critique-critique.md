@@ -71,7 +71,7 @@ The proposal to mandate verifiable-seed padding was considered in the WG, but co
 > This padding idea has come up in discussion every once in a while over the last 25 years and has always been rejected
 > because it does not belong into the encryption layer but into the application (plaintext) layer.
 
-This is not always true. For example, when downloading keys from a keystore, OpenPGP *is* the application layer. It is not clear for example how else to implement padding in WKD[^16], which only serves binary TPKs.[^16]
+This is not always true. For example, when downloading keys from a keystore, OpenPGP *is* the application layer. It is not clear for example how else to implement padding in WKD, which only serves binary TPKs.[^16]
 
 03 Changes to the ECDH Encryption
 ---------------------------------
