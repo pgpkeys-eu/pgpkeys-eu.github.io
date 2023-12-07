@@ -1,7 +1,3 @@
-PGPKeys.EU Blog
-===============
-
-A (very occasional!) blog on OpenPGP keyserver issues.
 
 Blog entries by date
 --------------------
