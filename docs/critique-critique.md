@@ -201,8 +201,8 @@ References
 
 [^1]: [https://librepgp.org](https://librepgp.org)
 [^2]: [https://openpgp-wg.gitlab.io/rfc4880bis](https://openpgp-wg.gitlab.io/rfc4880bis)
-[^3]: [https://datatracker.ietf.org/doc/html/draft-koch-librepgp]
-[^4]: [https://mailarchive.ietf.org/arch/msg/openpgp/O1Rz2VLuGj2UKiHiJ4U2djDD5oI/]
+[^3]: [https://datatracker.ietf.org/doc/html/draft-koch-librepgp](https://datatracker.ietf.org/doc/html/draft-koch-librepgp)
+[^4]: [https://mailarchive.ietf.org/arch/msg/openpgp/O1Rz2VLuGj2UKiHiJ4U2djDD5oI/](https://mailarchive.ietf.org/arch/msg/openpgp/O1Rz2VLuGj2UKiHiJ4U2djDD5oI/)
 [^5]: [https://datatracker.ietf.org/doc/charter-ietf-openpgp/03/](https://datatracker.ietf.org/doc/charter-ietf-openpgp/03/)
 [^6]: [https://mailarchive.ietf.org/arch/msg/openpgp/aqBy97lj2P4DVxTds0eKZDVdmms/](https://mailarchive.ietf.org/arch/msg/openpgp/aqBy97lj2P4DVxTds0eKZDVdmms/)
 [^7]: [https://datatracker.ietf.org/doc/charter-ietf-openpgp/](https://datatracker.ietf.org/doc/charter-ietf-openpgp/)
