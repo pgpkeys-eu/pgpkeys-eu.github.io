@@ -6,7 +6,7 @@ A (very occasional!) blog on OpenPGP keyserver issues.
 Blog entries by date
 --------------------
 
-* [A Critique on "A Critique on the OpenPGP Updates"](critique-critique.md) (2023-12-07)
+* [A Critique on "A Critique on the OpenPGP Updates"](critique-critique.md) (Andrew, 2023-12-07)
 
 Links
 -----
