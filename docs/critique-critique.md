@@ -71,7 +71,7 @@ The proposal to mandate verifiable-seed padding was considered in the WG, but co
 > This padding idea has come up in discussion every once in a while over the last 25 years and has always been rejected
 > because it does not belong into the encryption layer but into the application (plaintext) layer.
 
-This is not always true. For example, when downloading keys from a keystore, OpenPGP *is* the application layer. It is not clear for example how else to implement padding in ^16, which only serves binary TPKs.[^16]
+This is not always true. For example, when downloading keys from a keystore, OpenPGP *is* the application layer. It is not clear for example how else to implement padding in WKD[^16], which only serves binary TPKs.[^16]
 
 03 Changes to the ECDH Encryption
 ---------------------------------
@@ -164,7 +164,7 @@ The section heading is overblown. The crypto-refresh draft and the LibrePGP draf
 > In general the crypto-refresh draft tends to ignore the requirements of long term storage needs and considers online communication and software deployment pattern as the major OpenPGP usage.
 > Data and software life-cycle management has not been adequately taken in consideration and thus the draft regresses heavily from 30 years of PGP history.
 
-No example of "ignoring the requirements of long term storage needs" has been given, unless this refers to the OPTIONAL GCM mode, which being OPTIONAL[^11] can be ignored by such applications.
+No example of "ignoring the requirements of long term storage needs" has been given, unless this refers to the OPTIONAL[^11] GCM mode, which being OPTIONAL[^11] can be ignored by such applications.
 
 Conclusion
 ==========
