@@ -46,7 +46,7 @@ This paragraph is beside the point, since OCB is already a MUST mode in the Open
 Perhaps, but this is speculation, and no date is suggested.
 
 > Our suggestion was: Drop all the new AEAD ideas and use what has been deployed and agreed upon in the OpenPGP WG a long time ago.
-> Further, turn OCB into MUST WG a long time ago. Further, turn OCB into MUST and EAX into MAY (only for backward compatibility with deployed implementations).
+> Further, turn OCB into MUST and EAX into MAY (only for backward compatibility with deployed implementations).
 
 Again, this is *already the case* in crypto-refresh:[^12]
 
@@ -200,7 +200,7 @@ If these things should happen, in whatever order but preferably the order listed
 
 Andrew.
 
-(Edited 2023-12-07T18:00:00 to clarify language)
+(Edited: 2023-12-07T18:00:00 to clarify language; 2023-12-09T13:00:00 to fix duplicated text)
 
 References
 ==========
