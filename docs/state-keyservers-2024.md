@@ -1,7 +1,3 @@
----
-layout: post
-title: The State of the Keyservers in 2024
----
 
 The State of the Keyservers in 2024
 ===================================
