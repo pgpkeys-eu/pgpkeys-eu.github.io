@@ -32,8 +32,8 @@ SSH is mainly used in a private or organisational capacity, where the root of tr
 
 By contrast, OpenPGP allows receivers/consumers to choose their own roots of trust.
 OpenPGP CAs exist, but they are not required.
-This places the ultimate responsibility for security on the end user, who needs to explicitly decide on a trust root, or build their own trust network from scratch.
-This extra overhead is the main reason why OpenPGP has struggled to gain widespread adoption.
+This places the ultimate responsibility for security on the end user, who needs to explicitly decide on their trust roots, or build their own trust network from scratch.
+This extra overhead is one of the main reasons why OpenPGP has struggled to gain widespread adoption.
 
 Public OpenPGP keystores are the basis of the PGPKI.
 Keyservers are the most common form of public keystore.
@@ -55,7 +55,7 @@ Most software can also use the WKD protocol for key discovery.
 Keyserver Architecture
 ======================
 
-Most keyservers expose an [HKP](https://datatracker.ietf.org/doc/html/draft-gallagher-openpgp-hkp/) API that can be used to look up keys, by either userID or fingerprint, and to manage keys.
+Most keyservers expose an [HKP](https://datatracker.ietf.org/doc/html/draft-gallagher-openpgp-hkp/) API that can be used to look up keys, by either user ID (UID) or fingerprint, and to manage keys.
 
 Keyservers can be divided into several categories:
 
@@ -63,7 +63,7 @@ Keyservers can be divided into several categories:
 * Domain-restricted keyservers can only store keys tied to a particular internet domain or domains.
 * Application-restricted keyservers can only store keys belonging to users of a given service.
 
-In addition, email-verifying keyservers will only serve keys by user-ID lookup if that ID is a verified email address of the key owner.
+In addition, email-verifying keyservers will only serve keys by user ID lookup if it contains a verified email address of the key owner.
 They can however serve arbitrary keys by fingerprint lookup.
 
 ### Synchronising Keyservers (SKS)
@@ -100,8 +100,8 @@ It does not support full synchronisation, but can be used to forward keys to oth
 
 [WKD/WKS](https://datatracker.ietf.org/doc/draft-koch-openpgp-webkey-service/) is a set of domain-restricted keystore protocols that can be deployed by any domain owner to manage keys for their own users.
 The WKD lookup protocol may optionally be combined with the WKS key submission/management protocol.
-WKD can only be used to look up keys by email userID, not by fingerprint.
-When looking up keys by email userID, it can also distribute revocations for keys with the same userID, however this is not supported by all clients.
+WKD can only be used to look up keys by email user ID, not by fingerprint.
+When looking up keys by email user ID, it can also distribute revocations for keys with the same user ID, however this is not supported by all clients.
 
 Organisations may also serve OpenPGP keys from their internal LDAP or Active Directory infrastructure.
 
@@ -126,12 +126,12 @@ HKP API             | Yes           | Yes       | Limited   | Limited   | Yes   
 * Decentralisation:
     Is it operated by a single organisation, or multiple?
 * Generality: 
-    Is it available to all key owners?
+    Will it store keys belonging to anyone, or only certain people?
 * UID verification: 
     Does it check the ownership of user IDs?
-    This is necessary to prevent the distribution of fake keys by the keyserver.
+    This is necessary to limit the number of results returned for a user ID search.
 * Non-email UIDs: 
-    Does it restrict the format of user IDs to emails only?
+    Does it restrict the format of user IDs to those containing emails only?
 * UID search: 
     Can you search by user ID?
     This is necessary (but not sufficient) for key discovery.
@@ -141,7 +141,7 @@ HKP API             | Yes           | Yes       | Limited   | Limited   | Yes   
     (Note that WKD distributes revocations by other, nonstandard means)
 * Certifications: 
     Does it serve third-party signatures?
-    This is required for the operation of the OpenPGP PKI, but can be a vehicle for spam.
+    This is required for some features of the OpenPGP PKI, but can be a vehicle for spam.
     (Note: Hagrid/KOO distributes third-party signatures with an attestation signature, however this is not supported by all clients)
 * Self-sovereignty:
     Can a key owner control the third-party signatures on their key?
@@ -186,7 +186,7 @@ Open Concerns
 * Many keyservers restrict the format of user IDs to email addresses.
     This hampers the distribution of OpenPGP keys for non-email use cases.
     For example, the Monkeysphere project uses URL user IDs in order to replace the SSH and HTTPS PKIs with the OpenPGP PKI.
-* SKS keyservers still do not have effective protections against the creation of keys with fake userIDs.
+* SKS keyservers still do not have effective protections against the creation of large numbers of keys with the same user ID.
     Some key owners therefore have keys that are effectively undiscoverable via these keyservers, although they can still be updated.
 * Most client software only supports the use of a single keyserver at a time.
     This is a holdover from the days of the sks-keyservers.net pool, which distributed queries across multiple keyservers using a single keyserver address.
@@ -212,4 +212,4 @@ There is work underway in the following areas:
 * The HKP and WKD/WKS protocols have been shortlisted for adoption by the OpenPGP IETF working group this year.
 * The OpenPGP crypto-refresh RFC is due to be officially published in the next few weeks.
 
-Andrew Gallagher (January 1, 2024)
+Andrew Gallagher (January 2, 2024)
