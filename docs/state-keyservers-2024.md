@@ -50,7 +50,7 @@ How to use the PGPKI
 Your OpenPGP software will come with a preconfigured keyserver for both discovery and updates.
 The most common default keyserver is keys.openpgp.org, however this can usually be changed in your software settings.
 Some software providers, such as mailvelope.com and proton.me, provide their own default keyservers.
-Most software can also use the WKD protocol for key discovery.
+Most software can also use the WKD protocol as an additional key discovery method.
 
 Keyserver Architecture
 ======================
@@ -88,7 +88,7 @@ In addition to HKP Hagrid exposes its own, functionally similar, VKS API.
 
 [earth.li](https://the.earth.li/pgp_lookup.html) is a general-purpose keyserver.
 It is individually operated, and runs the [Onak](https://github.com/u1f35c/onak) software stack.
-It does not support full synchronisation, but can be used to forward keys to other known keyservers via PKS.
+It does not support full synchronisation, but can be used to forward keys to other known keyservers via email.
 
 ### Domain/Application-restricted Keyservers
 
@@ -138,7 +138,7 @@ HKP API             | Yes           | Yes       | Limited   | Limited   | Yes   
 * Fingerprint search: 
     Can you search by fingerprint?
     This is required for timely distribution of key updates, including revocations.
-    (Note that WKD distributes revocations by other, nonstandard means)
+    (Note: WKD distributes revocations by other, nonstandard means)
 * Certifications: 
     Does it serve third-party signatures?
     This is required for some features of the OpenPGP PKI, but can be a vehicle for spam.
