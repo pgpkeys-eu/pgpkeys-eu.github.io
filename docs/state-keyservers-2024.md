@@ -37,7 +37,8 @@ This extra overhead is one of the main reasons why OpenPGP has struggled to gain
 
 Public OpenPGP keystores are the basis of the PGPKI.
 Keyservers are the most common form of public keystore.
-Keystores provide two main services:
+The definition of a "keyserver" is somewhat vague, but is normally applied to a keystore that exposes a public API for fingerprint queries.
+Keyservers and other keystores provide two main services:
 
 * discovery of new keys
 * updates of existing keys
@@ -74,7 +75,7 @@ Most SKS servers (including our keyserver [pgpkeys.eu](https://pgpkeys.eu)) use 
 
 The current SKS keyserver network can be viewed at [spider.pgpkeys.eu](https://spider.pgpkeys.eu).
 The network members co-operate in maintaining a distributed dataset, however each operator is functionally and legally independent, e.g. for GDPR purposes.
-Note that some well-known SKS keyservers (notably [keyserver.ubuntu.com](https://keyserver.ubuntu.com) and [sks.mit.edu](https://sks.mit.edu)) do not currently synchronise with others.
+Note that some well-known SKS keyservers (notably [keyserver.ubuntu.com](https://keyserver.ubuntu.com) and [pgp.mit.edu](https://pgp.mit.edu)) do not currently synchronise with the rest of the graph.
 
 (Note that "SKS" can sometimes mean either the sks-keyserver software (which is effectively obsolete) or the SKS synchronisation protocol (and network) that it introduced.
 We will always use "SKS" to mean the protocol, and "sks-keyserver" to mean the software.)
@@ -86,7 +87,7 @@ Its operation is overseen by a board representing a selection of OpenPGP softwar
 KOO uses the [hagrid](https://gitlab.com/keys.openpgp.org/hagrid) software stack.
 In addition to HKP Hagrid exposes its own, functionally similar, VKS API.
 
-[earth.li](https://the.earth.li/pgp_lookup.html) is a general-purpose keyserver.
+[the.earth.li](https://the.earth.li/pgp_lookup.html) exposes a general-purpose keyserver.
 It is individually operated, and runs the [Onak](https://github.com/u1f35c/onak) software stack.
 It does not support full synchronisation, but can be used to forward keys to other known keyservers via email.
 
@@ -96,7 +97,7 @@ It does not support full synchronisation, but can be used to forward keys to oth
 
 [Proton](https://proton.me) is an email service provider that runs an application-restricted keyserver for keys belonging to their users, using a custom software stack.
 
-### Other Keystores
+### Other (non-Keyserver) Keystores
 
 [WKD/WKS](https://datatracker.ietf.org/doc/draft-koch-openpgp-webkey-service/) is a set of domain-restricted keystore protocols that can be deployed by any domain owner to manage keys for their own users.
 The WKD lookup protocol may optionally be combined with the WKS key submission/management protocol.
@@ -105,23 +106,25 @@ When looking up keys by email user ID, it can also distribute revocations for ke
 
 Organisations may also serve OpenPGP keys from their internal LDAP or Active Directory infrastructure.
 
-Keyserver Compromises
----------------------
+[Keybase](https://keybase.io) provides a centralised OpenPGP keystore, and a protocol for consuming verification codes published on other systems, such as social media accounts.
 
-Each of the keyserver architectures above makes different compromises between completeness, robustness, and decentralisation.
+Architecture Compromises
+------------------------
 
-Property            | Hockeypuck/SKS| Hagrid/KOO| Mailvelope| Proton    | Onak      | WKD/WKS       | LDAP/AD
---------------------|---------------|-----------|-----------|-----------|-----------|---------------|--------------
-Decentralisation    | Yes(sync)     | No        | No        | No   | Yes(forwarding)| Yes(delegation)| No
-Generality          | Yes           | Yes       | No        | No        | Yes       | No            | No
-UID verification    | No            | Yes       | Yes       | Yes       | No        | Yes           | Yes
-Non-email UIDs      | Yes           | No        | No        | No        | Yes       | No            | Yes
-UID search          | Yes           | Yes       | Yes       | Yes       | Yes       | Yes           | Yes
-Fingerprint search  | Yes           | Yes       | Yes       | Yes       | Yes       | No            | Yes
-Certifications      | Yes           | Limited   | Yes       | Yes       | Yes       | Yes           | Yes
-Self-sovereignty    | In progress   | Limited   | Yes(?)    | Yes       | No        | Yes           | Yes
-Key deletion (RTBF) | Yes           | Yes       | Yes       | Yes       | Yes(?)    | Yes           | Yes
-HKP API             | Yes           | Yes       | Limited   | Limited   | Yes       | No            | No
+Each of the keyserver/keystore architectures above makes different compromises between completeness, robustness, and decentralisation.
+
+Property            | Hockeypuck/SKS| Hagrid/KOO| Mailvelope| Proton    | Onak      | WKD/WKS       | LDAP/AD   | Keybase
+--------------------|---------------|-----------|-----------|-----------|-----------|---------------|-----------|----------
+Decentralisation    | Yes(sync)     | No        | No        | No   | Yes(forwarding)| Yes(delegation)| No       | No
+Generality          | Yes           | Yes       | No        | No        | Yes       | No            | No        | Yes
+UID verification    | No            | Yes       | Yes       | Yes       | No        | Yes           | Yes       | No
+Non-email UIDs      | Yes           | No        | No        | No        | Yes       | No            | Yes       | Yes
+UID search          | Yes           | Yes       | Yes       | Yes       | Yes       | Yes           | Yes       | Yes(?)
+Fingerprint search  | Yes           | Yes       | Yes       | Yes       | Yes       | No            | Yes       | No
+Certifications      | Yes           | Limited   | Yes       | Yes       | Yes       | Yes           | Yes       | Yes
+Self-sovereignty    | In progress   | Limited   | Yes(?)    | Yes       | No        | Yes           | Yes       | Yes
+Key deletion (RTBF) | Yes           | Yes       | Yes       | Yes       | Yes(?)    | Yes           | Yes       | Yes
+HKP API             | Yes           | Yes       | Limited   | Limited   | Yes       | No            | No        | No
 
 * Decentralisation:
     Is it operated by a single organisation, or multiple?
@@ -204,8 +207,8 @@ Most cryptography systems, and some OpenPGP implementations, have chosen central
 Some, including OpenPGP and Signal, allow users to manually verify fingerprints as a fallback method.
 
 There are various methods of working around Zooko's Triangle, such as tying cryptographic identities to other aspect's of a person's (or organisation's) public persona.
-Perhaps the best known of these are the proprietary [Keybase](https://keybase.io), and its open-source alternative [Keyoxide](https://keyoxide.org).
-Amongst other services, Keybase provides both a centralised OpenPGP keystore and a protocol for consuming verification codes published on other systems, such as social media accounts.
+Perhaps the best known of these are the centralised [Keybase](https://keybase.io), and its decentralised alternative [Keyoxide](https://keyoxide.org).
+Amongst other services, Keybase provides both an OpenPGP keystore and a protocol for consuming verification codes published on other systems, such as social media accounts.
 Keyoxide provides only the verification protocols, and relies upon the keyservers (and WKD) for storage and distribution.
 
 Work in Progress
@@ -215,6 +218,7 @@ There is work underway in the following areas:
 
 * Key self-sovereignty in Hockeypuck is [currently under development](https://github.com/hockeypuck/hockeypuck/issues/270).
 * The HKP and WKD/WKS protocols have been [shortlisted for adoption](https://datatracker.ietf.org/wg/openpgp/about/) by the OpenPGP IETF working group this year.
-* Efforts continue to resolve the [ongoing schism in OpenPGP](critique-critique.md) by [back-porting missing features](https://datatracker.ietf.org/wg/openpgp/documents/) from LibrePGP into OpenPGP.
+* We are attempting to resolve the [ongoing schism in OpenPGP](critique-critique.md) by [back-porting missing features](https://datatracker.ietf.org/doc/html/draft-gallagher-openpgp-literal-metadata) from LibrePGP into OpenPGP.
+* Efforts continue to get keyserver.ubuntu.com back in sync with the rest of the graph.
 
-Andrew Gallagher (January 2, 2024)
+Andrew Gallagher (2nd January, 2024)

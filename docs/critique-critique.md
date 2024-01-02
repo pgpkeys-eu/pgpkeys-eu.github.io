@@ -198,7 +198,7 @@ We strongly suggest that these should include the following:
 
 If these things should happen, in whatever order but preferably the order listed, we can then begin the process of discussing the medium-term future of OpenPGP in a professional manner. This SHOULD include a commitment by all implementations to at minimum consume both v5 and v6 artifacts on a best-effort basis, even if they have a preference for which standard to ahdere to when generating artifacts. This should be sufficient to ensure that end users are not adversely affected by ongoing disagreements between implementations on the long term path forward.
 
-Andrew.
+Andrew Gallagher (7th December, 2023)
 
 (Edited: 2023-12-07T18:00:00 to clarify language; 2023-12-09T13:00:00 to fix duplicated text)
 
