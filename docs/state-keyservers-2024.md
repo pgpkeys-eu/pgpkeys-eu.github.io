@@ -203,6 +203,11 @@ OpenPGP users are still forced to choose between one of the following failure mo
 Most cryptography systems, and some OpenPGP implementations, have chosen centralised authority as the least-worst of these options.
 Some, including OpenPGP and Signal, allow users to manually verify fingerprints as a fallback method.
 
+There are various methods of working around Zooko's Triangle, such as tying cryptographic identities to other aspect's of a person's (or organisation's) public persona.
+Perhaps the best known of these are the proprietary [Keybase](https://keybase.io), and its open-source alternative [Keyoxide](https://keyoxide.org).
+Amongst other services, Keybase provides both a centralised OpenPGP keystore and a protocol for consuming verification codes published on other systems, such as social media accounts.
+Keyoxide provides only the verification protocols, and relies upon the keyservers (and WKD) for storage and distribution.
+
 Work in Progress
 ================
 
