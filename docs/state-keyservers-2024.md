@@ -213,8 +213,8 @@ Work in Progress
 
 There is work underway in the following areas:
 
-* Key self-sovereignty in Hockeypuck is currently in alpha testing.
-* The HKP and WKD/WKS protocols have been shortlisted for adoption by the OpenPGP IETF working group this year.
-* The OpenPGP crypto-refresh RFC is due to be officially published in the next few weeks.
+* Key self-sovereignty in Hockeypuck is [currently under development](https://github.com/hockeypuck/hockeypuck/issues/270).
+* The HKP and WKD/WKS protocols have been [shortlisted for adoption](https://datatracker.ietf.org/wg/openpgp/about/) by the OpenPGP IETF working group this year.
+* Efforts continue to resolve the [ongoing schism in OpenPGP](critique-critique.md) by [back-porting missing features](https://datatracker.ietf.org/wg/openpgp/documents/) from LibrePGP into OpenPGP.
 
 Andrew Gallagher (January 2, 2024)
