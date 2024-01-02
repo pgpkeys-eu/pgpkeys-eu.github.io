@@ -106,9 +106,9 @@ When looking up keys by email user ID, it can also distribute revocations for ke
 
 Organisations may also serve OpenPGP keys from their internal LDAP or Active Directory infrastructure.
 
-[Keybase](https://keybase.io) provides a general OpenPGP keystore, and a protocol for consuming verification codes published on other systems, such as social media accounts.
+[Keybase](https://keybase.io) provides a general-purpose OpenPGP keystore, and a protocol for consuming verification codes published on other systems, such as social media accounts.
 
-The [PGP Global Directory](https://keyserver.pgp.com) provides a general OpenPGP keystore using a proprietary API.
+The [PGP Global Directory](https://keyserver.pgp.com) provides a general-purpose OpenPGP keystore using a proprietary API.
 
 Architecture Compromises
 ------------------------
