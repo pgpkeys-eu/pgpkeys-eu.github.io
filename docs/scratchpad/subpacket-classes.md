@@ -50,10 +50,10 @@ Type| 	Name							| Class		| Critical	| Signature Context		| Notes
 1  	|	Reserved 	 					|			|			|						|
 2  	|	Signature Creation Time 		| General	| SHOULD	|						| MUST be present in hashed area
 3  	|	Signature Expiration Time 		| General	| SHOULD	|						|
-4  	|	Exportable Certification 		| WoT     	| MUST*		|						| (*) if non-default value
+4  	|	Exportable Certification 		| WoT     	| MUST*		|						| boolean, default true (* if false)
 5  	|	Trust Signature 				| WoT		|			|						|
 6  	|	Regular Expression 				| WoT		| SHOULD	|						|
-7  	|	Revocable 						| General	|			| revocable signatures	| deprecated in [draft-revocation](https://datatracker.ietf.org/doc/html/draft-gallagher-openpgp-replacementkey)
+7  	|	Revocable 						| General	|			| revocable signatures	| boolean, default false (deprecated in [draft-revocation](https://datatracker.ietf.org/doc/html/draft-gallagher-openpgp-replacementkey))
 8  	|	Reserved 						|			|			|						|
 9  	|	Key Expiration Time 			| Preference| SHOULD	|						|
 10 	|	Reserved						|			|			|						|
@@ -67,13 +67,13 @@ Type| 	Name							| Class		| Critical	| Signature Context		| Notes
 22 	|	Preferred Compression Algorithms| Preference|			|						|
 23 	|	Key Server Preferences 			| Preference|			|						|
 24 	|	Preferred Key Server 			| Preference| 			|						|
-25 	|	Primary User ID 				| Preference|			|						|
+25 	|	Primary User ID 				| Preference|			|						| boolean, default false
 26 	|	Policy URI 						| WoT		|			|						| (should have been a notation)
 27 	|	Key Flags 						| Preference| SHOULD	|						|
 28 	|	Signer's User ID 				| General	|			|						|
-29 	|	Reason for Revocation 			| Preference|			| (revocations only)	| (free text should have been a notation)
+29 	|	Reason for Revocation 			| Preference|			| (revocations only)	| (free text field should have been a notation)
 30 	|	Features 						| Preference|			|						|
-31 	|	Signature Target 				| Data type	|			| 0x50 third-party conf	| utility unclear (not a unique identifier)
+31 	|	Signature Target 				| Data type	|			| 0x50 third-party conf	| [utility unclear (not a unique identifier)](https://gitlab.com/dkg/openpgp-revocation/-/issues/13)
 32 	|	Embedded Signature 				| Data type	|			| 0x18 subkey binding	|
 33 	|	Issuer Fingerprint 				| General	|			|						| self-verifying
 34 	|	Reserved 	 					|			|			|						|
@@ -85,3 +85,13 @@ Type| 	Name							| Class		| Critical	| Signature Context		| Notes
 40 	|	Literal Data Meta Hash			| Document	|			|						| [librepgp](https://datatracker.ietf.org/doc/html/draft-koch-librepgp), [draft-literal-data-metadata](https://datatracker.ietf.org/doc/html/draft-gallagher-openpgp-literal-metadata)
 41 	|	Trust Alias						| WoT		|			|						| [librepgp](https://datatracker.ietf.org/doc/html/draft-koch-librepgp)
 TBD	|	Replacement Key					| Preference| SHOULD NOT|(also 0x20 revocations)| [draft-replacementkey](https://datatracker.ietf.org/doc/html/draft-gallagher-openpgp-replacementkey)
+
+
+## Further notes
+
+* Three subpacket types are Boolean, with different default values for when they are absent (two true, one false).
+	It is RECOMMENDED that these subpackets not be used to convey their default values, only the non-default value.
+	The default value SHOULD instead be conveyed by the absence of the subpacket.
+* Unless otherwise indicated, subpackets SHOULD NOT be marked critical.
+* It is RECOMMENDED that a signature's creator places all subpackets in the hashed area, even self-verifying subpackets for which this is not strictly necessary.
+	The unhashed area SHOULD be reserved for informational subpackets attached by third parties (which can be safely stripped).
