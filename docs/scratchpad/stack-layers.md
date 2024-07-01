@@ -4,7 +4,7 @@ The OpenPGP application stack can be roughly considered to be divided into layer
 These layers have no official meaning, and are somewhat fluid.
 They are however useful as a mental model, particularly when defining extensions to OpenPGP.
 
-[RFC9580](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-crypto-refresh) fully specifies only layers 2a and 2b.
+[RFC9580](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-crypto-refresh) fully specifies only layers 2a, 2b and 2d.
 
 ## Layer 1: Cryptographic primitives
 
@@ -62,3 +62,4 @@ They are however useful as a mental model, particularly when defining extensions
 
 * Document signature semantics
 * Notation data
+* PGP/MIME
