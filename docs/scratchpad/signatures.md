@@ -1,6 +1,6 @@
 # OpenPGP Signature Semantics Cleanup
 
-OpenPGP signatures have a rich vocabulary, however this can be confusing.
+OpenPGP signatures have a rich vocabulary, however this is often ambiguous or ill-defined.
 In this document, we propose to tame the zoo of options.
 
 ## Deprecate Timestamp signatures
@@ -52,8 +52,9 @@ In addition, the Signature Creation Time subpacket has an overloaded meaning:
 1. It is used as the "valid from" timestamp of the object being signed over
 2. It is used to order multiple similar signatures to determine which is valid
 
-Together, this means that it is not possible to create a new signature that extends the validity of a key further into the past, nor even leaves the starting date unchanged.
-Implementations have worked around this by generating signatures with creation dates backdated to one second after the previous signature.
+Together, this means that it is not possible to create a new signature that extends the validity of a key further into the past, nor even one that leaves the starting date unchanged.
+Some implementations have worked around this by generating signatures with creation dates backdated to one second after that of the previous signature.
+The ability to create a new signature with an unchanged creation date would allow historical signatures to be losslessly cleaned from a TPK, saving space.
 
 We therefore define a "Subject Validity Period" subpacket that contains the following fields:
 
@@ -66,9 +67,10 @@ The following special values are defined:
 * 0xffffffff: The Infinite Future
 
 All other values are interpreted as seconds since midnight, 1st Jan 1970.
+If no Subject Validity Period packet is included, then the validity period begins at the creation date of the signature.
 
 The Signature Expiration Time and Key Expiration Time subpackets should both be deprecated.
 However, for a transitional period, it is RECOMMENDED to include both the old and new validity systems.
-A receiving implementation SHOULD ignore the deprecated subpackets in favour of the Subject Validity Period subpacket, if one exists.
-In such a scenario, the deprecated expiration time subpacket SHOULD be marked critical, and the Subject Validity Period subpacket MUST NOT be critical.
+A receiving implementation SHOULD ignore the deprecated subpacket types and use the Valid Until field of the Subject Validity Period subpacket instead, if one exists.
+In such a scenario, the deprecated subpacket SHOULD be marked critical, and the Subject Validity Period subpacket MUST NOT be critical.
 If only a Subject Validity Period subpacket is included, then it SHOULD be marked critical.
