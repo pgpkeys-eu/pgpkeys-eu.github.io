@@ -6,21 +6,33 @@ They are however useful as a mental model, particularly when defining extensions
 
 [RFC9580](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-crypto-refresh) fully specifies only layers 0 and 1.
 
-## Layer 0: Data representation
+## Layer 1: Cryptographic primitives
+
+* Symmetric algorithms
+* Asymmetric algorithms
+* Digest algorithms
+* CSPRNGs
+* PKCS1
+
+## Layer 2: OpenPGP
+
+### Layer 2a: Data representation
 
 * UTF-8
 * MPIs
 * Big-endian numbers
 * Timestamps
+* Algorithm IDs
 
-## Layer 1: Packet structure
+### Layer 2b: Packet structure
 
 * Packet framing (Legacy vs OpenPGP packet formats)
 * Packet versions
-* Algorithms and algorithm IDs
 * Signature subpackets
+* Digest construction
+* KDFs
 
-## Layer 2: Packet grammar
+### Layer 2c: Packet grammar
 
 * Messages
     * Sign-then-encrypt
@@ -34,12 +46,13 @@ They are however useful as a mental model, particularly when defining extensions
     * Criticality
     * Exportability
 
-## Layer 3: PGPKI
+### Layer 2d: PGPKI
 
+* User IDs
 * Certification semantics
 * Web of Trust
 
-## Layer 4: Application
+## Layer 3: Application
 
 * Document signature semantics
 * Notation data
