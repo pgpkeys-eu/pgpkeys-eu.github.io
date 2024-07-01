@@ -53,12 +53,12 @@ Type| 	Name							| Class		| Critical	| Signature Context		| Notes
 4  	|	Exportable Certification 		| WoT     	| MUST*		|						| (*) if non-default value
 5  	|	Trust Signature 				| WoT		|			|						|
 6  	|	Regular Expression 				| WoT		| SHOULD	|						|
-7  	|	Revocable 						| General	|			| revocable signatures	| deprecated in draft-revocation
+7  	|	Revocable 						| General	|			| revocable signatures	| deprecated in [draft-revocation](https://datatracker.ietf.org/doc/html/draft-gallagher-openpgp-replacementkey)
 8  	|	Reserved 						|			|			|						|
 9  	|	Key Expiration Time 			| Preference| SHOULD	|						|
 10 	|	Reserved						|			|			|						|
 11 	|	Preferred Symmetric Ciphers 	| Preference|			|						|
-12 	|	Revocation Key (deprecated) 	| Preference|			|						| deprecated in [RFC9580]
+12 	|	Revocation Key (deprecated) 	| Preference|			|						| deprecated in [RFC9580](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-crypto-refresh)
 13-15 |	Reserved 	 					|			|			|						|
 16 	|	Issuer Key ID 					| General	|			|						| self-verifying
 17-19 |	Reserved 	 					|			|			|						|
@@ -78,10 +78,10 @@ Type| 	Name							| Class		| Critical	| Signature Context		| Notes
 33 	|	Issuer Fingerprint 				| General	|			|						| self-verifying
 34 	|	Reserved 	 					|			|			|						|
 35 	|	Intended Recipient Fingerprint 	| Document	| SHOULD 	|						|
-36 	|	Delegated Revoker				| Data type	| (MUST)	| TBD delegated revoker	| draft-revocation (-> "embedded key"?)
-37 	|	Approved Certifications			| Data type	|			| 0x16 cert approval 	| librepgp, draft-1pa3pc (-> "signature target list"?)
-38 	|	Key Block			 	        | Document	|			|						| librepgp, utility unclear
+36 	|	Delegated Revoker				| Data type	| (MUST)	| TBD delegated revoker	| [draft-revocation](https://datatracker.ietf.org/doc/html/draft-dkg-openpgp-revocation) (-> "embedded key"?)
+37 	|	Approved Certifications			| Data type	|			| 0x16 cert approval 	| [librepgp](https://datatracker.ietf.org/doc/html/draft-koch-librepgp), [draft-1pa3pc](https://datatracker.ietf.org/doc/html/draft-dkg-openpgp-1pa3pc) (-> "signature target list"?)
+38 	|	Key Block			 	        | Document	|			|						| [librepgp](https://datatracker.ietf.org/doc/html/draft-koch-librepgp), utility unclear
 39 	|	Preferred AEAD Ciphersuites 	| Preference|			|						|
-40 	|	Literal Data Meta Hash			| Document	|			|						| librepgp, see also draft-literal-data-metadata
-41 	|	Trust Alias						| WoT		|			|						| librepgp
-TBD	|	Replacement Key					| Preference| SHOULD NOT|(also 0x20 revocations)| draft-replacementkey
+40 	|	Literal Data Meta Hash			| Document	|			|						| [librepgp](https://datatracker.ietf.org/doc/html/draft-koch-librepgp), [draft-literal-data-metadata](https://datatracker.ietf.org/doc/html/draft-gallagher-openpgp-literal-metadata)
+41 	|	Trust Alias						| WoT		|			|						| [librepgp](https://datatracker.ietf.org/doc/html/draft-koch-librepgp)
+TBD	|	Replacement Key					| Preference| SHOULD NOT|(also 0x20 revocations)| [draft-replacementkey](https://datatracker.ietf.org/doc/html/draft-gallagher-openpgp-replacementkey)
