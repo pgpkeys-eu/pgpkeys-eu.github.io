@@ -28,8 +28,8 @@ They are however useful as a mental model, particularly when defining extensions
 ### Layer 2b: Packet structure
 
 * Packet framing (Legacy vs OpenPGP packet formats)
-* Packet versions
-* Signature subpackets
+* Packet types
+* Signature subpacket types
 * Digest construction
 * KDFs
 
@@ -63,3 +63,4 @@ They are however useful as a mental model, particularly when defining extensions
 * Document signature semantics
 * Notation data
 * PGP/MIME
+* Key distribution and discovery
