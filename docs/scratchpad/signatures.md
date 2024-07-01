@@ -68,3 +68,7 @@ The following special values are defined:
 All other values are interpreted as seconds since midnight, 1st Jan 1970.
 
 The Signature Expiration Time and Key Expiration Time subpackets should both be deprecated.
+However, for a transitional period, it is RECOMMENDED to include both the old and new validity systems.
+A receiving implementation SHOULD ignore the deprecated subpackets in favour of the Subject Validity Period subpacket, if one exists.
+In such a scenario, the deprecated expiration time subpacket SHOULD be marked critical, and the Subject Validity Period subpacket MUST NOT be critical.
+If only a Subject Validity Period subpacket is included, then it SHOULD be marked critical.

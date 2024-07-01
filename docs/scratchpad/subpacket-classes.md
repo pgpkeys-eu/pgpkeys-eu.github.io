@@ -93,5 +93,8 @@ TBD	|	Replacement Key					| Preference| SHOULD NOT|(also 0x20 revocations)| [dra
 	It is RECOMMENDED that these subpackets not be used to convey their default values, only the non-default value.
 	The default value SHOULD instead be conveyed by the absence of the subpacket.
 * Unless otherwise indicated, subpackets SHOULD NOT be marked critical.
+	In particular, a critical subpacket that invalidates a self-signature will leave the previous self-signature (or no self-signature!) as the most recent valid self-signature from the PoV of some receiving implementations.
+	A generating implementation MUST be sure that all receiving implementations will behave as intended if a signature containing a critical subpacket is invalidated.
+	Otherwise, with the possible exception of document signatures, it is NOT RECOMMENDED to set the critical bit.
 * It is RECOMMENDED that a signature's creator places all subpackets in the hashed area, even self-verifying subpackets for which this is not strictly necessary.
 	The unhashed area SHOULD be reserved for informational subpackets attached by third parties (which can be safely stripped).
