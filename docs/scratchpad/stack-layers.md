@@ -46,7 +46,12 @@ They are however useful as a mental model, particularly when defining extensions
     * Criticality
     * Exportability
 
-### Layer 2d: PGPKI
+### Layer 2d: Message encoding
+
+* ASCII armor
+* Cleartext signing framework
+
+### Layer 2e: PGPKI
 
 * User IDs
 * Certification semantics
@@ -56,4 +61,3 @@ They are however useful as a mental model, particularly when defining extensions
 
 * Document signature semantics
 * Notation data
-* ASCII armor
