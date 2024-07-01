@@ -23,6 +23,7 @@ They are however useful as a mental model, particularly when defining extensions
 * Big-endian numbers
 * Timestamps
 * Algorithm IDs
+* Regular expressions
 
 ### Layer 2b: Packet structure
 
@@ -46,10 +47,10 @@ They are however useful as a mental model, particularly when defining extensions
     * Criticality
     * Exportability
 
-### Layer 2d: Message encoding
+### Layer 2d: Packet sequence encoding
 
 * ASCII armor
-* Cleartext signing framework
+* Cleartext signature framework
 
 ### Layer 2e: PGPKI
 
