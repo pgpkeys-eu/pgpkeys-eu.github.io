@@ -1,16 +1,21 @@
-# OpenPGP Signature Semantics Cleanup
+# OpenPGP Signature Semantics
 
 OpenPGP signatures have a rich vocabulary, however this is often ambiguous or ill-defined.
-In this document, we propose to tame the zoo of options.
+This document attempts to fix several of the most notable omissions from earlier RFCs.
 
-## Deprecate Timestamp signatures
+The following topics are addressed:
+
+* Deprecation of Timestamp signatures.
+* Deprecation of Signature and Key Expiration Time subpackets in favour of a new Subject Validity Period subpacket.
+
+## Deprecate Timestamp Signatures
 
 In [RFC1991](https://datatracker.ietf.org/doc/html/rfc1991), it says:
 
 > Type <40> is intended to be a signature of a signature, as a notary seal on a signed document.
 
 This implies (but does not explicitly state) that a v3 0x40 sig is made by hashing a signature packet as if it were a document.
-Or it could possibly mean a signature over an entire signed document; it is not clear.
+Alternatively, it could possibly mean a signature over an entire signed document; it is not clear.
 
 But by [RFC2440](https://datatracker.ietf.org/doc/html/rfc2440), this has changed to:
 
@@ -31,8 +36,7 @@ But unlike 0x40, which remains ambiguous, a concrete construction is given.
 
 We should therefore deprecate type 0x40 Timestamp signatures, as all possible use cases for them are covered by either document signatures, or Third-Party Confirmation signatures.
 
-
-## Subject Validity
+## Subject Validity Period Subpacket
 
 [Key Expiration Time subpackets are a misfeature](https://gitlab.com/openpgp-wg/rfc4880bis/-/issues/71):
 
@@ -67,7 +71,7 @@ The following special values are defined:
 * 0xffffffff: The Infinite Future
 
 All other values are interpreted as seconds since midnight, 1st Jan 1970.
-If no Subject Validity Period packet is included, then the validity period begins at the creation date of the signature.
+If no Subject Validity Period subpacket is included, then the validity period begins at the creation date of the signature.
 
 The Signature Expiration Time and Key Expiration Time subpackets should both be deprecated.
 However, for a transitional period, it is RECOMMENDED to include both the old and new validity systems.
