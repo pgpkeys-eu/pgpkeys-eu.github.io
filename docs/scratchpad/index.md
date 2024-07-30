@@ -6,6 +6,7 @@ Scratchpad entries
 * [OpenPGP Signature Subpacket Classes](subpacket-classes.md)
 * [OpenPGP Stack Layers](stack-layers.md)
 * [OpenPGP/LibrePGP Tolerance](tolerance.md)
+* [OpenPGP Double Ratchet Mechanism](ratchet.md)
 
 Links
 -----
