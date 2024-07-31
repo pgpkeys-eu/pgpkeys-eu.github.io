@@ -23,19 +23,21 @@ The effectiveness of the double ratchet is significantly improved in the disappe
 
 We define:
 
-* a new feature flag, "Ephemeral Key Exchange".
+* A new feature flag, "Ephemeral Key Exchange".
     * This is used on subkeys with signing-capable algorithms and indicates the use of that subkey to authorise ephemeral key exchange.
-* a new signature subpacket type, "Ephemeral Key Sync", of the Document class.
-* one or more new "public-key algorithms" that identify ephemeral cipher suites, e.g. AES256+ECDH+KEM
-* a new signature subpacket type, "Preferred Ephemeral Ciphers", constructed similarly to the "Preferred Symmetric Ciphers" subpacket.
-    * this is used in the subkey binding signature of the key exchange subkey.
+* A new signature subpacket type, "Ephemeral Key Sync", of the Document class.
+* One or more new "public-key algorithms" that identify ephemeral cipher suites, e.g. X25519+HKDF+DR
+* A new signature subpacket type, "Preferred Ephemeral Ciphers", constructed similarly to the "Preferred Symmetric Ciphers" subpacket.
+    * This is used in the subkey binding signature over the key exchange subkey.
 
 We use the standard PKESK+SEIPD message construction, but:
 
-* Only the first message is encrypted to an encryption subkey.
-    * Subsequent messages are nominally "encrypted to" the key-exchange subkey.
-    * Subsequent PKESKs identify a ratchet algorithm and the algorithm-specific data identifies the current ratchet state.
-    * Subsequent session keys are obtained from the ratchet state.
+* The first message is encrypted to an encryption subkey in the usual manner.
+* Subsequent messages use a custom PKESK format:
+    * The key ID (PKESKv3) or versioned fingerprint (PKESKv6) identify the key-exchange subkey, not an encryption key.
+    * The public key algorithm is an ephemeral cipher suite, not the algorithm of the key-exchange subkey.
+    * The algorithm-specific data is not an encrypted session key, but instead identifies the current ratchet state.
+    * Session keys are obtained from the ratchet state stored locally.
 * The first message is signed by the key exchange subkey and the signature contains a EKS subpacket.
     * Subsequent messages are authenticated by knowledge of the ratchet state and are not normally signed.
 * DH ratchet updates are passed in another EKS subpacket:
@@ -44,18 +46,19 @@ We use the standard PKESK+SEIPD message construction, but:
         * It is of type 0x02 (standalone signature) and appears before the literal data packet.
         * It has public key algorithm 0, hash algorithm 0, hashed subpacket area length 0, and salt length 0 (if v6).
         * It is only used to convey unhashed signature subpackets inside an encrypted message.
-* Note that the PKESK indicates the ratchet state for the current message, while the EKS subpacket conveys new ratchet information.
+* Note that the PKESK indicates the full ratchet state for the current message, while the EKS subpacket conveys DH ratchet updates.
 
 ### EKS subpacket contents
 
 * Symmetric Algorithm ID (1 octet)
-* ECDH Curve ID (1 octet)
+* Ephemeral Public Key Algorithm ID (1 octet)
 * ECDH Public Modulus (N octets)
 
 ### Algorithm-specific PKESK data
 
+* Hash Algorithm (1 octet)
 * Hash of Last Received EKS Subpacket (N? octets)
-* Symmetric Chain Sequence (N? octets)
+* Symmetric Chain Sequence (4? octets)
 
 ## References
 
