@@ -28,7 +28,7 @@ We define:
 * A new signature subpacket type, "Ephemeral Key", of the Document class, containing an embedded Public Subkey packet.
 * One or more new "public-key algorithms" that identify ephemeral cipher suites, e.g. X25519+HKDF+DR.
 * A new signature subpacket type, "Preferred Ephemeral Ciphers", constructed similarly to the "Preferred Symmetric Ciphers" subpacket, but containing a list of ephemeral public-key algorithms.
-    * This is used in (the subkey binding signature over the key exchange subkey||the usual self-signature) (???).
+    * This is used in (( the subkey binding signature over the key exchange subkey OR the usual self-signature )) (?TBC?).
 * A new signature subpacket type, "Flow Control", of the Document class, containing one or more octets of flags.
 
 We use standard PKESK+SEIPD sign-then-encrypt messages, but:
@@ -59,7 +59,7 @@ The symmetric algorithm MUST have the same key length as the ECDH algorithm of t
 * Symmetric Algorithm (1 octet)
 * Recipient's last known ephemeral key version (1 octet)
 * Recipient's last known ephemeral key fingerprint (N octets)
-* Symmetric Chain Sequence (4 octets) (???)
+* Symmetric Chain Sequence (4 octets) (?TBC?)
 
 ## Algorithm upgrades
 
