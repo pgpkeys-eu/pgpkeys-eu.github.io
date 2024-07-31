@@ -6,9 +6,9 @@ We consider the development of PFS ("Perfect" Forward Secrecy) based on the doub
 
 PFS increases security under the following circumstances:
 
-ⓐ the adversary captures an encrypted message in transit, and retains a copy,
-ⓑ the user's devices have their copies, and their secret keys,
-ⓒ the user's secret key for the message is compromised without the user's copy being compromised, either
+1. the adversary captures an encrypted message in transit, and retains a copy,
+2. the user's devices have their copies, and their secret keys,
+3. the user's secret key for the message is compromised without the user's copy being compromised, either:
     * through cryptanalysis, or
     * by compromise of a device that has deleted the message, or
     * by compromise of a device which has not yet received the message, or
@@ -17,49 +17,61 @@ PFS increases security under the following circumstances:
 In OpenPGP, we have long-lived keys that may be stored on devices that do not receive communications, or even offline.
 Compromise of long-lived keys alone, without compromise of endpoint devices containing the actual messages, is a plausible attack scenario.
 
-The effectiveness of the double ratchet is significantly improved in the disappearing-message scenario.
+The privacy effectiveness of the double ratchet is significantly improved if disappearing messages are also implemented.
 
 ## Design
 
 We define:
 
-* A new feature flag, "Ephemeral Key Exchange".
-    * This is used on subkeys with signing-capable algorithms and indicates the use of that subkey to authorise ephemeral key exchange.
-* A new signature subpacket type, "Ephemeral Key Sync", of the Document class.
-* One or more new "public-key algorithms" that identify ephemeral cipher suites, e.g. X25519+HKDF+DR
-* A new signature subpacket type, "Preferred Ephemeral Ciphers", constructed similarly to the "Preferred Symmetric Ciphers" subpacket.
-    * This is used in the subkey binding signature over the key exchange subkey.
+* A new capability flag, "Ephemeral Key Exchange" (EKE).
+    * This is used on a subkey with a signing-capable algorithm, and permits that subkey to authenticate ephemeral key exchange.
+* A new signature subpacket type, "Ephemeral Key", of the Document class.
+* One or more new "public-key algorithms" that identify ephemeral cipher suites, e.g. X25519+HKDF+DR.
+* A new signature subpacket type, "Preferred Ephemeral Ciphers", constructed similarly to the "Preferred Symmetric Ciphers" subpacket, but containing a list of ephemeral public-key algorithms.
+    * This is used in the subkey binding signature over the key exchange subkey (?).
 
-We use the standard PKESK+SEIPD message construction, but:
+We use standard PKESK+SEIPD sign-then-encrypt messages, but:
 
-* The first message is encrypted to an encryption subkey in the usual manner.
-* Subsequent messages use a custom PKESK format:
-    * The key ID (PKESKv3) or versioned fingerprint (PKESKv6) identify the key-exchange subkey, not an encryption key.
-    * The public key algorithm is an ephemeral cipher suite, not the algorithm of the key-exchange subkey.
-    * The algorithm-specific data is not an encrypted session key, but instead identifies the current ratchet state.
-    * Session keys are obtained from the ratchet state stored locally.
-* The first message is signed by the key exchange subkey and the signature contains a EKS subpacket.
+* The first message (in each direction) is encrypted to an encryption subkey in the usual manner.
+   * It is signed by an EKE subkey, not a signing key, and the signature contains an EK subpacket to initialise the ratchet (once in each direction).
+* Subsequent messages use PKESKs with slightly altered semantics:
+    * The key ID (PKESKv3) or versioned fingerprint (PKESKv6) identifies the EKE subkey, not an encryption key.
+    * The "public key algorithm" octet identifies an ephemeral cipher suite, not the algorithm of the EKE subkey.
+    * The algorithm-specific data indicates the sender's current ratchet state, not an encrypted session key.
+    * Session keys are obtained instead from the ratchet state.
     * Subsequent messages are authenticated by knowledge of the ratchet state and are not normally signed.
-* DH ratchet updates are passed in another EKS subpacket:
-    * This subpacket MAY be transported in an "unhashed signature" packet inside the encrypted data:
-        * An unhashed signature DOES NOT use the OPS construction.
-        * It is of type 0x02 (standalone signature) and appears before the literal data packet.
-        * It has public key algorithm 0, hash algorithm 0, hashed subpacket area length 0, and salt length 0 (if v6).
-        * It is only used to convey unhashed signature subpackets inside an encrypted message.
-* Note that the PKESK indicates the full ratchet state for the current message, while the EKS subpacket conveys DH ratchet updates.
+* Each subsequent message MUST also include a new ephemeral public key:
+    * It is contained in a Public Subkey packet of the appropriate ephemeral algorithm type.
+    * The Public Subkey packet is placed inside the encrypted data, following the literal data packet.
 
-### EKS subpacket contents
+### Ephemeral Key subpacket
 
-* Symmetric Algorithm ID (1 octet)
-* Ephemeral Public Key Algorithm ID (1 octet)
-* ECDH Public Modulus (N octets)
+The EK subpacket contains the sender's initial ephemeral public key, as a full Public Subkey packet of the appropriate ephemeral algorithm type.
 
 ### Algorithm-specific PKESK data
 
+A double-ratchet PKESK contains the sender's full ratchet state for the current message, in addition to the symmetric algorithm used in the following SEIPD packet.
+The symmetric algorithm MUST have the same key length as the ECDH algorithm of the current ratchet.
+
+* Symmetric Algorithm (1 octet)
 * Hash Algorithm (1 octet)
-* Hash of Last Received EKS Subpacket (N? octets)
+* Hash of Last Received EK Subpacket (N? octets)
 * Symmetric Chain Sequence (4? octets)
+
+## Algorithm upgrades
+
+During a long-running conversation it may eventually become necessary to upgrade the ratchet algorithm.
+One party to a conversation may invoke an algorithm upgrade by appending two ephemeral keys to a message; one using the old algorithm and one using the new.
+The old algorithm ephemeral key continues the current ratchet, while the new one attempts to initialise a new ratchet.
+The other party can accept the upgrade by replying using the old algorithm but including only an ephemeral key of the new algorithm.
+
+## Error recovery
+
+(Fallback encrypted channel TBC)
+
+If all else fails, one party may attempt to initialise a new ratchet using the EKE subkey of the other party.
+The other party's software SHOULD warn when this happens, and send a message to the first party using the current ratchet.
 
 ## References
 
-* [https://sequoia-pgp.org/talks/2018-08-moving-forward/moving-forward.pdf](Justus's presentation from 2018).
+* [Justus's presentation from 2018](https://sequoia-pgp.org/talks/2018-08-moving-forward/moving-forward.pdf).
