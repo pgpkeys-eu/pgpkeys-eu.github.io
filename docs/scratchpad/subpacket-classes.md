@@ -18,7 +18,7 @@ Signature subpacket types may be roughly classified, depending on their usage:
 	* Preference subpackets.
 		These may be attached only to a direct self-sig (or historically a self-cert over the primary UserID) and define usage preferences of the TPK.
 		They MUST be placed in the hashed area.
-		They MAY be used in other self-certs, in which case they only define usage preferences per that UserID (but this is not always well-defined or universally supported).
+		They MAY be used in other self-certs, in which case they define usage preferences for just the packet signed over (but this is not always well-defined or universally supported).
 		Some preference subpackets MAY also be used in revocation signatures.
 		
 		Subpacket types: Key Expiration Time, Preferred Symmetric Ciphers, Revocation Key, Preferred Hash Algorithms, Preferred Compression Algorithms,
@@ -32,7 +32,7 @@ Signature subpacket types may be roughly classified, depending on their usage:
 	
 	* Document subpackets.
 		These may be attached only to document signatures, and define properties of the document or message.
-		Some of these subpackets are self-verifying (SV).
+		Some of these subpackets are self-verifying (SV) and MAY be placed in the unhashed area.
 		All other document subpackets MUST be placed in the hashed area.
 		
 		Subpacket types: Intended Recipient Fingerprint, Key Block (SV), Literal Data Meta Hash.

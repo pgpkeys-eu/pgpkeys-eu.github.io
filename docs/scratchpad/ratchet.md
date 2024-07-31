@@ -12,7 +12,7 @@ PFS increases security under the following circumstances:
     * through cryptanalysis, or
     * by compromise of a device that has deleted the message, or
     * by compromise of a device which has not yet received the message, or
-    * by compromise of a device that will never receive the message but still has a copy of the key
+    * by compromise of a device that will never receive the message but has a copy of the long-lived secret key material.
 
 In OpenPGP, we have long-lived keys that may be stored on devices that do not receive communications, or even offline.
 Compromise of long-lived keys alone, without compromise of endpoint devices containing the actual messages, is a plausible attack scenario.
@@ -24,16 +24,20 @@ The privacy effectiveness of the double ratchet is significantly improved if dis
 We define:
 
 * A new key capability flag, "Ephemeral Key Exchange" (EKE).
-    * This is used on a subkey with a signing-capable algorithm, and permits that subkey to authenticate ephemeral key exchange.
-* A new signature subpacket type, "Ephemeral Key", of the Document class, containing an embedded Public Subkey packet.
-* One or more new "public-key algorithms" that identify ephemeral cipher suites, e.g. X25519+HKDF+DR.
-* A new signature subpacket type, "Preferred Ephemeral Ciphers", constructed similarly to the "Preferred Symmetric Ciphers" subpacket, but containing a list of ephemeral public-key algorithms.
-    * This is used in (( the subkey binding signature over the key exchange subkey OR the usual self-signature )) (?TBC?).
-* A new signature subpacket type, "Flow Control", of the Document class, containing one or more octets of flags.
+    * It is used on a subkey with a signing-capable algorithm, and permits that subkey to authenticate ephemeral key exchange.
+* One or more new public-key algorithm IDs (in a special range) that identify ephemeral cipher suites.
+    * Implementations MUST support X25519+HKDF+DR and MAY support X448+HKDF+DR.
+* A new signature subpacket type, "Ephemeral Key", of the Document class.
+    * It contains an embedded Public Subkey packet using an ephemeral public-key algorithm.
+* A new signature subpacket type, "Preferred Ephemeral Ciphers", of the Preference class.
+    * It contains an ordered list of ephemeral public-key algorithms.
+    * It is used in (( the subkey binding signature over the key exchange subkey OR the usual self-signature locations )) (?TBC?).
+* A new signature subpacket type, "Flow Control", of the Document class.
+    * It contains one or more octets of flags (see below).
 
 We use standard PKESK+SEIPD sign-then-encrypt messages, but:
 
-* The first message in each direction is encrypted to the recipient's encryption subkey in the usual manner.
+* The first message in each direction is encrypted to the recipient's standard encryption subkey.
    * It is signed by the sender's EKE subkey, not a signing key, and the signature contains an EK subpacket to initialise the double ratchet (once in each direction).
 * Subsequent double-ratchet messages use PKESKs with slightly altered semantics:
     * The key ID (PKESKv3) or versioned fingerprint (PKESKv6) identifies the EKE subkey, not an encryption key.
@@ -43,22 +47,24 @@ We use standard PKESK+SEIPD sign-then-encrypt messages, but:
     * DR messages are authenticated by knowledge of the DR state and are not normally signed.
 * A DR message MAY include a Flow Control signature packet:
     * The Flow Control signature is placed inside the encrypted data, before the literal data packet.
-* Each DR message MUST include a new ephemeral public key:
+* Each DR message MUST include the sender's latest ephemeral public key:
     * It is contained in a Public Subkey packet of the appropriate ephemeral algorithm type.
     * The Public Subkey packet is placed inside the encrypted data, following the literal data packet.
 
+Note that a Public *Subkey* packet is used so that it cannot be mistaken for a TPK.
+
 ### Ephemeral Key subpacket
 
-The EK subpacket contains the sender's initial ephemeral public key, as a full Public Subkey packet of the appropriate ephemeral algorithm type.
+The EK subpacket contains the sender's initial ephemeral public key, as a full Public Subkey packet using the appropriate ephemeral algorithm.
 
 ### Algorithm-specific PKESK data
 
-A double-ratchet PKESK contains the sender's full DR state for the current message, in addition to the symmetric algorithm used in the following SEIPD packet.
+An ephemeral-algorithm PKESK contains the sender's full DR state for the current message, in addition to the symmetric algorithm used in the following SEIPD packet.
 The symmetric algorithm MUST have the same key length as the ECDH algorithm of the current DR.
 
 * Symmetric Algorithm (1 octet)
-* Recipient's last known ephemeral key version (1 octet)
-* Recipient's last known ephemeral key fingerprint (N octets)
+* Recipient's last published ephemeral key version (1 octet)
+* Recipient's last published ephemeral key fingerprint (N octets)
 * Symmetric Chain Sequence (4 octets) (?TBC?)
 
 ## Algorithm upgrades
@@ -71,22 +77,22 @@ The other party can accept the upgrade by replying using the old algorithm but i
 ## Error recovery
 
 The parties to a double-ratchet communications channel SHOULD negotiate an alternative encrypted channel for recovery if a DR update fails and messages become undecryptable.
-The easiest way of doing this is to set up multiple DRs (two is RECOMMENDED), and alternating messages between the DRs.
+The easiest way of doing this is to set up multiple independent DRs (two is RECOMMENDED), and alternating messages between the DRs.
 
 Multiple DRs may be initialised by including multiple EK subpackets in the initial message, and pairing them off in order with the EK subpackets in the response.
 If the second party responds with a lower number of ephemeral keys, then the first party MUST destroy the excess keys.
 After this step, each DR operates independently of the others.
-To ensure that all DRs are working, messages SHOULD be sent using all of them in roughly equal proportions, however a predictable sequence is not required.
+To ensure that all DRs are working, messages SHOULD be sent using each of them in roughly equal proportions, however a predictable sequence is not required and MUST NOT be assumed.
 
 ### Flow Control signature
 
-If a failure is detected in any of the double ratchets, a Flow Control signature should be sent using one of the other DRs.
+If a failure is detected in any of the double ratchets, a flow control signature SHOULD be sent using one of the other DRs.
 
-A flow control signature is a standalone signature (type 0x02) made by the EKE subkey containing a Flow Control subpacket in the hashed area.
+A flow control signature is a standalone signature (type 0x02), made by the EKE subkey, which contains a Flow Control subpacket in the hashed area.
 It is included in a DR message as the first packet of the encrypted data.
-If a flow control signature is present, a literal data packet is OPTIONAL, but a new ephemeral key packet MUST still be appended.
+If a flow control signature is present, a literal data packet is OPTIONAL, but a new ephemeral key packet MUST be appended.
 
-A flow control subpacket contains one or more octets of flags.
+A Flow Control subpacket contains one or more octets of flags.
 The following flags are defined:
 
 * Fork (0x80): Forks the current double ratchet into two separate DRs.
