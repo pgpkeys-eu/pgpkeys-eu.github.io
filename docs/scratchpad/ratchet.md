@@ -1,6 +1,6 @@
 # Double Ratchet Messages in OpenPGP
 
-We consider the development of PFS based on the double ratchet mechanism.
+We consider the development of PFS ("Perfect" Forward Secrecy) based on the double ratchet mechanism.
 
 ## Motivation
 
@@ -15,10 +15,9 @@ PFS increases security under the following circumstances:
     * by compromise of a device that will never receive the message but still has a copy of the key
 
 In OpenPGP, we have long-lived keys that may be stored on devices that do not receive communications, or even offline.
-Compromise of long-lived keys alone, without compromise of endpoint devices, is a plausible attack scenario.
+Compromise of long-lived keys alone, without compromise of endpoint devices containing the actual messages, is a plausible attack scenario.
 
-Note that re-encryption of messages to a long-lived key removes many of the advantages of the double ratchet.
-Without disappearing messages, the usefulness of the double ratchet is limited.
+The effectiveness of the double ratchet is significantly improved in the disappearing-message scenario.
 
 ## Design
 
@@ -26,9 +25,10 @@ We define:
 
 * a new feature flag, "Ephemeral Key Exchange".
     * This is used on subkeys with signing-capable algorithms and indicates the use of that subkey to authorise ephemeral key exchange.
-* a new signature subpacket type, "Ephemeral Key Sync".
-* one or more new "public-key algorithms" that identify ratchet algorithm suites, e.g. AES256+ECDH+KEM
-    * ...and probably need to define corresponding preferences
+* a new signature subpacket type, "Ephemeral Key Sync", of the Document class.
+* one or more new "public-key algorithms" that identify ephemeral cipher suites, e.g. AES256+ECDH+KEM
+* a new signature subpacket type, "Preferred Ephemeral Ciphers", constructed similarly to the "Preferred Symmetric Ciphers" subpacket.
+    * this is used in the subkey binding signature of the key exchange subkey.
 
 We use the standard PKESK+SEIPD message construction, but:
 
@@ -48,16 +48,14 @@ We use the standard PKESK+SEIPD message construction, but:
 
 ### EKS subpacket contents
 
-For an N-bit symmetric algorithm:
-
-* DH Public Modulus (N bits)
+* Symmetric Algorithm ID (1 octet)
+* ECDH Curve ID (1 octet)
+* ECDH Public Modulus (N octets)
 
 ### Algorithm-specific PKESK data
 
-For an N-bit symmetric algorithm:
-
-* (hash of?) DH Public Modulus (N bits)
-* Symmetric Chain Sequence (N? bits)
+* Hash of Last Received EKS Subpacket (N? octets)
+* Symmetric Chain Sequence (N? octets)
 
 ## References
 
