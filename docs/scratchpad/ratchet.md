@@ -37,10 +37,10 @@ We use the standard PKESK+SEIPD message construction, but:
     * Subsequent PKESKs identify a ratchet algorithm and the algorithm-specific data identifies the current ratchet state.
     * Subsequent session keys are obtained from the ratchet state.
 * The first message is signed by the key exchange subkey and the signature contains a EKS subpacket.
-    * Subsequent messages are authenticated by knowledge of the ratchet state and are not signed.
-* When ratchet changes are required, updates are passed in another EKS subpacket:
-    * This subpacket may be transported in an "unhashed signature" packet inside the encrypted data:
-        * An unhashed signature does not use the OPS construction.
+    * Subsequent messages are authenticated by knowledge of the ratchet state and are not normally signed.
+* DH ratchet updates are passed in another EKS subpacket:
+    * This subpacket MAY be transported in an "unhashed signature" packet inside the encrypted data:
+        * An unhashed signature DOES NOT use the OPS construction.
         * It is of type 0x02 (standalone signature) and appears before the literal data packet.
         * It has public key algorithm 0, hash algorithm 0, hashed subpacket area length 0, and salt length 0 (if v6).
         * It is only used to convey unhashed signature subpackets inside an encrypted message.
