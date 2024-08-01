@@ -26,7 +26,7 @@ While we will prioritise support of v6 keys, we intend to also support v5 keys i
 HKP Draft Protocol
 ------------------
 
-The HKP draft protocol has been [shortlisted for potential adoption](https://datatracker.ietf.org/wg/openpgp/about/) by the OpenPGP IETF working group this year.
+The [HKP draft protocol](https://datatracker.ietf.org/doc/html/draft-gallagher-openpgp-hkp) has been [shortlisted for potential adoption](https://datatracker.ietf.org/wg/openpgp/about/) by the OpenPGP IETF working group this year.
 The original HKP draft by Daphne Shaw has been used as a reference for nearly twenty years, but was never officially made a Proposed Standard.
 We hope to rectify this in 2024 by updating the draft to take account of developments in the meantime, and to enable the distribution of v6 (and v5) keys in a backwards-compatible manner.
 
