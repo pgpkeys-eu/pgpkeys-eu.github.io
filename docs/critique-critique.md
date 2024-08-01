@@ -4,6 +4,8 @@ A Critique on "A Critique on the OpenPGP Updates"
 
 A proposed fork of the OpenPGP standard, called "LibrePGP" and initiated by GnuPG's maintainer Werner Koch, has made a series of statements on its own website[^1] in order to justify its existence. Some of these criticisms have merit, but most are misleading at best. We address the points raised individually here.
 
+UPDATE (2024-08-01): The crypto-refresh draft has now been published as RFC9580[^31]. The RFC is effectively the same as the most recent draft (aside from some proofreading).
+
 The Critique
 ============
 
@@ -235,3 +237,4 @@ References
 [^28]: [https://mailarchive.ietf.org/arch/msg/openpgp/XxZt89Eh7XUenuVRajbgtcWzWdA/](https://mailarchive.ietf.org/arch/msg/openpgp/XxZt89Eh7XUenuVRajbgtcWzWdA/)
 [^29]: [https://mailarchive.ietf.org/arch/msg/openpgp/SPsdWpf2Kjtkel5z3jfaGAupROI/](https://mailarchive.ietf.org/arch/msg/openpgp/SPsdWpf2Kjtkel5z3jfaGAupROI/)
 [^30]: [https://mailarchive.ietf.org/arch/msg/openpgp/yZqJMLJ0cv_jGlp0NIclIYJ1HQY/](https://mailarchive.ietf.org/arch/msg/openpgp/yZqJMLJ0cv_jGlp0NIclIYJ1HQY/)
+[^31]: [https://www.rfc-editor.org/rfc/rfc9580](https://www.rfc-editor.org/rfc/rfc9580)
