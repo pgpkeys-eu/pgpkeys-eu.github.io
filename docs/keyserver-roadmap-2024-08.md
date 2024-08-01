@@ -58,6 +58,6 @@ Having both methods available will ensure the broadest availability of third-par
 Other news
 ----------
 
-The [OpenPGP Replacement Key Signalling Mechanism](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-replacementkey) has recently been adpoted by the OpenPGP IETF Working Group.
+The [OpenPGP Replacement Key Signalling Mechanism](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-replacementkey) has recently been adopted by the OpenPGP IETF Working Group.
 
 Andrew Gallagher (1st August, 2024)
