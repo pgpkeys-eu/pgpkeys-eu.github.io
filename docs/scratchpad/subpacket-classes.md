@@ -58,7 +58,7 @@ Type| 	Name							| Class		| Critical	| Signature Context		| Notes
 9  	|	Key Expiration Time 			| Preference| SHOULD	|						|
 10 	|	Reserved						|			|			|						|
 11 	|	Preferred Symmetric Ciphers 	| Preference|			|						|
-12 	|	Revocation Key (deprecated) 	| Preference|			|						| deprecated in [RFC9580](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-crypto-refresh)
+12 	|	Revocation Key (deprecated) 	| Preference|			|						| deprecated in [RFC9580](https://datatracker.ietf.org/doc/html/rfc9580)
 13-15 |	Reserved 	 					|			|			|						|
 16 	|	Issuer Key ID 					| General	|			|						| self-verifying
 17-19 |	Reserved 	 					|			|			|						|
