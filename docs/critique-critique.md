@@ -4,7 +4,7 @@ A Critique on "A Critique on the OpenPGP Updates"
 
 A proposed fork of the OpenPGP standard, called "LibrePGP" and initiated by GnuPG's maintainer Werner Koch, has made a series of statements on its own website[^1] in order to justify its existence. Some of these criticisms have merit, but most are misleading at best. We address the points raised individually here.
 
-UPDATE (2024-08-01): The crypto-refresh draft has now been published as RFC9580[^31]. The RFC is effectively the same as the most recent draft (aside from some proofreading).
+UPDATE (2024-08-01): The crypto-refresh draft has now been published as RFC9580.[^31] The RFC is effectively the same as the most recent draft (aside from some proofreading).
 
 The Critique
 ============
