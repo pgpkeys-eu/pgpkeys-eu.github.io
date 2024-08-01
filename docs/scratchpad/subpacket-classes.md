@@ -16,7 +16,7 @@ Signature subpacket types may be roughly classified, depending on their usage:
 	These have semantics that are meaningful only when used in particular classes of signature:
 
 	* Preference subpackets.
-		These may be attached only to a direct self-sig (or historically a self-cert over the primary UserID) and define usage preferences of the TPK.
+		These SHOULD be attached to a direct self-sig (or historically a self-cert over the primary UserID) and define usage preferences of the TPK.
 		They MUST be placed in the hashed area.
 		They MAY be used in other self-certs, in which case they define usage preferences for just the packet signed over (but this is not always well-defined or universally supported).
 		Some preference subpackets MAY also be used in revocation signatures.
