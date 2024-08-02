@@ -33,7 +33,7 @@ We define:
     * It contains an ordered list of ephemeral public key algorithms.
     * It is used in (( the subkey binding signature over the key exchange subkey OR the usual self-signature locations )) (?TBC?).
 * A new signature subpacket type, "Flow Control", of the Document class.
-    * It contains one or more octets of flags (see below).
+    * It contains one octet of request type, and one octet of flags (see below).
 
 We use standard PKESK+SEIPD sign-then-encrypt messages, but:
 
@@ -146,7 +146,7 @@ If resending requires multiple response messages, the Partial flag MUST be set o
 During a long-running conversation it may eventually become necessary to upgrade the DR algorithm.
 One party to a conversation may invoke an algorithm upgrade by sending a DR Init request with an Embedded Key subpacket containing an ephemeral subkey of the new algorithm type.
 The message ephemeral subkey continues the current DR, while the Embedded Key subpacket in the flow control signature attempts to initialise a new DR.
-The other party can accept the upgrade by replying in the existing ratchet with a matching DR Init request that uses the new algorithm.
+The other party can accept the upgrade by replying in the existing double ratchet with a matching DR Init request that uses the new algorithm.
 Once both parties have sent DR Init requests, the new double ratchet acts as a direct continuation of the old.
 
 ## Multi-party communications ((WIP))
@@ -158,21 +158,30 @@ These are used only for flow control messages and changes in the group state.
 
 ### Multiparty secret key agreement
 
-A new group can be created by one party sending a Group Init flow control message separately to all the group members over an existing secure channel, with the proposed group members KEK subkeys identified by Intended Recipient Fingerprint subpackets.
+A new group can be created by one party sending a Group Init flow control message separately to all invitees over an existing secure channel, with the invitees' EKE subkeys identified by Intended Recipient Fingerprint subpackets.
+The Literal Data SHOULD contain a keyring containing the TPKs of all invitees.
 
-* Once all members have responded to the Group Init message with an ACK, the members order themselves into a cycle by ascending binary comparison of their KEK fingerprints.
-* Each member of the group generates their own public key (a)G and sends it to the next member in the list using a Group Secret Init request.
-    * This is signed with their KEK key, and includes an Intended Recipient Fingerprint subpacket indicating the KEK subkey of the *previous* member in the list.
-* Each member of the group reads the public key they just received and does the following:
+* The invitees order themselves into a cycle by ascending binary comparison of their EKE fingerprints.
+* Each accepting invitee sends an ACK to all other invitees and then:
+    * They generate their own group private key (a) and public key (a)G.
+    * They send (a)G to the next invitee using a Group Secret Init request.
+    * This is signed with their EKE subkey, and includes an Intended Recipient Fingerprint subpacket indicating the EKE subkey of the *previous* invitee.
+* Each subsequent invitee reads the public key they just received and then:
+    * They send an ACK to the sender.
     * They apply their own secret key (b) by the ECDH method to produce a new public key (ab)G.
-    * They send the new key to the next member in the list using a Group Secret Init request.
-* The process repeats with the new keys until everyone eventually receives a key that has an Intended Recipient of their own KEK subkey.
+    * They send the new key to the next invitee using a Group Secret Init request.
+    * This is signed with their EKE subkey, and includes the Intended Recipient Fingerprint subpacket from the received message.
+* The process repeats with the new keys until everyone eventually receives a key with an Intended Recipient Fingerprint of their own EKE subkey.
 * At this point they apply their own secret key to obtain the shared secret key.
 
 Beware that this does not scale well, so it is normally advisable to initialise a small group and then add members individually.
 
+An invitee can decline membership by sending a NAK to all other invitees.
+If the previous invitee has already sent one or more Group Secret Init messages to the declining invitee, it destroys and recreates its group keypair, and sends corresponding Group Secret Init messages to the next invitee in the list.
+
 To identify the group, a notation subpacket SHOULD be included in all flow control signatures associated with that group.
-The notation subpacket contains (( TBC )).
+The notation subpacket is marked as not human readable, with a key of "groupid" and a random value of at least 128 bits.
+A group MAY also have a human readable name, with a key of "groupname".
 
 ### Group membership adjustment
 
