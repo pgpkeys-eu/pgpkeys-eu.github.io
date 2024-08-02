@@ -41,7 +41,7 @@ Signature subpacket types may be roughly classified, depending on their usage:
 	These may be attached only to specific signature types.
 	They have no intrinsic semantics; any semantics are due to the enclosing signature's specification.
 	
-	Subpacket types: Signature Target, Embedded Signature, Delegated Revoker, Approved Certifications.
+	Subpacket types: Signature Target, Embedded Signature, Delegated Revoker (Embedded Key), Approved Certifications (Signature Target List).
 
 
 Type| 	Name							| Class		| Critical	| Signature Context		| Notes
@@ -53,7 +53,7 @@ Type| 	Name							| Class		| Critical	| Signature Context		| Notes
 4  	|	Exportable Certification 		| WoT     	| MUST*		|						| boolean, default true (* if false)
 5  	|	Trust Signature 				| WoT		|			|						|
 6  	|	Regular Expression 				| WoT		| SHOULD	|						|
-7  	|	Revocable 						| General	|			| revocable signatures	| boolean, default false (deprecated in [draft-revocation](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-replacementkey))
+7  	|	Revocable 						| General	|			| cert/direct/bind sigs	| boolean, default false (deprecated in [draft-revocation](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-replacementkey))
 8  	|	Reserved 						|			|			|						|
 9  	|	Key Expiration Time 			| Preference| SHOULD	|						|
 10 	|	Reserved						|			|			|						|
@@ -74,12 +74,12 @@ Type| 	Name							| Class		| Critical	| Signature Context		| Notes
 29 	|	Reason for Revocation 			| Preference|			| (revocations only)	| (free text field should have been a notation)
 30 	|	Features 						| Preference|			|						|
 31 	|	Signature Target 				| Data type	|			| 0x50 third-party conf	| [utility unclear (not a unique identifier)](https://gitlab.com/dkg/openpgp-revocation/-/issues/13)
-32 	|	Embedded Signature 				| Data type	|			| 0x18 subkey binding	|
+32 	|	Embedded Signature 				| Data type	|			| 0x18 subkey binding	| self-verifying (IFF it contains an 0x19 primary key binding signature packet)
 33 	|	Issuer Fingerprint 				| General	|			|						| self-verifying
 34 	|	Reserved 	 					|			|			|						|
 35 	|	Intended Recipient Fingerprint 	| Document	| SHOULD 	|						|
-36 	|	Delegated Revoker				| Data type	| (MUST)	| TBD delegated revoker	| [draft-revocation](https://datatracker.ietf.org/doc/html/draft-dkg-openpgp-revocation) (-> "embedded key"?)
-37 	|	Approved Certifications			| Data type	|			| 0x16 cert approval 	| [librepgp](https://datatracker.ietf.org/doc/html/draft-koch-librepgp), [draft-1pa3pc](https://datatracker.ietf.org/doc/html/draft-dkg-openpgp-1pa3pc) (-> "signature target list"?)
+36 	|	Delegated Revoker (Embedded Key)| Data type	| (MUST)	| TBD delegated revoker	| [draft-revocation](https://datatracker.ietf.org/doc/html/draft-dkg-openpgp-revocation)
+37 	|	Approved Certifications	(Signature Target List)| Data type	|			| 0x16 cert approval 	| [librepgp](https://datatracker.ietf.org/doc/html/draft-koch-librepgp), [draft-1pa3pc](https://datatracker.ietf.org/doc/html/draft-dkg-openpgp-1pa3pc)
 38 	|	Key Block			 	        | Document	|			|						| [librepgp](https://datatracker.ietf.org/doc/html/draft-koch-librepgp), utility unclear
 39 	|	Preferred AEAD Ciphersuites 	| Preference|			|						|
 40 	|	Literal Data Meta Hash			| Document	|			|						| [librepgp](https://datatracker.ietf.org/doc/html/draft-koch-librepgp), [draft-literal-data-metadata](https://datatracker.ietf.org/doc/html/draft-gallagher-openpgp-literal-metadata)
