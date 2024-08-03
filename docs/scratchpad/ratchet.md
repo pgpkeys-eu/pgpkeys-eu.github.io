@@ -51,9 +51,9 @@ We use standard PKESK+SEIPD sign-then-encrypt messages, but:
 A DR encrypted message body contains one or both of a Standalone signature and/or a Literal Data packet, and a mandatory Public Subkey packet.
 The Literal Data packet and the Public Subkey packet are not signed.
 
-* Any non-routine metadata is contained in a leading Standalone signature.
-* The Literal Data packet contains the message (if any).
-* The Public Subkey packet MUST be of the same ephemeral algorithm type as used for the encrypted container.
+* Any non-routine metadata is contained in one or more leading Standalone signatures.
+* The Literal Data packet contains the actual message (if any).
+* The trailing Public Subkey packet MUST be of the same ephemeral algorithm type as used for the encrypted container.
 
 Note that an ephemeral public key is always represented by a Public *Subkey* packet, so that it cannot be mistaken for a TPK.
 A Subkey Binding Signature MUST NOT be made over an ephemeral subkey.
@@ -152,49 +152,93 @@ Once both parties have sent DR Init requests, the new double ratchet acts as a d
 ## Multi-party communications ((WIP))
 
 When more than two parties are communicating, or one or more parties have multiple devices, one or more shared (( secrets OR double ratchets )) MUST also be created in addition to any pairwise ratchets.
-These are used only for flow control messages and changes in the group state.
 
-(( BEWARE that everything below here is highly flaky and almost certainly doesn't scale. Also, the more people are in a group the less value a DR scheme adds, so there may be no point. Don't @ me ))
+(( BEWARE that everything below here is highly flaky and almost certainly doesn't scale. A btree would scale better than a token ring, TBC ))
 
 ### Multiparty secret key agreement
 
-A new group can be created by one party sending a Group Init flow control message separately to all invitees over an existing secure channel, with the invitees' EKE subkeys identified by Intended Recipient Fingerprint subpackets.
+A new group can be created by one party (the invitor) sending a Group Init flow control message separately to all invitees over existing secure channel(s).
+The invitees are identified by Intended Recipient Fingerprint subpackets containing their EKE fingerprints.
 The Literal Data SHOULD contain a keyring containing the TPKs of all invitees.
 
 * The invitees order themselves into a cycle by ascending binary comparison of their EKE fingerprints.
-* Each accepting invitee sends an ACK to all other invitees and then:
-    * They generate their own group private key (a) and public key (a)G.
+* Each accepting invitee sends an ACK to the invitor and then:
+    * They generate their own group private key (a) and an intermediate group public key (a)G.
     * They send (a)G to the next invitee using a Group Secret Init request.
     * This is signed with their EKE subkey, and includes an Intended Recipient Fingerprint subpacket indicating the EKE subkey of the *previous* invitee.
-* Each subsequent invitee reads the public key they just received and then:
-    * They send an ACK to the sender.
-    * They apply their own secret key (b) by the ECDH method to produce a new public key (ab)G.
-    * They send the new key to the next invitee using a Group Secret Init request.
-    * This is signed with their EKE subkey, and includes the Intended Recipient Fingerprint subpacket from the received message.
-* The process repeats with the new keys until everyone eventually receives a key with an Intended Recipient Fingerprint of their own EKE subkey.
+* Each invitee reads the intermediate public key sent by the previous invitee and then:
+    * They send an ACK to the previous invitee.
+    * They apply their own secret key (b) by the ECDH method to produce a new intermediate group public key (ab)G.
+    * They send the new intermediate key to the next invitee using a Group Secret Init request.
+    * This is signed with their EKE subkey, and includes a copy of the Intended Recipient Fingerprint subpacket from the received message.
+* The process repeats until everyone eventually receives an intermediate key with an IRF identifying them.
 * At this point they apply their own secret key to obtain the shared secret key.
 
-Beware that this does not scale well, so it is normally advisable to initialise a small group and then add members individually.
+In order to facilitate subsequent updates, each accepting invitee MUST retain a copy of all intermediate group public keys received.
 
-An invitee can decline membership by sending a NAK to all other invitees.
-If the previous invitee has already sent one or more Group Secret Init messages to the declining invitee, it destroys and recreates its group keypair, and sends corresponding Group Secret Init messages to the next invitee in the list.
+As this does not scale well (O(n^2) messages), invitees SHOULD wait for multiple keys to arrive and then send on their corresponding intermediate keys in a single message containing multiple flow control signatures.
+To avoid deadlock, the invitor takes on the role of "dealer":
+
+* The dealer MUST send the initial intermediate group public key immediately.
+* An invitee (A) MUST NOT wait for the arrival of an intermediate group public key with an IRF pointing to another invitee (B) unless:
+    * B is before A in the list and after the dealer, or
+    * B is the dealer, or
+    * B is the last invitee in the list before the dealer.
+
+An invitee can decline membership by sending a NAK to *all* other invitees.
+All invitees MUST remove the declining invitee from their local copy of the membership list, and destroy any intermediate keys with an IRF identifying the declining invitee.
+If the invitee immediately before the declining invitee has already sent one or more intermediate keys to the declining invitee:
+
+* it removes the declining invitee from the list
+* it destroys and recreates its initial group keypair
+* it calculates a replacement intermediate key for each intermediate key already sent
+* it sends the new intermediate keys to the new next invitee.
 
 To identify the group, a notation subpacket SHOULD be included in all flow control signatures associated with that group.
 The notation subpacket is marked as not human readable, with a key of "groupid" and a random value of at least 128 bits.
 A group MAY also have a human readable name, with a key of "groupname".
 
-### Group membership adjustment
+NOTE that a group cannot be used until the initial key agreement round is completed.
+It is therefore RECOMMENDED that groups be initialised with a small number of members and expanded later.
 
-To invite a new member to the group, an existing user sends a Group Invite flow control message to both the group and the new user.
-The message sent to the group includes an IRF subpacket identifying the new user.
-The message sent to the new user includes IRF subpackets identifying the other group members.
+### Group secret ratchet
 
-A new group secret MUST then be generated (( TBC )).
+The group secret SHOULD be ratcheted regularly, however this will generally take place at a slower rate than a private ECDH ratchet.
+Since group members will not in general send messages in a predictable order, this is done on an opportunistic basis.
 
-To leave a group, an existing member sends a Group Leave flow control message and then destroys their copy of the group secret.
+The group members agree a method of allocating dealer windows to each member using a deterministic method (( TBC )).
+During a member's dealer window, that member MAY initiate a ratchet round by acting as dealer and (( TBC )).
+
+### Leaving a group
+
+To leave a group, the leaving member sends a Group Leave flow control message to all other members and then destroys their copy of the group secret(s).
 No response is expected.
+A new ratchet round MUST be kicked off immediately, with the leaving member removed from the list.
+Remaining members SHOULD include a verbatim copy of the Group Leave flow control message in the subsequent ratchet round's messages, in case any members did not receive the original.
 
-A new group secret MUST then be generated.
+A group ceases to exist when its membership has been reduced to one.
+
+### Group expansion
+
+To invite a new member to the group, an existing member (the invitor) sends a Group Invite flow control message to both the group and the invitee.
+The message sent to the group includes an IRF subpacket identifying the new user.
+The message sent to the invitee includes IRF subpackets identifying the other group members.
+The invitee then sends an ACK to all existing members.
+
+A new group secret MUST then be generated, with the invitee taking on the role of dealer:
+
+* The invitee creates a new initial group keypair and calculates its initial group public key as above
+* The invitee sends its initial group public key to all existing group members (including the invitor) including all members in IRFs
+* The invitor sends the invitee a copy of the last intermediate group public key addressed to the invitor, but with the invitee's EKE in the IRF
+* The invitee applies its group private key to the received intermediate group public key to produce a new group secret
+
+(( TBC ))
+
+## Multi-device secrets
+
+If a single identity is associated with multiple devices, the devices form a group with each other using the group mechanism above.
+If a device is a member of a multi-device group, then the ECDH private keys used by that identity are generated from the group double ratchet, instead of randomly.
+If one device sees that another device in its device group has generated a public key with an unknown fingerprint, it progresses the symmetric ratchet until it finds the corresponding secret.
 
 ## References
 
