@@ -7,6 +7,7 @@ Scratchpad entries
 * [OpenPGP Stack Layers](stack-layers.md)
 * [OpenPGP/LibrePGP Tolerance](tolerance.md)
 * [OpenPGP Double Ratchet Mechanism](ratchet.md)
+* [Validity in OpenPGP](validity.md)
 
 Links
 -----
