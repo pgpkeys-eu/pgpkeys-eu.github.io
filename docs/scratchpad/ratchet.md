@@ -149,13 +149,11 @@ The message ephemeral subkey continues the current DR, while the Embedded Key su
 The other party can accept the upgrade by replying in the existing double ratchet with a matching DR Init request that uses the new algorithm.
 Once both parties have sent DR Init requests, the new double ratchet acts as a direct continuation of the old.
 
-## Multi-party communications ((WIP))
+## Groups (round robin)
 
-When more than two parties are communicating, or one or more parties have multiple devices, one or more shared (( secrets OR double ratchets )) MUST also be created in addition to any pairwise ratchets.
+(( BEWARE that round robin is highly flaky and almost certainly doesn't scale. See the btree implementation below for a better method. ))
 
-(( BEWARE that everything below here is highly flaky and almost certainly doesn't scale. A btree would scale better than a token ring, TBC ))
-
-### Multiparty secret key agreement
+### Multiparty secret key agreement (round robin)
 
 A new group can be created by one party (the invitor) sending a Group Init flow control message separately to all invitees over existing secure channel(s).
 The invitees are identified by Intended Recipient Fingerprint subpackets containing their EKE fingerprints.
@@ -194,14 +192,10 @@ If the invitee immediately before the declining invitee has already sent one or 
 * it calculates a replacement intermediate key for each intermediate key already sent
 * it sends the new intermediate keys to the new next invitee.
 
-To identify the group, a notation subpacket SHOULD be included in all flow control signatures associated with that group.
-The notation subpacket is marked as not human readable, with a key of "groupid" and a random value of at least 128 bits.
-A group MAY also have a human readable name, with a key of "groupname".
-
 NOTE that a group cannot be used until the initial key agreement round is completed.
 It is therefore RECOMMENDED that groups be initialised with a small number of members and expanded later.
 
-### Group secret ratchet
+### Group secret ratchet (round robin)
 
 The group secret SHOULD be ratcheted regularly, however this will generally take place at a slower rate than a private ECDH ratchet.
 Since group members will not in general send messages in a predictable order, this is done on an opportunistic basis.
@@ -209,16 +203,14 @@ Since group members will not in general send messages in a predictable order, th
 The group members agree a method of allocating dealer windows to each member using a deterministic method (( TBC )).
 During a member's dealer window, that member MAY initiate a ratchet round by acting as dealer and (( TBC )).
 
-### Leaving a group
+### Leaving a group (round robin)
 
 To leave a group, the leaving member sends a Group Leave flow control message to all other members and then destroys their copy of the group secret(s).
 No response is expected.
 A new ratchet round MUST be kicked off immediately, with the leaving member removed from the list.
 Remaining members SHOULD include a verbatim copy of the Group Leave flow control message in the subsequent ratchet round's messages, in case any members did not receive the original.
 
-A group ceases to exist when its membership has been reduced to one.
-
-### Group expansion
+### Group expansion (round robin)
 
 To invite a new member to the group, an existing member (the invitor) sends a Group Invite flow control message to both the group and the invitee.
 The message sent to the group includes an IRF subpacket identifying the new user.
@@ -233,6 +225,66 @@ A new group secret MUST then be generated, with the invitee taking on the role o
 * The invitee applies its group private key to the received intermediate group public key to produce a new group secret
 
 (( TBC ))
+
+## Groups (btree)
+
+A more robust method of managing a group arranges the members into a btree, each node of which represents a sub-group of the larger group.
+
+The ratchet state identifier in the PKESK is prefixed by the subgroup's shared ratchet state identifier, and the trailing ephemeral key sent inside every encrypted message is prefixed by the subgroup's shared ephemeral key.
+If there are multiple layers of subgroups, each ratchet state is prefixed by the enclosing group's ratchet state, and each key is prefixed by the enclosing group's key.
+Each group member therefore maintains O(log n) double ratchets, one for each (sub)group in its branch.
+
+### Multiparty secret key agreement (btree)
+
+A new group can be created by one party (the invitor) sending a Group Init flow control message separately to all invitees over existing secure channel(s).
+The invitees are identified by Intended Recipient Fingerprint subpackets containing their EKE fingerprints.
+The Literal Data SHOULD contain a keyring containing the TPKs of all invitees.
+
+Each invitee SHOULD first respond to the invitor directly.
+An invitee can decline membership by sending a NAK to *all* other invitees.
+All invitees MUST remove the declining invitee from their local copy of the membership list.
+
+The first responding invitee forms a group with the invitor by generating a new shared double ratchet, same as for a direct message.
+As each further invitee responds, the invitor creates a new subgroup containing herself and the new invitee.
+Each subgroup is a member of the group above it and generates its membership ephemeral secret key from the subgroup's shared secret.
+This group shared secret replaces the invitor's existing membership ephemeral secret key.
+
+Once the subgroup's shared secret has been initialised:
+
+* The invitor shares the secret state of the enclosing group(s) with the new invitee.
+* The new member announces herself to the rest of the group with a new message.
+* The invitor SHOULD then rebalance herself onto another position in the tree, if possible (see below).
+
+### Group secret ratchet (btree)
+
+Each message sent requires that all of the keys in the sender's branch are ratcheted at once.
+These may be DH ratchets or symmetric ratchets, depending on the current state of each double ratchet.
+The PKESK identifies the sender's current position in the tree, and each recipient can then determine the smallest sub-group containing both them and the sender.
+Any group levels below the common sub-group can then be ignored, and the ratchets applied to the local state of the common sub-group and above.
+
+### Leaving a group (btree)
+
+To leave a group, the leaving member sends a Group Leave flow control message to all other members and then destroys their copy of the group secret(s).
+No response is expected.
+The remaining member of the leaver's sub-group gains sole control of that sub-group's double ratchet and SHOULD replace it with a directly generated secret during the enclosing group's next DH ratchet step.
+Each remaining member SHOULD include a verbatim copy of the Group Leave flow control message in at least one subsequent message, in case any members did not receive the original.
+
+### Rebalancing (btree)
+
+A btree must periodically be rebalanced.
+A member MAY send a Graft flow control signature which combines the semantics of leaving one subgroup and creating another by asking another member to accept the moving member as a new peer.
+This is only permitted IFF the member's node chain would shorten as a result.
+Grafting is done on a first come first served basis.
+
+(( TBC: sync the enclosing group secrets with the grafted member? ))
+
+## Notes on groups (shared)
+
+To identify a group, a notation subpacket SHOULD be included in all flow control signatures associated with that group.
+The notation subpacket is marked as not human readable, with a key of "groupid" and a random value of at least 128 bits.
+A group MAY also have a human readable name, with a key of "groupname".
+
+A group ceases to exist when its membership has been reduced to one.
 
 ## Multi-device secrets
 
