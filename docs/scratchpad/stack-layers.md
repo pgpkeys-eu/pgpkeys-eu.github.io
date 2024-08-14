@@ -37,15 +37,21 @@ They are however useful as a mental model, particularly when defining extensions
 
 * Messages
     * Document signature types (0x00..0x0f)
+    * Literal data
     * Sign-then-encrypt
     * One-pass signatures
     * Intended recipient
     * Nesting
 * TPKs
+    * Key material
+    * User IDs and attributes
     * Binding and certification signature types (0x10..0x1f)
     * Revocation signature types (0x20..0x3f)
     * Criticality
     * Exportability
+* Oddities
+    * Timestamp signatures (0x40)
+    * Third-party confirmation signatures (0x50)
 
 ### Layer 2d: Temporal evolution
 
