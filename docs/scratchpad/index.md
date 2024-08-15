@@ -2,11 +2,12 @@
 Scratchpad entries
 ------------------
 
-* [OpenPGP Signature Annoyances (and solutions)](signatures.md)
-* [OpenPGP Signature Subpacket Classes](subpacket-classes.md)
-* [OpenPGP Stack Layers](stack-layers.md)
-* [OpenPGP/LibrePGP Tolerance](tolerance.md)
-* [OpenPGP Double Ratchet Mechanism](ratchet.md)
+* [OpenPGP Signature Annoyances (and solutions)](signatures.html)
+* [OpenPGP Signature Subpacket Classes](subpacket-classes.html)
+* [OpenPGP Stack Layers](stack-layers.html)
+* [OpenPGP/LibrePGP Tolerance](tolerance.html)
+* [OpenPGP Double Ratchet Mechanism](ratchet.html)
+* [OpenPGP Code Point Exhaustion](code-point-exhaustion.html)
 
 Links
 -----
