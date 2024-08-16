@@ -24,8 +24,14 @@ The following OpenPGP registries currently define single-octet code points with 
 * OpenPGP Key and Signature Versions
 
 (+) The Signature Subpacket Types registry has only 128 usable code points in practice, due to the criticality bit (see below).
-(++) The Secret Key Encryption registry automatically includes the code points from the Symmetric Key Algorithms registry.
+
+(++) The Secret Key Encryption registry automatically includes the code points from the Symmetric Key Algorithms registry, although their use is deprecated.
 The Secret Key Encryption registry is therefore the only one that assigns code points greater than 110 -- specifically the S2K algorithms 253, 254 and 255, to avoid code point clash.
+
+In addition, the following single-octet identifiers have no associated registry:
+
+* SEIPD packet version
+* Literal data packet format (printable ASCII character)
 
 The most heavily populated single-octet registries are currently Signature Subpacket Types (51/128 or 102/256) and Public Key Algorithms (28/256).
 Other registries are unlikely to ever exceed their capacity, however we define a generic scheme here for future reference.
@@ -38,51 +44,67 @@ We use a similar algorithm to the packet length parameter:
 * two-octet encodings have a first octet in the range 192..223, and represent code points in the range 192..8383
 * if the first octet >= 224, this is a legacy single-octet encoding for backwards compatibility
 
-Only defining one- and two-octet encodings allows for legacy single-octet encodings of code points in the range 224..255.
-This ensures backwards compatibility of S2K and critical private use subpacket code points (see below).
+Only defining one- and two-octet encodings allows us to reserve legacy single-octet encodings for code points in the range 224..255.
+This ensures backwards compatibility of secret key encryption and critical private use subpacket code points (see below).
+
+### Secret Key Encryption (S2K)
+
+Since Secret Key Encryption code points greater than 224 are in current use, they MUST be represented by the legacy single-octet encoding.
 
 ### Signature Subpacket Criticality
 
-The user-controlled criticality bit (the most-significant bit) in the subpacket type encoding is a misfeature.
-We instead explicitly duplicate the entries of the current registry into the range 128 and above, so that it contains explicit non-critical (0..127) and critical (128..255) ranges, similar to the Packet Type registry.
-Future Signature Subpacket Type registrations SHOULD only assign either a critical or a non-critical code point, and it MUST NOT be assumed that toggling the critical bit will produce a subpacket with semantics unchanged aside from criticality.
+The criticality bit (the most-significant bit) in the subpacket type encoding is a misfeature.
+Most subpacket types are only functional when the criticality bit is set to one or other value, depending on their specification (see [Subpacket Classes](subpacket-classes.html) for details).
 
+We instead explicitly duplicate the existing entries of the Signature Subpacket Type registry into the range 128 and above, so that it contains explicit non-critical (0..127) and critical (128..191) ranges, similar to the Packet Type registry, that can be represented by the single-octet encoding.
+Future Signature Subpacket Type registrations SHOULD only assign either a critical or a non-critical code point, and it MUST NOT be assumed that toggling the critical bit will produce a subpacket with a compatible specification.
+
+We define the bottom half of the extended range 192..4287 as critical (high nybble of the first octet is 0xC) and reserve the range 4288..8383 for future non-critical subpackets (high nybble of the first octet is 0xD).
 A legacy implementation that encounters a two-octet encoding of a subpacket type will assume it is critical from the most significant bit of the first octet and invalidate the signature.
-We therefore define the bottom half of the extended range 256..4287 as critical and reserve the range 4288..8383.
-This means that non-critical subpacket code points must remain in short supply for the foreseeable future.
-At some point it should be possible to relax this restriction to allow non-critical subpacket types in the range 4288..8383 (bits 7, 6 and 5 of the first octet are 1, and bit 4 is 0).
+This means that non-critical subpacket code points in the extended range must remain unassigned for the foreseeable future.
+At some point it may be possible to relax this restriction to allow allocation of non-critical subpacket types in the extended range.
 
 Note that the private use range (100..110) with the critical bit set (i.e. 228..238) falls within the legacy single-octet encoding range (224..255).
+Since these code points are currently in use, they MUST be represented by the legacy single-octet encoding.
 
 ### Private Use Ranges
 
 The existing private use ranges (usually 100..110) may not be sufficient for all use cases.
-If a variable-length encoding is in use, the highest 256 code points of each registry (8128..8383) SHOULD be reserved for private use.
-In the case of signature subpackets, the highest 256 code points of the critical range (4032..4288) SHOULD also be reserved.
+If a variable-length encoding is in use, the highest 256 code points of the extended range (8128..8383) SHOULD be reserved for private use.
+In the case of signature subpackets, the highest 256 code points of the extended critical range (4032..4287) SHOULD also be reserved.
 
 ### Signature Malleability
 
-To prevent signature malleability, we require that when hashing trailers, an implementation MUST reverse the octet order of any two-octet encodings of the following fields:
-
-* Signature Type
-* Public Key Algorithm Type
-* Hash Algorithm Type
-
-v3 keys and signatures MUST NOT use code points in the range 192..223, or attempt to use two-octet code point encodings.
+To prevent signature malleability, in the (highly unlikely!) event that two-octet signature version encodings are ever defined, the signature version number immediately preceding the 0xFF octet in the trailer (fifth octet from the end) MUST be supplied with its octets in reverse order.
 
 ### Support
 
 Implementations MAY support variable-length encodings of code points from any of the registries listed above.
 Implementations MUST gracefully ignore variable-length encodings of unknown code points from the following registries:
 
-* Signature Subpacket Types
-* Public Key Algorithms
+* OpenPGP Signature Subpacket Types
+* OpenPGP Public Key Algorithms
+* OpenPGP Symmetric Key Algorithms
+* OpenPGP Hash Algorithms
+* OpenPGP Compression Algorithms
+* OpenPGP Secret Key Encryption (S2K Usage Octet)
+* OpenPGP AEAD Algorithms
 
-Variable-length code point encodings SHOULD only be used in modern artifacts, e.g.
+Special care MUST be taken when parsing the following signature subpackets, where unknown code points MUST be gracefully ignored, and the second octet of a two-octet encoding might therefore be misinterpreted:
 
-* v6 key material, signature, and PKESK packets
-* SEIPDv2 encrypted data
-* etc. ((TBC))
+* Preferred Symmetric Ciphers subpacket (array of code points)
+* Preferred AEAD Ciphersuites subpacket (array of code point tuples)
+* Preferred Hash Algorithms (array of code points)
+* Preferred Compression Algorithms (array of code points)
+
+Note also that assignment of two-octet Secret Key Encryption code points will affect the construction of String-to-Key Specifiers.
+
+Variable-length code point encodings MUST only appear in a modern OpenPGP packet sequence, i.e.
+
+* a key material, signature, OPS, SKESK, or PKESK packet of version 6 or later
+* a User Attribute packet attached to a key of version 6 or later
+* an SEIPD packet of version 2 or later
+* a compressed data packet signed by a signature of version 6 or later, and/or encrypted in an SEIPD packet of version 2 or later
 
 ## Packet Types
 
@@ -95,7 +117,7 @@ It MUST therefore reserve at least one value of the first octet for future use.
 
 ### Extended Packet Framing
 
-We use a similar two-octet encoding scheme, however the extended range starts at 64 instead of 192, due to the smaller existing range of Packet Type code points.
+We use a similar two-octet encoding scheme to represent 8192 extra code points, however the extended range starts at 64 instead of 192, due to the smaller existing range of Packet Type code points.
 The first octet contains:
 
 * Bit 7 is 0
@@ -106,5 +128,5 @@ The first octet contains:
 The "OpenPGP" one-octet encoding (bits 7 and 6 both 1) continues to represent code points 0..63 as usual.
 The extended two-octet encoding represents code points 64..8255.
 
-By analogy with signature subpackets, the bottom half of the extended range (64..4159) contains critical packet types, of which the top 256 (3904..4159) are private use.
-Similarly, the top half of the extended range (4160..8255) contains non-critical packet types, again of which the top 256 code points (8000..8255) are private use.
+By analogy with signature subpackets, the bottom half of the extended range (64..4159, high nybble of the first octet is 0x4) contains critical packet types, of which the top 256 (3904..4159) are private use.
+Similarly, the top half of the extended range (4160..8255, high nybble of the first octet is 0x05) contains non-critical packet types, again of which the top 256 code points (8000..8255) are private use.
