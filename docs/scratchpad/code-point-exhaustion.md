@@ -51,11 +51,11 @@ if the 1st octet <  128, then
 
 if the 1st octet >= 192 and < 224, then
     lengthOfEncoding = 2
-    codePoint = ((1st_octet - 192) << 6) + (2nd_octet - 128) + 128
+    codePoint = ((1st_octet - 192) << 6) + (2nd_octet - 128)
 
 if the 1st octet >= 224 and < 240, then
     lengthOfEncoding = 3
-    codePoint = ((1st_octet - 224) << 12) + (2nd_octet - 128) + (3rd_octet - 128) + 128
+    codePoint = ((1st_octet - 224) << 12) + ((2nd_octet - 128) << 6) + (3rd_octet - 128)
 
 if the 1st octet >= 240, then
     lengthOfEncoding = 1
@@ -70,8 +70,9 @@ This means that strings of multi-octet code points are self-synchronising.
 * two-octet encodings have a first octet in the range 192..223, and represent code points in the range 128..2047
 * three-octet encodings have a first octet in the range 224..239, and represent code points in the range 2048..65535
 * legacy single-octet encodings have an octet value in the range 240..255
+* Overlong encodings MUST NOT be used unless specifically exempted (see below)
 
-Limiting ourselves to three-octet encodings allows us to reserve legacy single-octet encodings for code points in the range 240..255.
+Omitting four-octet encodings allows us to reserve legacy single-octet encodings for code points in the range 240..255.
 This ensures backwards compatibility of existing secret key encryption (S2K Usage) code points.
 Since Secret Key Encryption code points greater than 240 are in current use, they MUST be represented by the legacy single-octet encoding.
 
@@ -118,22 +119,29 @@ Implementations MUST gracefully ignore variable-length encodings of unknown code
 * OpenPGP Secret Key Encryption (S2K Usage Octet)
 * OpenPGP AEAD Algorithms
 
-Special care MUST be taken when parsing the following signature subpackets, which consist of arrays/strings of code points in which unknown code points MUST be gracefully ignored.
+Special care should be taken when parsing the following signature subpackets, which consist of arrays/strings of code points in which unknown code points MUST be gracefully ignored.
 
 * Preferred Symmetric Ciphers subpacket (array of Symmetric Key Algorithm code points)
 * Preferred AEAD Ciphersuites subpacket (array of Symmetric Key Algorithm, AEAD Algorithm code point tuples)
 * Preferred Hash Algorithms (array of Hash Algorithm code points)
 * Preferred Compression Algorithms (array of Compression Algorithm code points)
 
+Note that three-octet encodings of private use code points in the Preferred AEAD Ciphersuites subpacket should be backwards compatible with legacy code, because encoded tuples always have an even number of octets and the parser should therefore skip over them correctly.
+Beware however that two-octet encodings may result in desynchronisation of the tuple parsing in legacy code.
+Therefore, when code points between 128..2047 are used in a Preferred AEAD Ciphersuites subpacket, an overlong three-octet encoding MUST be used.
+
 Implementations MAY support variable-length encodings of code points from the following registries:
 
 * OpenPGP String-to-Key (S2K) Types
+* OpenPGP Signature Types
+* OpenPGP Key and Signature Versions
+
+Code points used only in subpackets:
+
+* OpenPGP Reason for Revocation (Revocation Octet)
+* OpenPGP Image Attribute Versions
 * OpenPGP User Attribute Subpacket Types
 * OpenPGP Image Attribute Encoding Format
-* OpenPGP Reason for Revocation (Revocation Octet)
-* OpenPGP Signature Types
-* OpenPGP Image Attribute Versions
-* OpenPGP Key and Signature Versions
 
 Variable-length code point encodings MUST only appear in a modern OpenPGP packet sequence, i.e.
 
