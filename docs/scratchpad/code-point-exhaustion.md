@@ -110,7 +110,7 @@ For backwards compatibility, we assign all two-octet encodings with the first oc
 
 Implementations SHOULD support variable-length encoding of Signature Subpacket Types.
 
-Implementations MUST gracefully ignore variable-length encodings of unknown code points, and MAY support known code points, in the following registries:
+Implementations MUST gracefully ignore variable-length encodings of unknown code points, and MAY support known variable-lengeth code points, in the following registries:
 
 * OpenPGP Public Key Algorithms
 * OpenPGP Symmetric Key Algorithms
@@ -118,6 +118,14 @@ Implementations MUST gracefully ignore variable-length encodings of unknown code
 * OpenPGP Compression Algorithms
 * OpenPGP Secret Key Encryption (S2K Usage Octet)
 * OpenPGP AEAD Algorithms
+
+These code points may be found in the following contexts:
+
+* key material packets
+* signature packets and subpackets
+* PKESK and SKESK packets
+* OPS packets
+* compressed data packets
 
 Special care should be taken when parsing the following signature subpackets, which consist of arrays/strings of code points in which unknown code points MUST be gracefully ignored.
 
@@ -132,16 +140,15 @@ Therefore, when code points between 128..2047 are used in a Preferred AEAD Ciphe
 
 Implementations MAY support variable-length encodings of code points from the following registries:
 
-* OpenPGP String-to-Key (S2K) Types
-* OpenPGP Signature Types
-* OpenPGP Key and Signature Versions
-
-Code points used only in subpackets:
-
-* OpenPGP Reason for Revocation (Revocation Octet)
-* OpenPGP Image Attribute Versions
-* OpenPGP User Attribute Subpacket Types
-* OpenPGP Image Attribute Encoding Format
+* Registries for code points used only in signature or user attribute subpackets:
+    * OpenPGP Reason for Revocation (Revocation Octet)
+    * OpenPGP Image Attribute Versions
+    * OpenPGP User Attribute Subpacket Types
+    * OpenPGP Image Attribute Encoding Format
+* Other registries:
+    * OpenPGP String-to-Key (S2K) Types
+    * OpenPGP Signature Types
+    * OpenPGP Key and Signature Versions
 
 Variable-length code point encodings MUST only appear in a modern OpenPGP packet sequence, i.e.
 
@@ -150,7 +157,9 @@ Variable-length code point encodings MUST only appear in a modern OpenPGP packet
 * an SEIPD packet of version 2 or later
 * a compressed data packet signed by a signature of version 6 or later, and/or encrypted in an SEIPD packet of version 2 or later
 
-Note also that assignment of two-octet Secret Key Encryption code points will affect the construction of String-to-Key Specifiers.
+Note also that assignment of variable-length Secret Key Encryption code points will affect the construction of String-to-Key Specifiers.
+
+(( TODO: provide examples ))
 
 ## Packet Types
 
