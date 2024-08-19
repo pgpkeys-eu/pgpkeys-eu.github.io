@@ -42,7 +42,7 @@ Other registries are unlikely to ever exceed their capacity, however we define a
 
 We specify two methods for variable length encoding, one generic and one for signature subpacket types only.
 
-### UTF-ish Encoding
+### UTF-8ish Encoding
 
 For registries other than signature subpacket types, we use a similar encoding scheme to UTF-8, but with four-octet encodings omitted, i.e.
 
@@ -86,28 +86,27 @@ Note that since all OpenPGP implementations MUST support UTF-8, it MAY be conven
 ### Subpacket Type Encoding
 
 The criticality bit means that the first octet of any multi-octet subpacket type encoding is effectively limited to values less than 128.
-We therefore cannot use UTF-ish encoding for subpacket types, and cannot make use of its self-synchronisation properties.
+We therefore cannot use UTF-8ish encoding for subpacket types, and cannot make use of its self-synchronisation properties.
 Luckily, subpacket types are only found as the second field of a subpacket, immediately after the packet length, so self-synchronisation is not required.
 
 We define a similar algorithm to the signature subpacket length encoding:
 
 ```
-if the 1st octet <  64, then
+if the 1st octet < 112, then
     lengthOfEncoding = 1
     codePoint = 1st_octet
 
-if the 1st octet >= 64 and < 128, then
+if the 1st octet >= 112 and < 128, then
     lengthOfEncoding = 2
-    codePoint = ((1st_octet - 64) << 8) + (2nd_octet) + 64
+    codePoint = ((1st_octet - 112) << 8) + (2nd_octet) + 112
 ```
 
-* single-octet encodings have an octet value < 64 and are fully backwards compatible with code points in current use
-* two-octet encodings have a first octet in the range 64..127, and represent code points in the range 64..16447.
+* single-octet encodings have an octet value < 112 and are fully backwards compatible with code points in current use
+* two-octet encodings have a first octet in the range 112..127, and represent code points in the range 112..3951
 
 The criticality bit MUST be zeroed before applying the above algorithm.
 
-Note that a one-octet legacy encoding of the private use range (100..110) falls within the two-octet encoding range of first-octet values.
-For backwards compatibility, we assign all two-octet encodings with the first octet in this range as private use, i.e. code points 9280..12095.
+Two-octet encodings with a first octet in the range 120..127 (code points 2160..3951) are reserved for private use.
 
 ## Support and Compatibility
 
@@ -143,7 +142,7 @@ Implementations MAY support variable-length encodings of code points from the fo
 * OpenPGP Key and Signature Versions
 
 
-UTF-ish encodings should be legacy-safe in these contexts as parsing is normally halted immediately if the code point in question is not supported.
+UTF-8ish encodings should be legacy-safe in these contexts as parsing is normally halted immediately if the code point in question is not supported.
 The same argument applies in principle to the non-registry SEIPD, PKESK and SKESK packet version numbers.
 Use of the non-registry literal data packet format identifier is deprecated, however use of UTF-8 in this field would be a natural extension.
 
@@ -162,14 +161,14 @@ After the packet version identifier, a v6 key material packet contains the follo
 * Public key algorithm
 * Length of public key material
 
-It is therefore theoretically possible for a continuation octet of a UTF-ish encoding of the public key algorithm to be misinterpreted as the first octet of the following length parameter, resulting in a mis-parsing of the remaning packet data, and a possible out of bounds read.
+It is therefore theoretically possible for a continuation octet of a UTF-8ish encoding of the public key algorithm to be misinterpreted as the first octet of the following length parameter, resulting in a mis-parsing of the remaning packet data, and a possible out of bounds read.
 This introduces no new vulnerabilities however, as an attacker can already create a key material packet with an incorrect "length of public key material" parameter, and so a compliant implementation SHOULD already have protections against out of bounds read of the remaining packet.
 
 A secret key material packet further contains a Secret Key Encryption (S2K Usage) parameter, followed by variable fields that cannot be parsed if the Secret Key Encryption parameter is not supported.
 These variable fields may include an S2K specifier, which always begins with an S2K specifier type.
 The remainder of the S2K specifier cannot be parsed if the S2K specifier type is not supported.
 
-UTF-ish encodings are therefore safe in v6 key material packets.
+UTF-8ish encodings are therefore safe in v6 key material packets.
 
 ### v6 Signature Packets
 
@@ -184,9 +183,9 @@ The remainder of the packet cannot be parsed if the public key and hash algorith
 The trailer contains the same variable-length fields, however the following features prevent malleability:
 
 * The trailer contains a length field that covers the variable-length fields.
-* All octets used in UTF-ish encoding map to currently unassigned octet values.
+* All octets used in UTF-8ish encoding map to currently unassigned octet values.
 
-UTF-ish encodings are therefore safe in v6 signature packets.
+UTF-8ish encodings are therefore safe in v6 signature packets.
 
 ### Signature Subpackets
 
@@ -198,7 +197,7 @@ Variable-length encodings are generally safe in signature subpackets, subject to
 #### Revocation Key
 
 The Revocation Key subpacket contains a symmetric algorithm ID field, however it is only defined for v4 targets and is now deprecated.
-UTF-ish encoded code points are therefore not valid in this subpacket and MUST NOT be used.
+UTF-8ish encoded code points are therefore not valid in this subpacket and MUST NOT be used.
 
 #### Signature Target
 
@@ -212,9 +211,9 @@ The hashed data cannot be parsed if the hash algorithm is unknown.
 
 #### Reason for Revocation
 
-A Reason for Revocation subpacket contains a (potentially UTF-ish) reason identifier.
+A Reason for Revocation subpacket contains a (potentially UTF-8ish) reason identifier.
 The remainder of the subpacket contains an unparsed human-readable comment in UTF-8.
-A UTF-ish encoding of the reason field might overflow into the human-readable UTF-8 comment, however a UTF-8 compliant client SHOULD convert the continuation bytes to replacement characters and display the rest of the comment unchanged.
+A UTF-8ish encoding of the reason field might overflow into the human-readable UTF-8 comment, however a UTF-8 compliant client SHOULD convert the continuation bytes to replacement characters and display the rest of the comment unchanged.
 
 #### User Preferences
 
@@ -246,7 +245,7 @@ After the packet version identifier, a v6 OPS packet contains a string of three 
 
 The remainder of the packet cannot be parsed if the hash algorithm code point is unsupported.
 
-UTF-ish encodings are therefore safe in v6 OPS packets.
+UTF-8ish encodings are therefore safe in v6 OPS packets.
 
 ### v6 PKESK Packets
 
@@ -254,7 +253,7 @@ A v6 PKESK packet contains two potentially variable-length code point fields, th
 The fingerprint version is covered by a preceding length field that allows unsupported fingerprints to be safely skipped.
 The algorithm identifier is immediately followed by a variable-length field that cannot be parsed if the algorithm is unsupported.
 
-UTF-ish encodings are therefore safe in v6 PKESK packets.
+UTF-8ish encodings are therefore safe in v6 PKESK packets.
 
 ### v6 SKESK Packets
 
@@ -272,7 +271,7 @@ The length of the initialisation value depends on the AEAD algorithm, and theref
 
 Secret Key Encryption (S2K Usage) parameters are not supplied in a v6 SKESK, as AEAD mode is always used.
 
-UTF-ish encodings are therefore safe in v6 SKESK packets.
+UTF-8ish encodings are therefore safe in v6 SKESK packets.
 
 ### User Attribute Packets
 
@@ -286,7 +285,7 @@ Image attribute subpackets are prefixed by the following fields:
 
 The remainder of the subpacket cannot be parsed if the version and type are not supported.
 
-UTF-ish encodings are therefore safe in user attribute packets.
+UTF-8ish encodings are therefore safe in user attribute packets.
 
 ### v2 SEIPD Packets
 
@@ -301,13 +300,13 @@ After the packet version identifier, a v2 SEIPD packet contains the following fi
 If the values of the symmetric cipher algorithm and the AEAD algorithm were not checked immediately, it might be possible for legacy code to misidentify the field boundaries and pass incorrectly bounded fields to the HKDF function.
 Even if this were the case, the decryption process would not be able to proceed any further without the symmetric and AEAD algorithms being supported, so it is highly unlikely that any information could be leaked to an attacker.
 
-UTF-ish encodings are therefore almost certainly safe in v2 SEIPD packets.
+UTF-8ish encodings are therefore almost certainly safe in v2 SEIPD packets.
 
 ### Compressed Data Packets
 
 A compressed data packet consists of a compression algorithm ID followed by data that cannot be parsed if the compression algorithm is unsupported.
 
-UTF-ish encodings are therefore safe in compressed data packets.
+UTF-8ish encodings are therefore safe in compressed data packets.
 
 ## Packet Types
 
