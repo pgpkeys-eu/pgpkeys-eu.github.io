@@ -37,9 +37,9 @@ Since both OCB and SED packets rely on the same method for encrypting the symmet
 This attempt may partially succeed due to the OCB decryption process only differing significantly from CFB once the first block has been processed.
 SED packets have several well-known security issues, therefore OCB-encrypted LibrePGP messages are also potentially vulnerable to the same issues.
 
-To mitigate this, RFC9580 [specifies the use of a Key Derivation Function (KDF)](https://datatracker.ietf.org/doc/html/rfc9580#name-version-2-symmetrically-enc) in the alternative SEIPDv2 packet, to ensure that the symmetric key used to encrypt the data in AEAD modes must be calculated at decryption time using the ID of the AEAD encryption mode.
+To mitigate this, RFC9580 specifies [the use of a Key Derivation Function (KDF)](https://datatracker.ietf.org/doc/html/rfc9580#name-version-2-symmetrically-enc) in the alternative SEIPDv2 packet, to ensure that the symmetric key used to encrypt the data in AEAD modes must be calculated at decryption time using the ID of the AEAD encryption mode.
 If the victim attempts to decrypt using the wrong encryption mode, they will also therefore calculate an incorrect symmetric key, which will immediately fail before decrypting any of the message.
 
 It is particularly notable that the ["Critique on the OpenPGP updates" section of the LibrePGP website](https://librepgp.org/#critique) calls out the advanced construction of the SEIPDv2 packet as unnecessary, and states that the LibrePGP protocol designers intentionally rejected it (subsection 1, "Symmetric Mode"), despite the use of KDFs to prevent such cross-protocol attacks being a recommended technique since at least 2010 (see e.g. [RFC5869 section 3.2](https://www.rfc-editor.org/rfc/rfc5869#section-3.2)).
 
-Andrew Gallagher, 16th August 2024
+Andrew Gallagher, 19th August 2024

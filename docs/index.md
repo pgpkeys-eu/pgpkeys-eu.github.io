@@ -4,6 +4,7 @@ Blog entries by date
 
 August 2024:
 
+* [A Summary of Known Security Issues in LibrePGP](security-issues-librepgp-2024-08.html) (Andrew, 2024-08-19)
 * [Keyserver Updates and Roadmap, August 2024](keyserver-roadmap-2024-08.html) (Andrew, 2024-08-01)
 
 January 2024:
