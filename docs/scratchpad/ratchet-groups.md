@@ -8,6 +8,25 @@ CAUTION: this does not currently scale well, and it is RECOMMENDED to instead co
 
 The following extensions to the double ratchet mechanism are defined:
 
+### Embedded keys
+
+Embedded Key subpackets MAY also contain:
+
+* A public deniable key, as a Public Subkey packet using a standard signing algorithm.
+* A private deniable key, as a Private Subkey packet using a standard signing algorithm.
+
+The initial encrypted message MAY also contain:
+
+* An Embedded Key subpacket containing a public deniable subkey, for signing future flow control messages (instead of the EKA).
+* Any (reasonable) number of Embedded Key subpacket(s) each containing a private deniable subkey to be burned.
+
+### Message format
+
+A DR encrypted message body contains at least one of:
+
+* Zero or more Flow Control signatures (see below).
+* A Literal Data packet.
+
 ### Algorithm-specific PKESK data
 
 * Symmetric Algorithm (1 octet)
@@ -26,7 +45,23 @@ The symmetrically-encrypted session information contains:
 * A full public subkey packet containing the sender's most recent ephemeral public key
 * (optional) One or more full public subkey packets containing any intermediate subkeys
 
-### Flow control types:
+### Flow control signatures
+
+Flow Control signatures contain requests that are intended for all recipients of the message.
+Their semantics are otherwise identical to Flow Control requests in the DR session information.
+
+A Flow Control signature (0x03) is constructed the same way as a Standalone signature (type 0x02), and is made by either the EKA subkey or a deniable subkey.
+It is included in a DR message as the first packet of the encrypted data.
+If a flow control signature is present then a literal data packet is OPTIONAL.
+
+In addition to the subpackets allowed in the DR session state, a Flow Control signature may also contain:
+
+* An Embedded Key subpacket containing a public deniable subkey, for signing future flow control messages (instead of the EKA) (MUST be located in the hashed area).
+* Any (reasonable) number of Embedded Key subpacket(s) each containing a private deniable subkey to be burned (MUST be located in the unhashed area).
+
+Since a Flow Control signature is located inside the message, and may therefore be addressed to more than one person, and the group ratchet state is shared among all members, it is necessary to sign it with a deniable key to prevent one legitimate recipient of a message impersonating another. (( TBC does this not also apply to the actual message? ))
+
+### Flow control types
 
 * Group Init: Initialises a new group (see below).
     * One or more Intended Recipient Fingerprint subpackets MUST be included in the hashed area to indicate the initial group membership.
