@@ -7,6 +7,7 @@ Scratchpad entries
 * [OpenPGP Stack Layers](stack-layers.html)
 * [OpenPGP/LibrePGP Tolerance](tolerance.html)
 * [OpenPGP Double Ratchet Mechanism](ratchet.html)
+* [OpenPGP Double Ratchet Groups](ratchet-groups.html)
 * [OpenPGP Code Point Exhaustion](code-point-exhaustion.html)
 
 Links
