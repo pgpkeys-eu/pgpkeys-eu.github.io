@@ -17,6 +17,12 @@ PFS increases security under the following circumstances:
 In OpenPGP, we have long-lived keys that may be stored on devices that do not receive communications, or even offline.
 Compromise of long-lived keys alone, without compromise of endpoint devices containing the actual messages, is a plausible attack scenario.
 
+We prefer the use of a double ratchet mechanism because it automatically allows deniable authentication.
+This is because authentication relies on knowledge of a shared secret and not asymmetric cryptography:
+
+a) knowledge of the shared ratchet state is sufficient to for Bob to authenticate the messages sent by Alice.
+b) a message from Alice to Bob could be convincingly forged by Bob after the fact.
+
 The privacy effectiveness of the double ratchet is significantly improved if disappearing messages are also implemented.
 
 ## Design
@@ -27,7 +33,7 @@ We define:
     * It is used on a subkey with a signing-capable algorithm, and permits that subkey to authenticate ephemeral key exchange.
 * One or more new public-key algorithm IDs (in a special range) that identify ephemeral cipher suites.
     * Implementations MUST support X25519+HKDF+DR and MAY support X448+HKDF+DR.
-* A new signature subpacket type, "Embedded Key", of the Document class (( TBC: iff not already defined in draft-revocation )), which contains:
+* A new signature subpacket type, "Ephemeral Key", of the Document class, which contains:
     * A public ephemeral key, as a full Public Subkey packet using the appropriate ephemeral algorithm.
 * A new signature subpacket type, "Preferred Ephemeral Ciphers", of the Preference class.
     * It contains an ordered list of public ephemeral key algorithms.
@@ -40,7 +46,7 @@ We use standard OpenPGP encrypted messages, but:
 * The initial message in each direction is encrypted to the recipient's standard encryption subkey.
     It is signed by the sender's EKA subkey (not their signing key) and the signature contains:
     * A Flow Control request subpacket with the DR Init flag set (see below).
-    * An Embedded Key subpacket containing an public ephemeral subkey, to initialise a new double ratchet (once in each direction).
+    * An Ephemeral Key subpacket containing an public ephemeral subkey, to initialise a new double ratchet (once in each direction).
 * Subsequent double-ratchet messages use PKESKs with slightly altered semantics:
     * The key ID (PKESKv3) or versioned fingerprint (PKESKv6) identifies the EKA subkey (not an encryption key).
     * The "public key algorithm" octet identifies an ephemeral cipher suite (not the algorithm of the EKA subkey).
@@ -48,13 +54,20 @@ We use standard OpenPGP encrypted messages, but:
     * Session keys are encrypted symmetrically using the key derived from the DR state.
     * DR messages are authenticated by knowledge of the DR state and are not normally signed.
 
-The encrypted message is not signed; any signature subpackets that would have been contained in a document signature SHOULD be stored in the PKESK instead (see below).
-
 Note that public ephemeral keys are always represented by a Public *Subkey* packet, so that they cannot be mistaken for a TPK.
 A Subkey Binding Signature MUST NOT be made over an ephemeral subkey.
 
 A single DR message may be encrypted to multiple recipients by prefixing it with multiple PKESKs.
-Care must be taken to ensure that flow control request packets are located in the correct PKESK(s) according to their intended audience.
+Care must be taken to ensure that flow control request subpackets are located in the correct PKESK(s) according to their intended audience.
+
+### Message format
+
+A DR encrypted message body contains:
+
+* A Literal Data packet.
+* (Optional) A Padding packet.
+
+The Literal Data packet SHOULD NOT be signed; any signature subpackets that would have been contained in a document signature SHOULD be stored in the PKESK instead (see below).
 
 ### Algorithm-specific PKESK data
 
@@ -64,8 +77,8 @@ The symmetric algorithm MUST have the same key length as the ECDH algorithm of t
 * Symmetric Algorithm (1 octet)
 * Symmetric Chain Sequence (2 octets) (( overkill? TBC ))
 * Length of the following two fields
-* Recipient's last published ephemeral subkey version (1 octet)
-* Recipient's last published ephemeral subkey fingerprint (N octets)
+* Counterpart's last published ephemeral subkey version (1 octet)
+* Counterpart's last published ephemeral subkey fingerprint (N octets)
 * Symmetrically-encrypted DR session information
 
 The DR session information is encrypted with the ratchet key calculated from the ratchet state, using the same symmetric algorithm as the encrypted data.
@@ -74,19 +87,21 @@ The decrypted DR session information contains:
 * Symmetric session key
 * A signature subpacket area length
 * A signature subpacket area
-* A full public subkey packet containing the sender's most recent public ephemeral key, to progress the DH ratchet
+* A full public subkey packet containing the sender's most recent public ephemeral key, to progress the ECDH ratchet
 
 The signature subpacket area contains any signature subpackets that would have been included in a signature over the encrypted data, if it had been signed (see below).
 These MUST include a Signature Creation Time subpacket.
 The subpackets are instead validated by implied knowledge of the shared ratchet state.
 The Public Subkey packet MUST be of the same ephemeral algorithm type as the enclosing PKESK.
 
+If the message's content can be encoded entirely within the PKESK, the Literal Data packet MAY be empty.
+
 ## Error recovery
 
 The parties to a double-ratchet communications channel SHOULD negotiate an alternative encrypted channel for recovery if a DR update fails and messages become undecryptable.
 The easiest way of doing this is to set up multiple independent DRs, and alternating messages between the DRs.
 
-Multiple DRs may be initialised by including multiple Embedded Key subpackets in the initial message, and pairing them off in order with the Embedded Key subpackets in the initial response.
+Multiple DRs may be initialised by including multiple Ephemeral Key subpackets in the initial message, and pairing them off in order with the Ephemeral Key subpackets in the initial response.
 If the second party responds with fewer ephemeral subkeys, then the first party MUST destroy the excess keys.
 After this step, each DR operates independently of the others.
 To ensure that all DRs are working, messages SHOULD be sent using each of them in roughly equal proportions, however a predictable sequence is not required and MUST NOT be assumed.
@@ -103,7 +118,7 @@ Flow Control requests are located in the subpacket area of the DR session inform
 A typical Flow Control request consists of one or more of the following subpackets, in addition to any generic subpackets such as signature creation time etc.:
 
 * A Flow Control Request subpacket.
-* An Embedded Key subpacket containing an public ephemeral subkey, to initialise a new double ratchet.
+* An Ephemeral Key subpacket containing an public ephemeral subkey, to initialise a new double ratchet.
 * An Intended Recipient subpacket, to identify another DR ratchet
 
 ### Flow control request subpacket
@@ -113,11 +128,11 @@ A Flow Control Request subpacket contains one octet of request type, and one oct
 The following request types are defined:
 
 * DR Init (0): Initialises a new DR.
-    * An Embedded Key subpacket with an initial ephemeral subkey MUST be included in the hashed area.
+    * An Ephemeral Key subpacket with an initial ephemeral subkey MUST be included in the hashed area.
     * The expected response to a DR Init request is another DR Init request containing the other party's initial ephemeral subkey.
 * Fork (1): Forks the current double ratchet into two separate DRs.
-    * An Embedded Key subpacket with an ephemeral subkey MUST be included in the hashed area.
-    * A new DR is created by copying the state of the current DR and applying the ephemeral subkey from the Embedded Key subpacket.
+    * An Ephemeral Key subpacket with an ephemeral subkey MUST be included in the hashed area.
+    * A new DR is created by copying the state of the current DR and applying the ephemeral subkey from the Ephemeral Key subpacket.
     * The current DR continues as normal using the trailing ephemeral subkey packet.
 * Reap (2): Marks another double ratchet as broken and asks for its recent messages to be resent.
     * An Intended Recipient Fingerprint subpacket MUST be included in the hashed area.
@@ -154,8 +169,8 @@ If resending requires multiple response messages, the Partial flag MUST be set o
 ### Algorithm upgrades
 
 During a long-running conversation it may eventually become necessary to upgrade the DR algorithm.
-One party to a conversation may invoke an algorithm upgrade by sending a DR Init request with an Embedded Key subpacket containing an ephemeral subkey of the new algorithm type.
-The DR session information ephemeral subkey continues the current DR, while the Embedded Key subpacket attempts to initialise a new DR.
+One party to a conversation may invoke an algorithm upgrade by sending a DR Init request with an Ephemeral Key subpacket containing an ephemeral subkey of the new algorithm type.
+The DR session information ephemeral subkey continues the current DR, while the Ephemeral Key subpacket attempts to initialise a new DR.
 The other party can accept the upgrade by replying in the existing double ratchet with a matching DR Init request that uses the new algorithm.
 Once both parties have sent DR Init requests, the new double ratchet acts as a direct continuation of the old.
 
