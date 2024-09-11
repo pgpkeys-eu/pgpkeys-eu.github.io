@@ -42,4 +42,21 @@ If the victim attempts to decrypt using the wrong encryption mode, they will als
 
 It is particularly notable that the ["Critique on the OpenPGP updates" section of the LibrePGP website](https://librepgp.org/#critique) calls out the advanced construction of the SEIPDv2 packet as unnecessary, and states that the LibrePGP protocol designers intentionally rejected it (subsection 1, "Symmetric Mode"), despite the use of KDFs to prevent such cross-protocol attacks being a recommended technique since at least 2010 (see e.g. [RFC5869 section 3.2](https://www.rfc-editor.org/rfc/rfc5869#section-3.2)).
 
+## Key Overwriting Attacks
+
+In 2022, Lara Bruseghini, Kenneth Patterson and Daniel Huigens [published a paper outlining practical attacks against secret key stores in OpenPGP](https://www.kopenpgp.com/assets/paper.pdf).
+
+These arise because LibrePGP and versions of OpenPGP predating RFC9580 do not specify any integrity checking of secret keys on disk.
+An attacker may be able to trick or force a victim into importing a modified secret key.
+If the victim subsequently signs a message or encrypts a message to themselves using that key, the signature or encrypted data will contain cryptographic errors.
+These errors can then be examined by the attacker to derive the original secret key.
+The victim may not notice that the key has been modified because the attacker's changes can be designed so that the key is still capable of decrypting data and/or verifying signatures correctly.
+
+Several implementations have addressed this by implementing explicit tests for whether the secret and public keys on disk form valid keypairs before use.
+These tests are computationally expensive and need to be performed every time a secret key is used, so while they are sufficient to mitigate the attack they are far from ideal.
+
+The attack is more efficiently mitigated in RFC9580 by specifying [the use of AEAD encryption for secret keys in local storage](https://datatracker.ietf.org/doc/html/rfc9580#name-secret-key-encryption).
+AEAD encryption modes automatically provide integrity validation, eliminating the need for explicit validity checks.
+
 Andrew Gallagher, 19th August 2024
+(last updated 11th September 2024)
