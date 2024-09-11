@@ -20,8 +20,8 @@ Compromise of long-lived keys alone, without compromise of endpoint devices cont
 We prefer the use of a double ratchet mechanism because it automatically allows deniable authentication.
 This is because authentication relies on knowledge of a shared secret and not asymmetric cryptography:
 
-a) knowledge of the shared ratchet state is sufficient to for Bob to authenticate the messages sent by Alice.
-b) a message from Alice to Bob could be convincingly forged by Bob after the fact.
+1. knowledge of the shared ratchet state is sufficient to for Bob to authenticate the messages sent by Alice.
+2. a message from Alice to Bob could be convincingly forged by Bob after the fact.
 
 The privacy effectiveness of the double ratchet is significantly improved if disappearing messages are also implemented.
 
@@ -75,12 +75,14 @@ An ephemeral-algorithm PKESK contains the sender's public ratchet state for the 
 The symmetric algorithm MUST have the same key length as the ECDH algorithm of the current DR.
 
 * Symmetric Algorithm (1 octet)
-* Symmetric Chain Sequence (2 octets) (( overkill? TBC ))
-* Length of the following two fields
+* Symmetric Chain Sequence (2 octets)
+* Previous Symmetric Chain Sequence (2 octets)
+* Length of the following two fields (1 octet)
 * Counterpart's last published ephemeral subkey version (1 octet)
 * Counterpart's last published ephemeral subkey fingerprint (N octets)
 * Symmetrically-encrypted DR session information
 
+The Symmetric Chain Sequence and Previous Symmetric Chain Sequence fields are used to calculate the number of missing messages.
 The DR session information is encrypted with the ratchet key calculated from the ratchet state, using the same symmetric algorithm as the encrypted data.
 The decrypted DR session information contains:
 
@@ -93,6 +95,7 @@ The signature subpacket area contains any signature subpackets that would have b
 These MUST include a Signature Creation Time subpacket.
 The subpackets are instead validated by implied knowledge of the shared ratchet state.
 The Public Subkey packet MUST be of the same ephemeral algorithm type as the enclosing PKESK.
+Unless otherwise specified, this signature subpacket area is equivalent to a hashed subpacket area for the purposes of BCP 14 [RFC2119] [RFC8174].
 
 If the message's content can be encoded entirely within the PKESK, the Literal Data packet MAY be empty.
 
@@ -104,8 +107,6 @@ The easiest way of doing this is to set up multiple independent DRs, and alterna
 Multiple DRs may be initialised by including multiple Ephemeral Key subpackets in the initial message, and pairing them off in order with the Ephemeral Key subpackets in the initial response.
 If the second party responds with fewer ephemeral subkeys, then the first party MUST destroy the excess keys.
 After this step, each DR operates independently of the others.
-To ensure that all DRs are working, messages SHOULD be sent using each of them in roughly equal proportions, however a predictable sequence is not required and MUST NOT be assumed.
-
 If a failure is detected in any of the double ratchets, a flow control request SHOULD be sent using one of the other DRs.
 
 If all else fails, one party may attempt to initialise a new double ratchet by encrypting a "first message" to the other party's long term encryption key, even though a DR session already exists.
