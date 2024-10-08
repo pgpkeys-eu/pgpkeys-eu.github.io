@@ -5,7 +5,7 @@ We wish to specify a similar mechanism for OpenPGP.
 
 ## Reserved Values
 
-We reserve the following values that fall within the currently-available code point range of all the above OpenPGP registries:
+We reserve the following values that fall within the currently-available code point range of all one-octet OpenPGP registries:
 
 * 44
 * 55
