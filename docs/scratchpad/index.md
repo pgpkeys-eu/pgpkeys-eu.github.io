@@ -9,6 +9,7 @@ Scratchpad entries
 * [OpenPGP Double Ratchet Mechanism](ratchet.html)
 * [OpenPGP Double Ratchet Groups](ratchet-groups.html)
 * [OpenPGP Code Point Exhaustion](code-point-exhaustion.html)
+* [GREASE in OpenPGP](grease.html)
 
 Links
 -----
