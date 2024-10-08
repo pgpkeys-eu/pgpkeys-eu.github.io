@@ -35,8 +35,7 @@ These code points are reserved for PGP-GREASE code points in the following regis
 (+) When PGP-GREASE codepoints are used in the Signature Subpacket Types registry, the critical bit MUST NOT be set.
 
 PGP-GREASE code points are not allocated in the Signature Types or Packet Types registries.
-The use of signature types is defined by the packet grammar and is therefore not flexible.
-Packet types 44 and 55 fall in the non-critical range, however implementations pre-dating RFC9580 will not support non-critical packet types and so cannot be expected to cleanly ignore them.
+The use of signature types is defined by the packet grammar and is therefore not flexible, and although packet types 44 and 55 fall in the non-critical range, implementations pre-dating RFC958 cannot be expected to cleanly handle them.
 
 ### Variable-Length Values
 
