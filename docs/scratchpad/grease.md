@@ -11,8 +11,10 @@ The data section of dummy packets and subpackets SHOULD contain only the ten oct
 All other fields of dummy packets and subpackets SHOULD correspond to those of a real packet or subpacket.
 
 A generating implementation SHOULD choose code points deterministically, while ensuring that all PGP-GREASE code points are eventually used.
-This can be achieved by seeding a counter using contextual data, and incrementing it with each PGP-GREASE code point used.
+This can be achieved by initialising a "grease counter" with contextual data, and incrementing it with each PGP-GREASE code point used.
 This ensures that any errors encountered are reproducible, and mitigates against fingerprinting.
+
+(TODO: how often should we add GREASE?)
 
 A receiving implementation MUST gracefully ignore unknown code points as required by RFC9580, including PGP-GREASE code points.
 It MUST NOT treat PGP-GREASE code points any differently from other unknown code points; this includes detecting or indicating the presence of PGP-GREASE code points.
@@ -34,10 +36,10 @@ An implementation MAY use PGP-GREASE codepoints in the following TPK contexts:
 * Hash algorithm IDs in dummy self-signatures.
 * Packet and signature types in dummy packets.
 
-The counter is initialised with the first octet of the primary key fingerprint.
+The grease counter is initialised with the first octet of the first primary key fingerprint.
+In protocols that support keyrings containing multiple TPKs, a single grease counter is used for the entire keyring.
 
-In protocols that support keyrings containing multiple TPKs, a generating implementation MAY also generate dummy primary keys with PGP-GREASE version numbers or algorithm IDs.
-In such a case, the counter from the previous TPK is used.
+A generating implementation MAY also generate dummy primary keys with PGP-GREASE version numbers or algorithm IDs.
 
 ### Messages
 
@@ -47,28 +49,28 @@ An implementation MAY use PGP-GREASE codepoints in the following message context
 * Signature and hash algorithm IDs and signature version numbers in dummy document signature packets and their corresponding OPS packets.
 * Packet and signature types in dummy packets.
 
-The counter is initialised with the first octet of the signer's primary key fingerprint.
+The grease counter is initialised with the first octet of the (first genuine) signer's primary key fingerprint.
 
-Note that when an OPS packet is present, any PGP-GREASE code points it contains will be duplicated in the corresponding signature packet.
-These extra copies do not increment the counter.
+Note that when an OPS packet is present, any PGP-GREASE code points it contains MUST be duplicated in the corresponding signature packet.
+These extra copies do not increment the grease counter.
 
 ## Reserved Code Points
 
-We reserve the following one-octet code points for PGP-GREASE.
-Note that these differ from the one-octet code points allocated in TLS-GREASE.
+We reserve the following one-octet code points for PGP-GREASE:
 
 Sequence| Code Point
 --------|-----------
-0       | 15
-1       | 44
-2       | 55
-3       | 66
-4       | 77
-5       | 88
-6       | 99
-7       | 111
+1       | 15
+3       | 44
+5       | 55
+7       | 66
+9       | 77
+11      | 88
+13      | 99
+15      | 111
 
-Code points SHOULD be chosen based on the least-significant three bits in the counter, using the sequence given.
+Code points SHOULD be chosen based on the least-significant four bits in the grease counter, using the sequence given.
+If no usable code point exists for the sequence number, the grease counter SHOULD be incremented without adding a PGP-GREASE code point at that location.
 When PGP-GREASE code points from the Signature Subpacket Types registry are used, the critical bit MUST NOT be set.
 
 These code points will be reserved for PGP-GREASE in the following registries:
@@ -92,31 +94,24 @@ These code points will be reserved for PGP-GREASE in the following registries:
 (++) The Secret Key Encryption registry automatically contains all entries from the Symmetric Key Algorithms registry.
 
 In addition, code point 55 (only) will be reserved for PGP-GREASE in the OpenPGP Packet Types registry.
+If this packet type is used, it does not increment the grease counter.
 
 Note that the [OpenPGP Interoperability Test Suite](https://tests.sequoia-pgp.org/#Detached_signatures_with_unknown_packets) currently uses signature version 23 as a de-facto GREASE code point.
 
 ### Variable-Length Values
 
-TLS-GREASE reserves the following two-octet code points:
+If [variable-length code point encoding](code-point-exhaustion.html) is implemented, the following values MAY be used as additional PGP-GREASE code points:
 
 Sequence| Code Point
 --------|---------------
-0       | 0x0A0A (2570)
-1       | 0x1A1A (6682)
-2       | 0x2A2A (10794)
-3       | 0x3A3A (14906)
-4       | 0x4A4A (19018)
-5       | 0x5A5A (23130)
-6       | 0x6A6A (27242)
-7       | 0x7A7A (31354)
-8       | 0x8A8A (35466)
-9       | 0x9A9A (39578)
-10      | 0xAAAA (43690)
-11      | 0xBABA (47802)
-12      | 0xCACA (51914)
-13      | 0xDADA (56026)
-14      | 0xEAEA (60138)
-15      | 0xFAFA (64250)
+0       | 222
+2       | 333
+4       | 444
+6       | 555
+8       | 666
+10      | 777
+12      | 888
+14      | 999
 
-If [variable-length code point encoding](code-point-exhaustion.html) is supported, these MAY be used as additional PGP-GREASE code points in the registries listed above.
-They SHOULD be chosen based on the least-significant four bits of the counter, using the sequence given.
+They SHOULD be chosen based on the least-significant four bits of the grease counter, using the sequence given.
+The sequence numbers are intentionally chosen so that they interleave with the one-octet code points above.
