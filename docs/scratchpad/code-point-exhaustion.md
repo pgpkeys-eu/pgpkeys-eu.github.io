@@ -115,8 +115,8 @@ It may eventually become necessary to also expand the Packet Type registry, whic
 For historical reasons packet Tag 16 was never allocated, and has the advantage of being unusable in Legacy packet framing.
 We therefore reserve it to indicate that the actual packet type follows the length field, in UTF-8ish encoding.
 
-The "OpenPGP" one-octet encoding (bits 7 and 6 both 1) continues to represent code points 0..63 as usual.
-UTF-8ish Packet Type encoding is used to represent code points 64..65535, and MUST NOT be used to represent code points 0..63.
+The "OpenPGP" encoding continues to represent code points 0..63 as usual.
+UTF-8ish encoding is used to represent code points 64..65535, and MUST NOT be used to represent code points 0..63.
 
 If UTF-8ish encoding of Packet Types is implemented:
 
