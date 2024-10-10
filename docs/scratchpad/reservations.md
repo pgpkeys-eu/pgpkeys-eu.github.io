@@ -4,7 +4,7 @@ There are quite a few code points in the IANA OpenPGP registries that are marked
 They all have references to RFC9580, which is the source of the registry data, but the RFC is not always forthcoming about the reasoning behind their reservation.
 
 Some code points are reserved for future use and MAY presumably be un-reserved once a draft spec is finalised.
-Others are reserved to avoid incompatibility with deprecated features and MUST NOT be reused.
+Others are reserved to avoid incompatibility with deprecated or experimental features and MUST NOT be reused.
 Some have been reserved for speculative features that were never implemented, and so MAY be more appropriately classified as “unassigned".
 It is not always clear which case is which, or under what conditions an un-reservation should be performed.
 
@@ -23,7 +23,7 @@ In the below, we classify reserved code points as follows:
 
 * 0 (MUST NOT be used) [why?]
 * 19 (MDC) [GOOD]
-* 20 [AEAD encrypted data -> rfc4880bis 5.16]
+* 20 [AEAD encrypted data (deprecated) -> rfc4880bis 5.16]
 
 ## OpenPGP User Attribute Subpacket Types
 
@@ -38,7 +38,7 @@ In the below, we classify reserved code points as follows:
 * 0 [?]
 * 1 [?]
 * 8 [?]
-* 10 (backward compatibility) [-> ADK?]
+* 10 (placeholder for backward compatibility) [(deprecated) -> ADK/ARR?]
 * 13-15 [?]
 * 17-19 [?]
 * 34 [preferred AEAD algorithms (deprecated) -> rfc4880bis 5.2.3.8]
@@ -71,7 +71,7 @@ In the below, we classify reserved code points as follows:
 
 ## OpenPGP Hash Algorithms
 
-* 0 [-> consistency with Symmetric Key Algorithms]
+* 0 [OBV: consistency with Symmetric Key Algorithms]
 * 4 [-> RFC2440 Double-width SHA]
 * 5 [-> RFC2440 MD2]
 * 6 [-> RFC2440 TIGER/192]
