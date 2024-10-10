@@ -10,6 +10,7 @@ Scratchpad entries
 * [OpenPGP Double Ratchet Groups](ratchet-groups.html)
 * [OpenPGP Code Point Exhaustion](code-point-exhaustion.html)
 * [GREASE in OpenPGP](grease.html)
+* [Reserved Code Points in the OpenPGP Registries](reservations.html)
 
 Links
 -----
