@@ -73,7 +73,7 @@ This means that strings of multi-octet code points are self-synchronising.
 * three-octet encodings have a first octet in the range 224..239, and represent code points in the range 2048..65535
 * octet values in the range 240..247 correspond to the first octet of four-octet UTF-8 encodings and MUST NOT be used
 * legacy single-octet encodings have an octet value in the range 248..255
-* Overlong encodings MUST NOT be used
+* overlong encodings MUST NOT be used
 
 We reserve octet values in the range 248..255, which are not used in UTF-8, for legacy single-octet encodings of code points with the same values.
 This ensures backwards compatibility of existing secret key encryption (S2K Usage) code points.
@@ -108,6 +108,25 @@ The criticality bit MUST be zeroed before applying the above algorithm.
 
 Two-octet encodings with a first octet in the range 120..127 (code points 2160..3951) are reserved for private use.
 
+### Packet Type Encoding
+
+It may eventually become necessary to also expand the Packet Type registry, which currently has 24 of 64 possible entries allocated.
+
+For historical reasons packet Tag 16 was never allocated, and has the advantage of being unusable in Legacy packet framing.
+We therefore reserve it to indicate that the actual packet type follows the length field, in UTF-8ish encoding.
+
+The "OpenPGP" one-octet encoding (bits 7 and 6 both 1) continues to represent code points 0..63 as usual.
+UTF-8ish Packet Type encoding is used to represent code points 64..65535, and MUST NOT be used to represent code points 0..63.
+
+If UTF-8ish encoding of Packet Types is implemented:
+
+* one-octet encodings represent code points in the range 64..127
+* two-octet encodings have a first octet in the range 192..223, and represent code points in the range 128..2047
+    * the bottom half of the two-octet UTF-8ish encoding range (63..1023) represents critical packet types
+    * the top half (1024..2047) represents non-critical packet types
+* three-octet encodings are reserved for private or experimental use
+* four-octet encodings MUST NOT be used
+
 ## Support and Compatibility
 
 Implementations SHOULD support variable-length encoding of Signature Subpacket Types.
@@ -140,7 +159,7 @@ Implementations MAY support variable-length encodings of code points from the fo
 * OpenPGP Signature Types
 * OpenPGP Image Attribute Versions
 * OpenPGP Key and Signature Versions
-
+* OpenPGP Packet Types
 
 UTF-8ish encodings should be legacy-safe in these contexts as parsing is normally halted immediately if the code point in question is not supported.
 The same argument applies in principle to the non-registry SEIPD, PKESK and SKESK packet version numbers.
@@ -307,27 +326,3 @@ UTF-8ish encodings are therefore almost certainly safe in v2 SEIPD packets.
 A compressed data packet consists of a compression algorithm ID followed by data that cannot be parsed if the compression algorithm is unsupported.
 
 UTF-8ish encodings are therefore safe in compressed data packets.
-
-## Packet Types
-
-It may eventually become necessary to also expand the Packet Type registry, which currently has 24 of 64 possible entries allocated.
-This can only be done by specifying a novel packet framing.
-
-The two currently supported packet framing systems are distinguished by bit 6, however in both cases bit 7 of the first octet is 1.
-Any new packet framing MUST therefore set bit 7 to 0, but MUST NOT prevent further enhancements to packet framing.
-It MUST therefore reserve at least one value of the first octet for future use.
-
-### Extended OpenPGP Packet Framing
-
-The first octet contains:
-
-* Bit 7 is 0
-* If bits 6 and 5 are both 1, then bits 4..0 and all eight bits of the second octet indicate the Packet Type (two-octet encoding).
-* Values where bit 7 is 0 and bits 6 and 5 are not both 1 are reserved.
-* Subsequent octets contain the packet length in OpenPGP packet length format.
-
-The "OpenPGP" one-octet encoding (bits 7 and 6 both 1) continues to represent code points 0..63 as usual.
-The extended two-octet encoding represents code points 64..8255.
-
-The bottom half of the extended range (64..4159, high nybble of the first octet is 0x4) contains critical packet types, of which the top 256 (3904..4159) are private use.
-Similarly, the top half of the extended range (4160..8255, high nybble of the first octet is 0x05) contains non-critical packet types, again of which the top 256 code points (8000..8255) are private use.
