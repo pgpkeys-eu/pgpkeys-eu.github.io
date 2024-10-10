@@ -112,10 +112,10 @@ Two-octet encodings with a first octet in the range 120..127 (code points 2160..
 
 It may eventually become necessary to also expand the Packet Type registry, which currently has 24 of 64 possible entries allocated.
 
-For historical reasons packet Tag 16 was never allocated, and has the advantage of being unusable in Legacy packet framing.
+For historical reasons Packet Tag 16 was never allocated, and has the advantage of being unusable in Legacy packet framing.
 We therefore reserve it to indicate that the actual packet type follows the length field, in UTF-8ish encoding.
 
-The "OpenPGP" encoding continues to represent code points 0..63 as usual.
+The "OpenPGP" packet framing continues to represent code points 0..63 as usual.
 UTF-8ish encoding is used to represent code points 64..65535, and MUST NOT be used to represent code points 0..63.
 
 If UTF-8ish encoding of Packet Types is implemented:
