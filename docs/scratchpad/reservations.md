@@ -35,12 +35,8 @@ In the below, we classify reserved code points as follows:
 
 ## OpenPGP Signature Subpacket Types
 
-* 0 [?]
-* 1 [?]
-* 8 [?]
-* 10 (placeholder for backward compatibility) [(deprecated) -> ADK/ARR?]
-* 13-15 [?]
-* 17-19 [?]
+* 0, 1, 8, 13-15, 17-19 [-> experimental PGP5 features?]
+* 10 (placeholder for backward compatibility) [-> ADK/ARR?]
 * 34 [preferred AEAD algorithms (deprecated) -> rfc4880bis 5.2.3.8]
 * 37 (attested certifications) [-> rfc4880bis 5.2.3.30]
 * 38 (key block) [-> rfc4880bis 5.2.3.31]
@@ -57,7 +53,7 @@ In the below, we classify reserved code points as follows:
 
 ## OpenPGP Public Key Algorithms
 
-* 0 [OBV: consistency with Symmetric Key Algorithms]
+* 0 [OBV: consistency with Symmetric Key Algorithm 0 "unencrypted"]
 * 20 (ElGamal Encrypt or Sign, deprecated) [GOOD]
 * 21 (X9.42, S/MIME compatibility) [?]
 * 23 (AEDH) [?]
@@ -71,12 +67,12 @@ In the below, we classify reserved code points as follows:
 
 ## OpenPGP Hash Algorithms
 
-* 0 [OBV: consistency with Symmetric Key Algorithms]
-* 4 [-> RFC2440 Double-width SHA]
+* 0 [OBV: consistency with Symmetric Key Algorithm 0 "unencrypted"]
+* 4 [-> RFC2440 Double-width SHA (experimental)]
 * 5 [-> RFC2440 MD2]
 * 6 [-> RFC2440 TIGER/192]
-* 7 [-> RFC2440 HAVAL-5-160]
-* 13 [OBV: SHA3-384, but if so why isn't 15 reserved for SHA3-224?]
+* 7 [-> RFC2440 HAVAL 5-pass 160-bit]
+* 13 [OBV: SHA3-384, but then why isn't 15 reserved for SHA3-224?]
 
 ## OpenPGP Signature Types
 
@@ -84,13 +80,16 @@ In the below, we classify reserved code points as follows:
 
 ## OpenPGP AEAD Algorithms
 
-* 0 [OBV: consistency with Symmetric Key Algorithms]
+* 0 [OBV: consistency with Symmetric Key Algorithm 0 "unencrypted"]
 
 # Unassigned gaps in OpenPGP registries
 
 There are also a number of unassigned gaps in the registries that are not specifically marked as reserved, but which were presumably left unassigned intentionally:
 
-* Packet type 15 is the only unassigned code point that can be represented in legacy framing so was presumably kept available for emergencies - but why is 16 also unassigned?
-* Public key algorithms 4-15
-* Reasons for revocation 4-31
+* Packet type 15 is the only unassigned code point that can be represented in legacy framing, so was presumably kept available in case of a packet that had to be backwards-compatible with PGP 2.
+    It was marked "reserved" in draft-ietf-openpgp-formats-00 section 4.3 but was unassigned in draft-01 and the eventual RFC2440.
+* Packet type 16 was a "comment packet" in draft-ietf-openpgp-formats-00 section 5.12 but was unassigned in draft-01 and the eventual RFC2440.
+    This may have been intended to stand in for RFC1991's never-implemented "comment packet" (type 14), which was repurposed as a subkey packet.
+* Public key algorithms 4-15 (these were already missing in draft-ietf-openpgp-formats-00)
+* Reasons for revocation 4-31 (reason 32 was added in draft-ietf-openpgp-rfc4880bis)
 * The gaps in the Signature Types registry are obviously for grouping into sub-ranges with similar semantics, however they are not formally defined, and the 0x4N and 0x5N signature type ranges are not well motivated.
