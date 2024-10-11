@@ -60,7 +60,7 @@ We reserve the following one-octet code points for PGP-GREASE:
 
 Sequence| Code Point
 --------|-----------
-1       | 15
+1       | 15 OR 36
 3       | 44
 5       | 55
 7       | 66
@@ -72,6 +72,8 @@ Sequence| Code Point
 Code points SHOULD be chosen based on the least-significant four bits in the grease counter, using the sequence given.
 If no usable code point exists for the sequence number, the grease counter SHOULD be incremented without adding a PGP-GREASE code point at that location.
 When PGP-GREASE code points from the Signature Subpacket Types registry are used, the critical bit MUST NOT be set.
+
+(TODO: confirm whether 15 or 36 is more suitable - this will depend on which algids are allocated for PQC, and it may need to be registry-dependent)
 
 These code points will be reserved for PGP-GREASE in the following registries:
 
@@ -95,9 +97,9 @@ These code points will be reserved for PGP-GREASE in the following registries:
 
 Note that the [OpenPGP Interoperability Test Suite](https://tests.sequoia-pgp.org/#Detached_signatures_with_unknown_packets) currently uses signature version 23 as a de-facto GREASE code point.
 
-### Variable-Length Values
+### Extended Code Points
 
-If [variable-length code point encoding](code-point-exhaustion.html) is implemented, the following values MAY be used as additional PGP-GREASE code points:
+If [extended code points](code-point-exhaustion.html) are implemented, the following values MAY be used as additional PGP-GREASE code points:
 
 Sequence| Code Point
 --------|---------------
@@ -115,5 +117,5 @@ The sequence numbers are intentionally chosen so that they interleave with the o
 
 ### Packet Types
 
-Packet Type 15, although currently unassigned, represents a critical packet type and MUST NOT be used for PGP-GREASE.
+Packet Types 15 and 36, although currently unassigned, represent critical packet types and MUST NOT be used for PGP-GREASE.
 A Marker packet SHOULD be used instead.
