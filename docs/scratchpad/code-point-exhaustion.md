@@ -115,22 +115,15 @@ Two-octet encodings with a first octet in the range 120..127 (code points 2160..
 
 It may eventually become necessary to also expand the Packet Type registry, which currently has 24 of 64 possible entries allocated.
 
-For historical reasons Packet Tag 16 was never allocated, and has the advantage of being unusable in Legacy packet framing.
-We therefore reserve it to indicate that the actual packet type follows the length field, in UTF-8ish encoding.
+Packet Tag 16 was initially intended as a "comment" packet but was never used, and is not encodable in Legacy packet framing.
+We therefore reserve it to indicate that the actual packet type follows the length field, in a fixed-size two-octet field.
 
-The "OpenPGP" packet framing continues to represent code points 0..63 as usual.
-UTF-8ish encoding is used to represent code points 64..65535, and MUST NOT be used to represent code points 0..63.
+The "OpenPGP" packet type encoding continues to represent code points 0..63 as usual.
+Two-octet encoding is used to represent code points 64..65535, and MUST NOT be used to represent code points 0..63.
 
-If UTF-8ish encoding of Packet Types is implemented:
-
-* one-octet encodings represent code points in the range 64..127
-* two-octet encodings have a first octet in the range 192..223, and represent code points in the range 128..2047
-* three-octet encodings have a first octet in the range 224..240, and represent code points in the range 2048..65535
-* four-octet encodings, overlong encodings, and the legacy single-octet encoding range MUST NOT be used
-
-Code points in the top half of the two-octet UTF-8ish encoding range (1024..2047, or first octet in the range 208..223) represent critical packets.
-The remaining code points in the UTF-8ish encoding range represent non-critical packets.
-Three-octet encodings are reserved for private or experimental use.
+Code points in the range 1024..2047 represent critical packets.
+The remaining code points in the two-octet encoding range represent non-critical packets.
+Code points >= 2048 are reserved for private or experimental use.
 
 ## Support and Compatibility
 
