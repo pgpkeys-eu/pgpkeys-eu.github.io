@@ -40,13 +40,13 @@ In addition, the following single-octet identifiers have no associated registry:
 The most heavily populated single-octet registries are currently Signature Subpacket Types (51/128 or 102/256) and Public Key Algorithms (28/256).
 Other registries are unlikely to ever exceed their capacity, however we define a generic scheme here for future reference.
 
-## Variable-length Encoding of Code Points
+## Extended Code Points
 
-We specify two methods for variable length encoding, one generic and one for signature subpacket types only.
+We specify three encoding methods for extended code points, one generic, one for signature subpacket types, and one for packet types.
 
 ### UTF-8ish Encoding
 
-For registries other than signature subpacket types, we use a similar encoding scheme to UTF-8, but with four-octet encodings omitted, i.e.
+For registries other than signature subpacket types or packet types, we use a similar encoding scheme to UTF-8, but with four-octet encodings omitted, i.e.
 
 ```
 if the 1st octet <  128, then
@@ -92,33 +92,23 @@ The criticality bit means that the first octet of any multi-octet subpacket type
 We therefore cannot use UTF-8ish encoding for subpacket types, and cannot make use of its self-synchronisation properties.
 Luckily, subpacket types are only found as the second field of a subpacket, immediately after the packet length, so self-synchronisation is not required.
 
-We define a similar algorithm to the signature subpacket length encoding:
+Code point 127 is reserved to indicate that the actual subpacket type is encoded in the following two octets.
 
-```
-if the 1st octet < 112, then
-    lengthOfEncoding = 1
-    codePoint = 1st_octet
+The standard packet type encoding (including critical bit) continues to represent code points 0..126 as usual.
+Two-octet encoding is used to represent code points 127..65535, and MUST NOT be used to represent code points 0..127.
 
-if the 1st octet >= 112 and < 128, then
-    lengthOfEncoding = 2
-    codePoint = ((1st_octet - 112) << 8) + (2nd_octet) + 112
-```
-
-* single-octet encodings have an octet value < 112 and are fully backwards compatible with code points in current use
-* two-octet encodings have a first octet in the range 112..127, and represent code points in the range 112..3951
-
-The criticality bit MUST be zeroed before applying the above algorithm.
-
-Two-octet encodings with a first octet in the range 120..127 (code points 2160..3951) are reserved for private or experimental use.
+The critical bit applies to the actual subpacket type, not the use of 127 to indicate two-octet encoding.
+Code points >= 2048 are reserved for private or experimental use.
 
 ### Packet Type Encoding
 
 It may eventually become necessary to also expand the Packet Type registry, which currently has 24 of 64 possible entries allocated.
+The encoding space is highly restricted due to the small number of free bits available in the OpenPGP packet framing.
 
 Packet Tag 16 was initially intended as a "comment" packet but was never used, and is not encodable in Legacy packet framing.
-We therefore reserve it to indicate that the actual packet type follows the length field, in a fixed-size two-octet field.
+We therefore reserve it to indicate that the actual packet type is encdoded in the two octets following the length field.
 
-The "OpenPGP" packet type encoding continues to represent code points 0..63 as usual.
+The OpenPGP packet type encoding continues to represent code points 0..63 as usual.
 Two-octet encoding is used to represent code points 64..65535, and MUST NOT be used to represent code points 0..63.
 
 Code points in the range 1024..2047 represent critical packets.
