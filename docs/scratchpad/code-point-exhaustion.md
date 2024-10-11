@@ -1,7 +1,7 @@
 # Code Point Exhaustion
 
 We are motivated to define a variable-length encoding for OpenPGP code points so that we can have more than 255 of each.
-While there is no immediate prospect of any of the OpenPGP registries exceeding 255 entries, problems have already been encountered with the small size of the private use ranges (typically the code points 100..110).
+While there is no immediate prospect of any of the OpenPGP registries exceeding 255 entries, problems have already been encountered with the small size of the private and experimental use ranges (typically the code points 100..110).
 It is also prudent to define and reserve an extension scheme significantly in advance of it becoming necessary.
 
 ## Code Point Registries
@@ -18,15 +18,17 @@ The following OpenPGP registries currently define single-octet code points with 
 * OpenPGP Hash Algorithms
 * OpenPGP Compression Algorithms
 * OpenPGP Secret Key Encryption (S2K Usage Octet) (++)
-* OpenPGP Signature Types
-* OpenPGP Image Attribute Versions
+* OpenPGP Signature Types (+++)
+* OpenPGP Image Attribute Versions (+++)
 * OpenPGP AEAD Algorithms
-* OpenPGP Key and Signature Versions
+* OpenPGP Key and Signature Versions (+++)
 
 (+) The Signature Subpacket Types registry has only 128 usable code points in practice, due to the criticality bit (see below).
 
 (++) The Secret Key Encryption registry automatically includes the code points from the Symmetric Key Algorithms registry, although their use is deprecated.
 The Secret Key Encryption registry is therefore the only one that assigns code points greater than 110 -- specifically the S2K algorithms 253, 254 and 255, to avoid code point clash.
+
+(+++) These registries do not contain a private and experimental use area.
 
 In addition, the following single-octet identifiers have no associated registry:
 
@@ -79,7 +81,8 @@ We reserve octet values in the range 248..255, which are not used in UTF-8, for 
 This ensures backwards compatibility of existing secret key encryption (S2K Usage) code points.
 Since Secret Key Encryption code points in this range are in current use, they MUST be represented by legacy single-octet encodings.
 
-Three-octet encodings (code points 2048..65535) are reserved for private use.
+Three-octet encodings (code points 2048..65535) are reserved for additional private and experimental use code points in registries that already contain a private and experimental use range.
+Three-octet encodings MUST NOT be used in the Signature Types, Image Attribute Versions, or Key and Signature Versions registries.
 
 Note that since all OpenPGP implementations MUST support UTF-8, it MAY be convenient to hand off calculation of this algorithm to UTF-8 encoding/decoding routines, provided that these do not perform any Unicode validation (e.g. checking for invalid code points or surrogates, mapping to canonical forms, etc.).
 
@@ -106,7 +109,7 @@ if the 1st octet >= 112 and < 128, then
 
 The criticality bit MUST be zeroed before applying the above algorithm.
 
-Two-octet encodings with a first octet in the range 120..127 (code points 2160..3951) are reserved for private use.
+Two-octet encodings with a first octet in the range 120..127 (code points 2160..3951) are reserved for private or experimental use.
 
 ### Packet Type Encoding
 
@@ -122,10 +125,12 @@ If UTF-8ish encoding of Packet Types is implemented:
 
 * one-octet encodings represent code points in the range 64..127
 * two-octet encodings have a first octet in the range 192..223, and represent code points in the range 128..2047
-    * the bottom half of the two-octet UTF-8ish encoding range (64..1023) represents non-critical packet types
-    * the top half (1024..2047) represents critical packet types
-* three-octet encodings are reserved for private or experimental use
-* four-octet encodings MUST NOT be used
+* three-octet encodings have a first octet in the range 224..240, and represent code points in the range 2048..65535
+* four-octet encodings, overlong encodings, and the legacy single-octet encoding range MUST NOT be used
+
+Code points in the top half of the two-octet UTF-8ish encoding range (1024..2047, or first octet in the range 208..223) represent critical packets.
+The remaining code points in the UTF-8ish encoding range represent non-critical packets.
+Three-octet encodings are reserved for private or experimental use.
 
 ## Support and Compatibility
 
@@ -245,10 +250,9 @@ Care should be taken when handling the following signature subpackets, which con
 
 Two-octet encodings of code points in the Preferred AEAD Ciphersuites subpacket may result in desynchronisation of the tuple parsing in legacy code that assumes all encoded tuples are two octets wide.
 Therefore, the encoding of a code point tuple MUST be padded to an even-octet boundary by appending a trailing 0xFF octet as necessary, i.e. IFF exactly one of the code points in the tuple is encoded in two octets.
-This padding octet will appear at an offset that legacy code will assume contains an AEAD Algorithm identifier, and should be safely interpreted as an unassigned code point.
-The padding code point 255 (0xFF) falls in the legacy single-octet encoding range, and should be reserved in the AEAD Algorithm registry for this purpose.
+This padding octet will appear at an offset that legacy code will assume contains an AEAD Algorithm identifier, and should be safely interpreted as an unused code point.
 
-By contrast, three-octet encodings of private use code points should be backwards compatible with legacy code, because tuples where both code points are encoded using an odd number of octets will have an even number of octets overall, and a legacy parser should therefore skip over them correctly.
+By contrast, three-octet encodings should be backwards compatible with legacy code, because tuples where both code points are encoded using an odd number of octets will have an even number of octets overall, and a legacy parser should therefore skip over them correctly.
 
 #### Issuer and Intended Recipient Fingerprints
 
@@ -258,9 +262,9 @@ Version-tagged fingerprints (fingerprints prefixed by a version field) are gener
 
 After the packet version identifier, a v6 OPS packet contains a string of three potentially variable-length code point fields:
 
-* Signature Type ID
-* hash algorithm
-* public key algorithm
+* Signature type ID
+* Hash algorithm
+* Public key algorithm
 
 The remainder of the packet cannot be parsed if the hash algorithm code point is unsupported.
 
@@ -278,7 +282,7 @@ UTF-8ish encodings are therefore safe in v6 PKESK packets.
 
 A v6 SKESK packet contains the following fields:
 
-* symmetric algorithm ID
+* Symmetric algorithm ID
 * AEAD algorithm ID
 * S2K specifier length
 * S2K specifier
