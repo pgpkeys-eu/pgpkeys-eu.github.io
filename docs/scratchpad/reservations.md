@@ -89,9 +89,10 @@ Action: code point 15 SHOULD be reserved for SHA3-224.
 There are also a number of unassigned gaps in the registries that are not specifically marked as reserved, but which were presumably left unassigned intentionally:
 
 * Packet type 15 is the only unassigned code point that can be represented in legacy framing, so was presumably kept available in case of a packet that had to be backwards-compatible with PGP 2.
-    It was marked "reserved" in draft-ietf-openpgp-formats-00 section 4.3 but was unassigned in subsequent drafts and the eventual RFC2440.
-* Packet type 16 was a "comment packet" in draft-ietf-openpgp-formats-00 section 5.12 but was unassigned in subsequent drafts and the eventual RFC2440.
-    This may have been intended to stand in for RFC1991's never-implemented "comment packet" (type 14), which was repurposed as a subkey packet.
-* Public key algorithms 4-15 (these were already missing in draft-ietf-openpgp-formats-00)
-* Reasons for revocation 4-31 (reason 32 was added in draft-ietf-openpgp-rfc4880bis)
-* The gaps in the Signature Types registry are obviously for grouping into sub-ranges with similar semantics, however they are not formally defined, and the 0x4N and 0x5N signature type ranges are not well motivated.
+    It was marked "reserved" in [draft-ietf-openpgp-formats-00 section 4.3](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-formats-00#autoid-116) but was unassigned in subsequent drafts and the eventual [RFC2440](https://datatracker.ietf.org/doc/html/rfc2440).
+* Packet type 16 was a "comment packet" in [draft-ietf-openpgp-formats-00 section 5.12](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-formats-00#autoid-162) but was unassigned in subsequent drafts and RFC2440.
+    This may have been intended to replace RFC1991's never-implemented "comment packet" (type 14), which was repurposed as a subkey packet.
+* Signature subpacket 36 was silently omitted when 35 and 37 were added in [draft-ietf-openpgp-rfc4880bis-08](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis-08), and the omission persisted when [the change was ported to crypto-refresh](https://gitlab.com/openpgp-wg/rfc4880bis/-/commit/badfc9fec92ea6833bfab60cb70c99e1d549a79e#ec9f85ae915d32d2e0d0d0e5258927a7e3559c4d_1007_1006).
+* Public key algorithms 4-15 (born missing in [draft-ietf-openpgp-formats-00](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-formats-00#autoid-164))
+* Reasons for revocation 4-31 (born missing in [draft-ietf-openpgp-formats-04](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-formats-04#section-5.2.3.22))
+* The Signature Types registry [emerged from prehistory](https://datatracker.ietf.org/doc/html/draft-atkins-pgpformat-01#section-6.2.1) complete with gaps which were obviously intended to group sub-ranges with similar semantics, however they are not formally defined.
