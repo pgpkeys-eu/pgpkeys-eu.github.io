@@ -60,7 +60,7 @@ We reserve the following one-octet code points for PGP-GREASE:
 
 Sequence| Code Point
 --------|-----------
-1       | 15 OR 36
+1       | 123
 3       | 44
 5       | 55
 7       | 66
@@ -72,8 +72,6 @@ Sequence| Code Point
 Code points SHOULD be chosen based on the least-significant four bits in the grease counter, using the sequence given.
 If no usable code point exists for the sequence number, the grease counter SHOULD be incremented without adding a PGP-GREASE code point at that location.
 When PGP-GREASE code points from the Signature Subpacket Types registry are used, the critical bit MUST NOT be set.
-
-(TODO: confirm whether 15 or 36 is more suitable - this will depend on which algids are allocated for PQC, and it may need to be registry-dependent)
 
 These code points will be reserved for PGP-GREASE in the following registries:
 
@@ -95,6 +93,9 @@ These code points will be reserved for PGP-GREASE in the following registries:
 (+) The use of PGP-GREASE code points in these registries is not currently specified, however the code points will be reserved for consistency.
 (++) The Secret Key Encryption registry automatically contains all entries from the Symmetric Key Algorithms registry.
 
+Due to the smaller range of packet type code points available, most of these values cannot be used as PGP-GREASE packet types.
+A Marker packet SHOULD be used instead.
+
 Note that the [OpenPGP Interoperability Test Suite](https://tests.sequoia-pgp.org/#Detached_signatures_with_unknown_packets) currently uses signature version 23 as a de-facto GREASE code point.
 
 ### Extended Code Points
@@ -114,8 +115,3 @@ Sequence| Code Point
 
 They SHOULD be chosen based on the least-significant four bits of the grease counter, using the sequence given.
 The sequence numbers are intentionally chosen so that they interleave with the one-octet code points above.
-
-### Packet Types
-
-Packet Types 15 and 36, although currently unassigned, represent critical packet types and MUST NOT be used for PGP-GREASE.
-A Marker packet SHOULD be used instead.
