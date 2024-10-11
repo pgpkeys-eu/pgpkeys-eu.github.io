@@ -93,9 +93,6 @@ These code points will be reserved for PGP-GREASE in the following registries:
 (+) The use of PGP-GREASE code points in these registries is not currently specified, however the code points will be reserved for consistency.
 (++) The Secret Key Encryption registry automatically contains all entries from the Symmetric Key Algorithms registry.
 
-In addition, code point 55 (only) will be reserved for PGP-GREASE in the OpenPGP Packet Types registry.
-If this packet type is used, it does not increment the grease counter.
-
 Note that the [OpenPGP Interoperability Test Suite](https://tests.sequoia-pgp.org/#Detached_signatures_with_unknown_packets) currently uses signature version 23 as a de-facto GREASE code point.
 
 ### Variable-Length Values
@@ -115,3 +112,8 @@ Sequence| Code Point
 
 They SHOULD be chosen based on the least-significant four bits of the grease counter, using the sequence given.
 The sequence numbers are intentionally chosen so that they interleave with the one-octet code points above.
+
+### Packet Types
+
+Packet Type 15, although currently unassigned, represents a critical packet type and MUST NOT be used for PGP-GREASE.
+A Marker packet SHOULD be used instead.

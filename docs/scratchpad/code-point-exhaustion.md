@@ -122,8 +122,8 @@ If UTF-8ish encoding of Packet Types is implemented:
 
 * one-octet encodings represent code points in the range 64..127
 * two-octet encodings have a first octet in the range 192..223, and represent code points in the range 128..2047
-    * the bottom half of the two-octet UTF-8ish encoding range (63..1023) represents critical packet types
-    * the top half (1024..2047) represents non-critical packet types
+    * the bottom half of the two-octet UTF-8ish encoding range (64..1023) represents non-critical packet types
+    * the top half (1024..2047) represents critical packet types
 * three-octet encodings are reserved for private or experimental use
 * four-octet encodings MUST NOT be used
 
