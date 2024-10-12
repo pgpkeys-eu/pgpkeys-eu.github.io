@@ -11,6 +11,7 @@ Scratchpad entries
 * [OpenPGP Code Point Exhaustion](code-point-exhaustion.html)
 * [GREASE in OpenPGP](grease.html)
 * [Reserved Code Points in the OpenPGP Registries](reservations.html)
+* [Use of the Marker Packet in OpenPGP](marker.html)
 
 Links
 -----
