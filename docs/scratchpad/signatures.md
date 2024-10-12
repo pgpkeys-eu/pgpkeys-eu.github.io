@@ -5,28 +5,31 @@ This document attempts to fix several of the most notable omissions from earlier
 
 The following topics are addressed:
 
-* Deprecation of Timestamp signatures.
+* Proper specification of Timestamp and Third Party Confirmation signatures.
+* Signature Type ranges and usage flags.
 * Deprecation of Signature and Key Expiration Time subpackets in favour of a new Subject Validity Period subpacket.
 * Cumulation of Signatures.
     * Unhashed Subpacket Deduplication.
 * Redundancy of Certification Signature Types.
 
-## Deprecation of Timestamp Signatures
+## Specification of Timestamp Signatures
 
 In [RFC1991](https://datatracker.ietf.org/doc/html/rfc1991), it says:
 
+> <40> - time stamping ("I saw this document") (*)
+> ...
 > Type <40> is intended to be a signature of a signature, as a notary seal on a signed document.
 
-This implies (but does not explicitly state) that a v3 0x40 sig is made by hashing a signature packet as if it were a document.
-Alternatively, it could possibly mean a signature over an entire signed document; it is not clear.
+The second statement implies that a v3 0x40 sig is made by hashing a signature packet as if it were a document.
+But the first statement implies a simple signature over an arbitrary document, just with different semantics.
 
-But by [RFC2440](https://datatracker.ietf.org/doc/html/rfc2440), this has changed to:
+In [RFC2440](https://datatracker.ietf.org/doc/html/rfc2440), this has changed to:
 
 > 0x40: Timestamp signature.
 > This signature is only meaningful for the timestamp contained in it.
 
-What does this mean? How does this differ from a standalone signature?
-And there's no description of how we should construct one.
+This avoids the apparent contradiction of RFC1991, by not even attempting to explain the semantics.
+And there's still no description of how we should construct one.
 
 Then [RFC4880](https://datatracker.ietf.org/doc/html/rfc4880) defines a new signature type 0x50, which is:
 
@@ -34,10 +37,65 @@ Then [RFC4880](https://datatracker.ietf.org/doc/html/rfc4880) defines a new sign
 > This signature is a signature over some other OpenPGP Signature packet(s).
 > It is analogous to a notary seal on the signed data.
 
-Which is the *exact same thing* as the description of type 0x40 sigs in RFC1991!
+Which sounds very similar to the description of type 0x40 sigs in RFC1991.
 But unlike 0x40, which remains ambiguous, a concrete construction is given.
 
-We should therefore deprecate type 0x40 Timestamp signatures, as all possible use cases for them are covered by either document signatures, or Third-Party Confirmation signatures.
+Note also that there is a key usage flag for timestamping.
+This would appear to indicate that timestamping documents is sufficiently different from signing them that separate keys should be used.
+This is consistent with the idea that "I wrote this document" and "I saw this document" are distinct statements with different consequences.
+This is crucial in the case of an automated timestamping service that makes no claims about the accuracy of document contents.
+
+We therefore define type 0x40 Timestamp signatures as follows:
+
+* A type 0x40 timestamp signature is made over a document, and constructed the same way as a type 0x00 signature (does this imply we need a type 0x41 signature too?).
+* It is only valid if made by a (sub)key with the timestamping usage flag.
+* It conveys no opinion about the validity of the document; it only claims that the document existed at the time the signature was made.
+* It can be made over an otherwise unsigned document, or it can be one of many signatures over the same document.
+* It makes no claims about any other signatures on the document.
+* It may be used anywhere that a document signature may be used.
+
+Countersigning a signed document is done using the type 0x50 third party confirmation signature.
+
+## Specification of Third Party Confirmation signatures
+
+The construction of type 0x50 signatures is well defined, however their placement and semantics are not.
+We define them as follows:
+
+* A type 0x50 signature notarises another signature.
+* By default, it makes no claim about the validity of the signature, just its existence.
+* It SHOULD be located in an Embedded Signature packet in the unhashed area of the signature it notarises.
+   If it is so located, a Signature Target subpacket is not required.
+
+TODO: do we allow the application layer to make validity claims using notations?
+TODO: do we need a new usage flag?
+
+## Signature Type Ranges
+
+Signature Type code points are spaced out into identifiable ranges of types with similar semantics.
+These also appear to correspond to various Key Usage flags.
+These ranges and the corresponding usage flags are not rigorously defined.
+We do so now:
+
+* Document Signature Range (0x00..0x07)
+* Certification Range (0x10..0x17)
+* Binding Range (0x18..0x1f)
+* Key Revocation Range (0x20..0x27)
+* Binding Revocation Range (0x28..0x2f)
+* Certification Revocation Range (0x30..0x37)
+* Timestamping range (0x40..0x47)
+* Countersignature range (0x50..0x57)
+
+Each usage flag permits signatures in the following ranges:
+
+* Signature: Document Signature range (and Primary Key Binding type)
+* Certification: Certification and Certification Revocation ranges (third party)
+* Timestamping: Timestamping range
+* (TBC) Revocation: Key Revocation range
+* (TBC): Countersignature range
+
+TODO: how do third party direct sigs work?
+
+In addition, primary keys are always permitted to make first-party signatures in the Certification, Binding, Certification Revocation, Key Revocation and Binding Revocation ranges.
 
 ## Subject Validity Period Subpacket
 
