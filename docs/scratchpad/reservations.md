@@ -53,7 +53,7 @@ In the below, we classify reserved code points as follows:
 
 ## OpenPGP Public Key Algorithms
 
-* 0 [OBV: consistency with Symmetric Key Algorithm 0 "unencrypted"]
+* 0 [OBV: 0 implies "none"]
 * 20 (ElGamal Encrypt or Sign, deprecated) [GOOD]
 * 21 (X9.42, S/MIME compatibility) [SPECIFICATION INCOMPLETE, possibly RFC2631?](https://datatracker.ietf.org/doc/html/rfc2631)
 * 23 (AEDH) [SPECIFICATION MISSING]
@@ -67,7 +67,7 @@ In the below, we classify reserved code points as follows:
 
 ## OpenPGP Hash Algorithms
 
-* 0 [OBV: consistency with Symmetric Key Algorithm 0 "unencrypted"]
+* 0 [OBV: 0 implies "none"]
 * 4 [[Double-width SHA (experimental) -> RFC2440 9.4](https://datatracker.ietf.org/doc/html/rfc2440#section-9.4)]
 * 5 [[MD2 -> RFC2440 9.4](https://datatracker.ietf.org/doc/html/rfc2440#section-9.4)]
 * 6 [[TIGER/192 -> RFC2440 9.4](https://datatracker.ietf.org/doc/html/rfc2440#section-9.4)]
@@ -82,7 +82,17 @@ Action: code point 15 SHOULD be reserved for SHA3-224.
 
 ## OpenPGP AEAD Algorithms
 
-* 0 [OBV: consistency with Symmetric Key Algorithm 0 "unencrypted"]
+* 0 [OBV: 0 implies "none"]
+
+# Use of special code points
+
+Several of the registries use zero to indicate a special code point "none", and several others obviously reserve zero to prevent accidental interpretation as "none".
+Zero is however used non-specially in the Signature Types registry, and some other registries (Image Attribute Encoding Format, and the other Types registries) reserve zero without explanation, even though there is no obvious way to interpret it as "none" in context.
+This may simply represent a general aversion to using zero as a non-special code point, and the Signature Types registry may be considered an outlier.
+
+RFC1991 used 255 as an "experimental" code point in several registries, however RFC2440 subsequently moved the experimental ranges to their current locations.
+255 remained as a special code point in the S2K Usage Octet registry, and is used to indicate five-octet length encoding.
+Otherwise, 255 is not generally considered special in any subsequent document.
 
 # Unassigned gaps in OpenPGP registries
 
