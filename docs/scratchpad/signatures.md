@@ -6,6 +6,7 @@ This document attempts to fix several of the most notable omissions from earlier
 The following topics are addressed:
 
 * Proper specification of Timestamp and Third Party Confirmation signatures.
+    * Use of countersignatures to validate keys
 * Signature Type ranges and Key Usage flags.
     * Authentication Signatures
 * Deprecation of Signature and Key Expiration Time subpackets in favour of a new Subject Validity Period subpacket.
@@ -18,7 +19,9 @@ The following topics are addressed:
 In [RFC1991](https://datatracker.ietf.org/doc/html/rfc1991), it says:
 
 > <40> - time stamping ("I saw this document") (*)
+>
 > ...
+>
 > Type <40> is intended to be a signature of a signature, as a notary seal on a signed document.
 
 The second statement implies that a v3 0x40 sig is made by hashing a signature packet as if it were a document.
@@ -63,12 +66,22 @@ The construction of type 0x50 signatures is well defined, however their placemen
 We define them as follows:
 
 * A type 0x50 signature notarises another signature.
+* It is only valid if made by a (sub)key with the (TBC) usage flag.
 * By default, it makes no claim about the validity of the signature, just its existence.
 * It SHOULD be located in an Embedded Signature packet in the unhashed area of the signature it notarises.
    If it is so located, a Signature Target subpacket is not required.
 
-TODO: do we allow the application layer to make validity claims using notations?
-TODO: do we need a new usage flag?
+Since a blind countersigning party is explicitly permitted ny the spec, we must infer that the countersignature only relates to the signature packet and not to the subject of the signature.
+If we wish to also timestamp the subject, a separate signature MUST be created.
+Note however that this is only currently possible for document signatures.
+
+### Use of countersignatures to validate keys
+
+We may wish to allow the application layer to make validity claims using countersignatures.
+For example, a keyserver may wish to record that it has verified a User ID by automated means.
+The keyserver may not wish to make a certification, to prevent the cumulation of many such automated signatures.
+
+(TBC)
 
 ## Signature Type Ranges and Key Usage flags
 
