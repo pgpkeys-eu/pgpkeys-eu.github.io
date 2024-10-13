@@ -6,7 +6,8 @@ This document attempts to fix several of the most notable omissions from earlier
 The following topics are addressed:
 
 * Proper specification of Timestamp and Third Party Confirmation signatures.
-* Signature Type ranges and usage flags.
+* Signature Type ranges and Key Usage flags.
+    * Authentication Signatures
 * Deprecation of Signature and Key Expiration Time subpackets in favour of a new Subject Validity Period subpacket.
 * Cumulation of Signatures.
     * Unhashed Subpacket Deduplication.
@@ -69,7 +70,7 @@ We define them as follows:
 TODO: do we allow the application layer to make validity claims using notations?
 TODO: do we need a new usage flag?
 
-## Signature Type Ranges
+## Signature Type Ranges and Key Usage flags
 
 Signature Type code points are spaced out into identifiable ranges of types with similar semantics.
 These also appear to correspond to various Key Usage flags.
@@ -87,15 +88,23 @@ We do so now:
 
 Each usage flag permits signatures in the following ranges:
 
-* Signature: Document Signature range (and Primary Key Binding type)
-* Certification: Certification and Certification Revocation ranges (third party)
-* Timestamping: Timestamping range
-* (TBC) Revocation: Key Revocation range
+* 0x01.. Certification: Certification and Certification Revocation ranges, and Direct Sig type (third party)
+* 0x02.. Signature: Document Signature range (and Primary Key Binding type)
+* 0x0008.. Timestamping: Timestamping range
+* (TBC) Revocation?: Key Revocation range
 * (TBC): Countersignature range
 
-TODO: how do third party direct sigs work?
+In addition, primary keys are always permitted to make self-signatures in the Certification, Binding, Certification Revocation, Key Revocation and Binding Revocation ranges.
 
-In addition, primary keys are always permitted to make first-party signatures in the Certification, Binding, Certification Revocation, Key Revocation and Binding Revocation ranges.
+### Authentication Signatures
+
+OpenPGP defines no authentication signature types, but does have an authentication key usage flag.
+Traditionally, authentication is performed by converting the key material into that of another protocol (usually OpenSSH) and performing authentication in that protocol.
+
+It should be noted that cross-protocol usage can be exploited to evade the domain separation protections of key usage flags.
+For example, there is no distinction between signature, certification and authentication usage in OpenSSH, and once converted an OpenPGP authentication key may be used as a OpenSSH CA or to sign git commits.
+
+Guidance for the use of authentication keys should be provided.
 
 ## Subject Validity Period Subpacket
 
