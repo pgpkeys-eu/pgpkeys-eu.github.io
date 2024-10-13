@@ -7,6 +7,7 @@ The following topics are addressed:
 
 * Proper specification of Timestamp and Third Party Confirmation signatures.
     * Use of countersignatures to validate keys
+    * Deprecation of nesting
 * Signature Type ranges and Key Usage flags.
     * Authentication Signatures
 * Deprecation of Signature and Key Expiration Time subpackets in favour of a new Subject Validity Period subpacket.
@@ -82,6 +83,15 @@ For example, a keyserver may wish to record that it has verified a User ID by au
 The keyserver may not wish to make a certification, to prevent the cumulation of many such automated signatures.
 
 (TBC)
+
+### Deprecation of nesting
+
+The neating flag in OPS signatures is designed so that a timestamp signature can be made over a literal packet and its signatures in a single operation.
+This process is complex and poorly suported, so is deprecated.
+The nesting flag MUST NOT be generated.
+
+To sign over a complete OpenPGP packet stream, it should be wrapped in a Literal packet and treated as a document.
+An OpenPGP implementation SHOULD NOT recursively descend into such a document; it is up to the application to decide whether to pass the inner message to a subsequent OoenPGP invocation.
 
 ## Signature Type Ranges and Key Usage flags
 
