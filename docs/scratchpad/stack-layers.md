@@ -37,6 +37,7 @@ They are however useful as a mental model, particularly when defining extensions
 
 * Messages
     * Document signature types (0x00..0x0f)
+    * Timestamp signatures (0x40) ?
     * Literal data
     * Sign-then-encrypt
     * One-pass signatures
@@ -50,7 +51,8 @@ They are however useful as a mental model, particularly when defining extensions
     * Criticality
     * Exportability
 * Oddities
-    * Timestamp signatures (0x40)
+    * Detached signatures
+    * Bare revocation certificates
     * Third-party confirmation signatures (0x50)
 
 ### Layer 2d: Temporal evolution
