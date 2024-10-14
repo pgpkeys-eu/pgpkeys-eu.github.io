@@ -37,15 +37,14 @@ In [RFC2440](https://datatracker.ietf.org/doc/html/rfc2440), this has changed to
 > This signature is only meaningful for the timestamp contained in it.
 
 This avoids the apparent contradiction of RFC1991, by not even attempting to explain the semantics.
-And there's still no description of how we should construct one.
+And there's still no explicit construction given.
 
-Then [RFC4880](https://datatracker.ietf.org/doc/html/rfc4880) defines a new signature type 0x50, which is:
+Then [RFC4880](https://datatracker.ietf.org/doc/html/rfc4880) defines a new signature type 0x50, which is defined as:
 
-> 0x50: Third-Party Confirmation signature.
 > This signature is a signature over some other OpenPGP Signature packet(s).
 > It is analogous to a notary seal on the signed data.
 
-Which sounds very similar to the description of type 0x40 sigs in RFC1991.
+This sounds very similar to the second use case for type 0x40 sigs in RFC1991.
 But unlike 0x40, which remains ambiguous, a concrete construction is given.
 
 Note also that there is a key usage flag for timestamping.
@@ -53,16 +52,18 @@ This would appear to indicate that timestamping documents is sufficiently differ
 This is consistent with the idea that "I wrote this document" and "I saw this document" are distinct statements with different consequences.
 This is crucial in the case of an automated timestamping service that makes no claims about the accuracy of document contents.
 
+The OPS packet contains a "nesting" flag that controls whether an inner OPS signature is included in the data signed over by the outer OPS signature.
+If a Timestamp signature were constructed and placed the same way as a Document signature, it might be possible to reconcile the above variations in semantics.
+
 We therefore define type 0x40 Timestamp signatures as follows:
 
 * A type 0x40 timestamp signature is made over a document, and constructed the same way as a type 0x00 signature (does this imply we need a type 0x41 signature too?).
 * It is only valid if made by a (sub)key with the timestamping usage flag.
 * It conveys no opinion about the validity of the document; it only claims that the document existed at the time the signature was made.
 * It can be made over an otherwise unsigned document, or it can be one of many signatures over the same document.
-* It makes no claims about any other signatures on the document.
 * It may be used anywhere that a document signature may be used.
 
-Countersigning a signed document is done using the type 0x50 third party confirmation signature.
+Countersigning a signature packet only (i.e. without the associated document) is done using the type 0x50 third party confirmation signature.
 
 ## Specification of Third Party Confirmation signatures
 
@@ -93,15 +94,19 @@ Packet nesting semantics are complex:
 
 * A non-OPS signature signs over everything that follows, including any other signatures.
 * An OPS signature construction without nesting flags signs over everything within the OPS construction (nesting).
-* To add multiple signatures over the same data without nesting, all OPS constructions *except* the innermost one have the nesting flag set, to *suppress* nesting.
+* To add multiple signatures over the same data without nesting, all OPS constructions (except possibly the innermost one) have the nesting flag set, to *suppress* nesting.
 * It is not clear what SHOULD happen if the nesting-suppression flag is set but no OPS packet follows.
 
-Counterproposal:
+Counterproposal 1:
 
 * To sign over a complete OpenPGP packet stream, it SHOULD be wrapped in a Literal packet and treated as a document.
 * An OpenPGP packet parser SHOULD NOT recursively descend into such a document; it is up to the application to decide whether to process the inner message by calling the parser again.
-* Otherwise, OPS signatures SHOULD be treated as if nesting is suppressed, and a new value SHOULD be used in the nesting octet to indicate "ignore any nested signatures".
-* The nesting octet should be promoted to a registry and the meaning of each flag specified.
+
+Counterproposal 2:
+
+* To sign over a complete OpenPGP packet stream, the default OPS behaviour SHOULD be used.
+
+In both cases, we wish to concretely specify the nesting behaviour.
 
 ### Signature Subject Encoding registry
 
@@ -110,18 +115,23 @@ Any missing octets MUST be treated as if all flags in them are zero.
 This field should then be promoted to a registry and renamed to "OpenPGP Signature Subject Encoding", with the following initial entries:
 
 Flag    | Description
---------|----------------------------------
-0x01..  | Ignore next signature (deprecated)
-0x02..  | Ignore any nested signatures
+--------|-------------------------------------------
+0x01..  | OPS packet follows; ignore (deprecated)
+0x02..  | Ignore all inner signatures
 0x04..  | Pre-hashed
 
 The signature subject is the sequence of bytes that the signature is made over.
 By default, the signature subject is the entire sequence of packets between the OPS and matching Signature packet.
 
-* "Ignore next signature" and "Ignore any nested signatures" mean that the signature subject is stripped of (the outermost|all outer) signature constructions.
-* "Ignore next signature" is deprecated in favour of "Ignore any nested signatures".
-* "Pre-hashed" means that the signature subject is hashed and then the signature is made over (subject length || digest) instead of the subject directly.
+* "OPS packet follows; ignore" means that the signature subject is stripped of the following OPS packet and its corresponding Signature packet.
+    If no OPS packet follows, the behaviour is undefined; it is therefore deprecated in favour of "Ignore all inner signatures".
+* "Ignore all inner signatures" means that the signature subject is stripped of all OPS and Signature packets.
+    If no other signatures exist, this flag is a no-op.
+* "Pre-hashed" means that the signature subject is hashed and the signature is made over (subject length || subject digest) instead of the subject itself.
     The pre-hash algorithm MUST be the same one used for the signature.
+
+Document signatures SHOULD set the "Ignore all inner signatures" flag.
+Timestamp signatures SHOULD NOT set the "Ignore all inner signatures" flag.
 
 ### OPS packets as MIME headers
 
