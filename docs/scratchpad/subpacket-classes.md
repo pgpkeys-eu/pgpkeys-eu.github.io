@@ -53,7 +53,7 @@ Type| 	Name							| Class		| Critical	| Signature Context		| Notes
 4  	|	Exportable Certification 		| WoT     	| MUST*		|						| boolean, default true (* if false)
 5  	|	Trust Signature 				| WoT		|			|						|
 6  	|	Regular Expression 				| WoT		| SHOULD	|						|
-7  	|	Revocable 						| General	|			| cert/direct/bind sigs	| boolean, default false (deprecated in [draft-revocation](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-replacementkey))
+7  	|	Revocable 						| General	|			| cert/direct/bind sigs	| boolean, default false (deprecated in [draft-revocation](https://datatracker.ietf.org/doc/html/draft-dkg-openpgp-revocation))
 8  	|	Reserved 						|			|			|						|
 9  	|	Key Expiration Time 			| Preference| SHOULD	|						|
 10 	|	Reserved						|			|			|						|
@@ -79,8 +79,8 @@ Type| 	Name							| Class		| Critical	| Signature Context		| Notes
 34 	|	Reserved 	 					|			|			|						|
 35 	|	Intended Recipient Fingerprint 	| Document	| SHOULD 	|						|
 36 	|	Delegated Revoker (Embedded Key)| Data type	| (MUST)	| TBD delegated revoker	| [draft-revocation](https://datatracker.ietf.org/doc/html/draft-dkg-openpgp-revocation)
-37 	|	Approved Certifications	(Signature Target List)| Data type	|			| 0x16 cert approval 	| [librepgp](https://datatracker.ietf.org/doc/html/draft-koch-librepgp), [draft-1pa3pc](https://datatracker.ietf.org/doc/html/draft-dkg-openpgp-1pa3pc)
-38 	|	Key Block			 	        | Document	|			|						| [librepgp](https://datatracker.ietf.org/doc/html/draft-koch-librepgp), utility unclear
+37 	|	Approved Certifications	(Signature Target List)| Data type	|			| 0x16 cert approval 	| [4880bis](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis-10), [draft-1pa3pc](https://datatracker.ietf.org/doc/html/draft-dkg-openpgp-1pa3pc)
+38 	|	Key Block			 	        | Document	|			|						| [4880bis](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis-10), utility unclear
 39 	|	Preferred AEAD Ciphersuites 	| Preference|			|						|
 40 	|	Literal Data Meta Hash			| Document	|			|						| [librepgp](https://datatracker.ietf.org/doc/html/draft-koch-librepgp), [draft-literal-data-metadata](https://datatracker.ietf.org/doc/html/draft-gallagher-openpgp-literal-metadata)
 41 	|	Trust Alias						| WoT		|			|						| [librepgp](https://datatracker.ietf.org/doc/html/draft-koch-librepgp)
