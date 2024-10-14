@@ -6,10 +6,13 @@ This document attempts to fix several of the most notable omissions from earlier
 The following topics are addressed:
 
 * Proper specification of Timestamp and Third Party Confirmation signatures.
-    * Use of countersignatures to validate keys
-    * Deprecation of nesting
+    * Use of countersignatures to validate keys.
+* OPS nesting.
+    * Signature Subject Encoding registry.
+    * OPS packets as MIME headers.
+* Recursive embedding inside Signature Subpackets.
 * Signature Type ranges and Key Usage flags.
-    * Authentication Signatures
+    * Authentication Signatures.
 * Deprecation of Signature and Key Expiration Time subpackets in favour of a new Subject Validity Period subpacket.
 * Cumulation of Signatures.
     * Unhashed Subpacket Deduplication.
@@ -84,14 +87,69 @@ The keyserver may not wish to make a certification, to prevent the cumulation of
 
 (TBC)
 
-### Deprecation of nesting
+## OPS nesting
 
-The neating flag in OPS signatures is designed so that a timestamp signature can be made over a literal packet and its signatures in a single operation.
-This process is complex and poorly suported, so is deprecated.
-The nesting flag MUST NOT be generated.
+Packet nesting semantics are complex:
 
-To sign over a complete OpenPGP packet stream, it should be wrapped in a Literal packet and treated as a document.
-An OpenPGP implementation SHOULD NOT recursively descend into such a document; it is up to the application to decide whether to pass the inner message to a subsequent OoenPGP invocation.
+* A non-OPS signature signs over everything that follows, including any other signatures.
+* An OPS signature construction without nesting flags signs over everything within the OPS construction (nesting).
+* To add multiple signatures over the same data without nesting, all OPS constructions *except* the innermost one have the nesting flag set, to *suppress* nesting.
+* It is not clear what SHOULD happen if the nesting-suppression flag is set but no OPS packet follows.
+
+Counterproposal:
+
+* To sign over a complete OpenPGP packet stream, it SHOULD be wrapped in a Literal packet and treated as a document.
+* An OpenPGP packet parser SHOULD NOT recursively descend into such a document; it is up to the application to decide whether to process the inner message by calling the parser again.
+* Otherwise, OPS signatures SHOULD be treated as if nesting is suppressed, and a new value SHOULD be used in the nesting octet to indicate "ignore any nested signatures".
+* The nesting octet should be promoted to a registry and the meaning of each flag specified.
+
+### Signature Subject Encoding registry
+
+The nesting flags octet comes last in the OPS packet, and so is trivially extended to a variable-length field.
+Any missing octets MUST be treated as if all flags in them are zero.
+This field should then be promoted to a registry and renamed to "OpenPGP Signature Subject Encoding", with the following initial entries:
+
+Flag    | Description
+--------|----------------------------------
+0x01..  | Ignore next signature (deprecated)
+0x02..  | Ignore any nested signatures
+0x04..  | Pre-hashed
+
+The signature subject is the sequence of bytes that the signature is made over.
+By default, the signature subject is the entire sequence of packets between the OPS and matching Signature packet.
+
+* "Ignore next signature" and "Ignore any nested signatures" mean that the signature subject is stripped of (the outermost|all outer) signature constructions.
+* "Ignore next signature" is deprecated in favour of "Ignore any nested signatures".
+* "Pre-hashed" means that the signature subject is hashed and then the signature is made over (subject length || digest) instead of the subject directly.
+    The pre-hash algorithm MUST be the same one used for the signature.
+
+### OPS packets as MIME headers
+
+To simplify the definition of MIME one-pass signatures, we encode an entire OPS packet in the headers of the MIME part to be signed.
+The MIME header to be used is "OpenPGP-OPS".
+
+## Recursive embedding inside Signature Subpackets
+
+There are currently two places where embedding of signatures is possible in signature subpackets:
+
+* Embedded Signature subpacket (type 32): contains a signature packet
+* Key Block (type 38, experimental): contains an entire TPK
+
+Both of these may contain further signatures, and are therefore recursive.
+We wish to prevent infinite recursion via embedded signatures, in order to avoid resource exhaustion.
+This can be achieved as follows:
+
+* Signatures contained within Embedded Signature subpackets MUST NOT contain any Embedded Signature subpackets.
+    This can be done by altering the specification of Embedded Signature subpacket, and/or the signature types that may be contained within it.
+    Belt and braces might be the safest option.
+* Key Block is deprecated.
+
+Key Block does perform a function, which is to smuggle a key into the OpenPGP layer without requiring support by the application layer.
+We could instead update the message grammar to allow TPKs to be appended to a signed message.
+This would have to be allowed inside the encrypted layer.
+
+This would also unify the packet sequence syntax so that there is only one kind of sequence, which would include both messages and keyrings.
+See also "mixed keyrings" in draft-gallagher-openpgp-hkp.
 
 ## Signature Type Ranges and Key Usage flags
 
