@@ -77,14 +77,15 @@ This means that strings of multi-octet code points are self-synchronising.
 * legacy single-octet encodings have an octet value in the range 248..255
 * overlong encodings MUST NOT be used
 
-We reserve octet values in the range 248..255, which are not used in UTF-8, for legacy single-octet encodings of code points with the same values.
+We reserve initial octet values in the range 248..255, which are not used in UTF-8, for legacy single-octet encodings of code points with the same values.
 This ensures backwards compatibility of existing secret key encryption (S2K Usage) code points.
 Since Secret Key Encryption code points in this range are in current use, they MUST be represented by legacy single-octet encodings.
+Legacy single-octet encodings MUST NOT be used in any other context.
+The corresponding code points 248..255 will be reserved in the Symmetric Encryption Algorithms registry to avoid ambiguity.
+If more than 16 S2K Usage code points are eventually required, they SHOULD be allocated from code point 2047 downwards, for consistency.
 
 Three-octet encodings (code points 2048..65535) are reserved for additional private and experimental use code points in registries that already contain a private and experimental use range.
 Three-octet encodings MUST NOT be used in the Signature Types, Image Attribute Versions, or Key and Signature Versions registries.
-
-Note that since all OpenPGP implementations MUST support UTF-8, it MAY be convenient to hand off calculation of this algorithm to UTF-8 encoding/decoding routines, provided that these do not perform any Unicode validation (e.g. checking for invalid code points or surrogates, mapping to canonical forms, etc.).
 
 ### Subpacket Type Encoding
 
@@ -92,7 +93,7 @@ The criticality bit means that the first octet of any multi-octet subpacket type
 We therefore cannot use UTF-8ish encoding for subpacket types, and cannot make use of its self-synchronisation properties.
 Luckily, subpacket types are only found as the second field of a subpacket, immediately after the packet length, so self-synchronisation is not required.
 
-Code point 127 is reserved to indicate that the actual subpacket type is encoded in the following two octets.
+Code point 127 is reserved as a placeholder to indicate that the actual subpacket type is encoded in the following two octets.
 
 The standard packet type encoding (including critical bit) continues to represent code points 0..126 as usual.
 Two-octet encoding is used to represent code points 127..65535, and MUST NOT be used to represent code points 0..127.
@@ -106,7 +107,7 @@ It may eventually become necessary to also expand the Packet Type registry, whic
 The encoding space is highly restricted due to the small number of free bits available in the OpenPGP packet framing.
 
 Packet Tag 16 was initially intended as a "comment" packet but was never used, and is not encodable in Legacy packet framing.
-We therefore reserve it to indicate that the actual packet type is encdoded in the two octets following the length field.
+We therefore reserve it as a placeholder to indicate that the actual packet type is encoded in the two octets following the length field.
 
 The OpenPGP packet type encoding continues to represent code points 0..63 as usual.
 Two-octet encoding is used to represent code points 64..65535, and MUST NOT be used to represent code points 0..63.
