@@ -1,8 +1,7 @@
-
 Scratchpad entries
 ------------------
 
-* [OpenPGP Signature Annoyances (and solutions)](signatures.html)
+* [OpenPGP Signature Semantics](signatures.html)
 * [OpenPGP Signature Subpacket Classes](subpacket-classes.html)
 * [OpenPGP Stack Layers](stack-layers.html)
 * [OpenPGP/LibrePGP Tolerance](tolerance.html)
