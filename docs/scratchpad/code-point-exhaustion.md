@@ -96,7 +96,7 @@ Luckily, subpacket types are only found as the second field of a subpacket, imme
 Code point 127 is reserved as a placeholder to indicate that the actual subpacket type is encoded in the following two octets.
 
 The standard packet type encoding (including critical bit) continues to represent code points 0..126 as usual.
-Two-octet encoding is used to represent code points 127..65535, and MUST NOT be used to represent code points 0..127.
+Two-octet encoding is used to represent code points 128..65535, and MUST NOT be used to represent code points 0..126.
 
 The critical bit applies to the actual subpacket type, not the use of 127 to indicate two-octet encoding.
 Code points >= 2048 are reserved for private or experimental use.
