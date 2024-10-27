@@ -51,7 +51,7 @@ The DR PKESK is generalised to contain N linked DR states:
 * Symmetric Algorithm (1 octet)
 * Symmetric Chain Sequence (2 octets)
 * Previous Symmetric Chain Sequence (2 octets)
-* Length of the following (2N) fields (1 octet)
+* Length in octets of the following (2N) fields (2 octets)
 * Counterpart's last published ephemeral subkey version (1 octet)
 * Counterpart's last published ephemeral subkey fingerprint (N octets)
 * The previous two fields repeated N-1 times
