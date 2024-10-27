@@ -77,7 +77,7 @@ The symmetric algorithm MUST have the same key length as the ECDH algorithm of t
 * Symmetric Algorithm (1 octet)
 * Symmetric Chain Sequence (2 octets)
 * Previous Symmetric Chain Sequence (2 octets)
-* Length of the following two fields (1 octet)
+* Length in octets of the following two fields (2 octets)
 * Counterpart's last published ephemeral subkey version (1 octet)
 * Counterpart's last published ephemeral subkey fingerprint (N octets)
 * Symmetrically-encrypted DR session information
