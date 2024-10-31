@@ -13,7 +13,7 @@ The following topics are addressed:
 * Recursive embedding inside Signature Subpackets.
 * Signature Type ranges and Key Usage flags.
     * Authentication Signatures.
-* Deprecation of Signature and Key Expiration Time subpackets in favour of a new Subject Validity Period subpacket.
+* Disambiguation of Expiration Times.
 * Cumulation of Signatures.
     * Unhashed Subpacket Deduplication.
 * Redundancy of Certification Signature Types.
@@ -172,7 +172,7 @@ We do so now:
 * Certification Range (0x10..0x17)
 * Binding Range (0x18..0x1f)
 * Key Revocation Range (0x20..0x27)
-* Binding Revocation Range (0x28..0x2f)
+* Subkey Revocation Range (0x28..0x2f)
 * Certification Revocation Range (0x30..0x37)
 * Timestamping range (0x40..0x47)
 * Countersignature range (0x50..0x57)
@@ -197,9 +197,9 @@ For example, there is no distinction between signature, certification and authen
 
 Guidance for the use of authentication keys should be provided.
 
-## Subject Validity Period Subpacket
+## Disambiguation of Expiration Times
 
-[Key Expiration Time subpackets are a misfeature](https://gitlab.com/openpgp-wg/rfc4880bis/-/issues/71):
+Key Expiration Time subpackets are non-intuitive:
 
 1. They specify an offset rather than an timestamp, but are not usable without first converting to a timetamp
 2. The offset is calculated relative to the creation timestamp of *some other packet*
@@ -219,40 +219,32 @@ In addition, the Signature Creation Time subpacket has an overloaded meaning:
 
 Together, this means that it is not possible to create a new signature that extends the validity of a key further into the past, nor even one that leaves the starting date unchanged.
 Some implementations have worked around this by generating signatures with creation dates backdated to one second after that of the previous signature.
-The ability to create a new signature with an unchanged creation date would allow historical signatures to be losslessly cleaned from a TPK, saving space.
 
-We therefore define a "Subject Validity Period" subpacket that contains the following fields:
+The ability to create a new signature with an unchanged valid-from date allows historical signatures to be losslessly cleaned from a TPK, saving space.
+It is also more compatible with the historical interpretation favoured by PGP.com and GnuPG.
 
-* Valid From (4 octets): The earliest date the subject of the signature is valid
-* Valid Until (4 octets): The latest date the subject of the signature is valid
+To clean up the ambiguity, we specify the following:
 
-The following special values are defined:
+1. Binding signatures (sbinds, direct key signatures, and self-certifications) SHOULD NOT have Signature Expiration Time subpackets
+2. The validity of a (sub)key extends from its creation date until its soft-revocation or expiration date
+3. A signature is valid if it was made during the (sub)key's validity period
+4. The creation time of the binding signature is used only for ordering, not for calculation of signature validity
 
-* 0x00000000: The Infinite Past
-* 0xffffffff: The Infinite Future
+We also specify that binding signatures cannot be directly revoked; the corresponding revocation signatures affect the key, not the binding.
+This means that certification revocation signatures cannot revoke direct key signatures.
 
-All other values are interpreted as seconds since midnight, 1st Jan 1970.
-If no Subject Validity Period subpacket is included, then the validity period begins at the creation date of the signature.
-
-The Signature Expiration Time and Key Expiration Time subpackets should both be deprecated.
-However, for a transitional period, it is RECOMMENDED to include both the old and new validity systems.
-A receiving implementation SHOULD ignore the deprecated subpacket types and use the Valid Until field of the Subject Validity Period subpacket instead, if one exists.
-In such a scenario, the deprecated subpacket SHOULD be marked critical, and the Subject Validity Period subpacket MUST NOT be critical.
-If only a Subject Validity Period subpacket is included, then it SHOULD be marked critical.
+See also [this issue in rfc4880bis](https://gitlab.com/openpgp-wg/rfc4880bis/-/issues/71), [this issue in openpgpgjs](https://github.com/openpgpjs/openpgpjs/issues/1800), and [this issue in draft-dkg-openpgp-revocation](https://gitlab.com/dkg/openpgp-revocation/-/issues/19).
 
 ## Cumulation of Signatures
 
-A cryptographically valid signature automatically and permanently invalidates any earlier signature of the same type, by the same key pair, over the same data.
+A cryptographically valid certification or document signature automatically and permanently invalidates any earlier signature of the same type range, by the same key pair, over the same data.
 If a later such signature expires before an earlier one, the earlier signature does not become valid again.
 
 For the purposes of the above:
 
-* "same type" does not distinguish between the two document signature types (0x00, 0x01) or between the four certification signature types (0x10-0x13).
+* "same type range" does not distinguish between the two document signature types (0x00, 0x01) or between the four certification signature types (0x10-0x13).
 * "same key pair" refers to the public key packet as identified by the Issuer KeyID or Issuer Fingerprint subpacket.
 * "same data" refers only to the data fed into the signature digest function after the end of the salt (if appropriate) and before the beginning of the trailer.
-
-If a Subject Validity Period subpacket is present in the later signature, the earlier signature SHOULD be discarded.
-If a Subject Validity Period subpacket is not present in the later signature, an implementation MAY retain the earlier signature for the purposes of calculating subject validity at an earlier point in time, for example to determine if a key pair was valid at the time that a signature was apparently generated by it.
 
 (See also [this openpgp mailing list post](https://mailarchive.ietf.org/arch/msg/openpgp/C0P4MxwqJBbxS6H0YoXFF3oEJ3A/).)
 
@@ -267,7 +259,7 @@ Otherwise, all unhashed subpackets SHOULD be included, even if this results in m
 
 There are four types of certification signature defined in the standards (0x10..0x13).
 All may be created by either the key owner or a third party, and may be calculated over either a User ID packet or a User Attribute packet.
-In addition, a Certification Revocation signature revokes signatures of any certification type (and also direct signatures).
+In addition, a Certification Revocation signature revokes signatures of any certification type.
 Historically, as in [RFC1991](https://datatracker.ietf.org/doc/html/rfc1991), certifications were only made by third parties.
 First-party self-certifications only became customary later, and were made mandatory when preference subpackets were introduced.
 
