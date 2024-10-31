@@ -60,14 +60,14 @@ We reserve the following one-octet code points for PGP-GREASE:
 
 Sequence| Code Point
 --------|-----------
-1       | 123
-3       | 44
-5       | 55
-7       | 66
-9       | 77
-11      | 88
-13      | 99
-15      | 111
+1       | 123 (0x7b)
+3       | 44  (0x2c)
+5       | 55  (0x37)
+7       | 66  (0x42)
+9       | 77  (0x4d)
+11      | 88  (0x58)
+13      | 99  (0x63)
+15      | 111 (0x6f)
 
 Code points SHOULD be chosen based on the least-significant four bits in the grease counter, using the sequence given.
 If no usable code point exists for the sequence number, the grease counter SHOULD be incremented without adding a PGP-GREASE code point at that location.

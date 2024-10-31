@@ -169,23 +169,50 @@ These ranges and the corresponding usage flags are not rigorously defined.
 We do so now:
 
 * Document Signature Range (0x00..0x07)
+    * 0x00 Binary document
+    * 0x01 Text document
+    * 0x02 Standalone (null document)
+* Unassigned (0x08..0x0f)
 * Certification Range (0x10..0x17)
+    * 0x10 Generic cert
+    * 0x11 Persona cert
+    * 0x12 Casual cert
+    * 0x13 Positive cert
+    * (0x16 Approved certs)
 * Binding Range (0x18..0x1f)
+    * 0x18 Subkey bind
+    * 0x19 Primary key bind
+    * 0x1f Direct key (null bind)
 * Key Revocation Range (0x20..0x27)
+    * 0x20 Primary key revocation
 * Subkey Revocation Range (0x28..0x2f)
+    * 0x28 Subkey revocation
 * Certification Revocation Range (0x30..0x37)
+    * 0x30 Cert revocation
+* Unassigned (0x38..0x3f)
 * Timestamping range (0x40..0x47)
+    * 0x40 Timestamp
+* Unassigned (0x48..0x4f)
 * Countersignature range (0x50..0x57)
+    * 0x50 Third party confirmation
+* Unassigned (0x58..0x6f)
+* Private/Experimental (0x70..0x77)
+* Unassigned (0x78..0xfe)
+* RESERVED (0xff)
 
 Each usage flag permits signatures in the following ranges:
 
-* 0x01.. Certification: Certification and Certification Revocation ranges, and Direct Sig type (third party)
+* 0x01.. Certification: Certification (except for Approved Certs) and Certification Revocation ranges, and Direct Sig type (third party)
 * 0x02.. Signature: Document Signature range (and Primary Key Binding type)
 * 0x0008.. Timestamping: Timestamping range
 * (TBC) Revocation?: Key Revocation range
 * (TBC): Countersignature range
+* (TBC): Private/Experimental range
 
 In addition, primary keys are always permitted to make self-signatures in the Certification, Binding, Certification Revocation, Key Revocation and Binding Revocation ranges.
+
+We define a Private/Experimental usage flag and a Private/Experimental signature type range.
+The private range is 0x70..0x77 (112..119) for both compatibility with [PGP-GREASE](grease.html) and rough consistency with 100..100 in the decimal registries.
 
 ### Authentication Signatures
 
