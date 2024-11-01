@@ -33,7 +33,7 @@ Signature subpacket types may be roughly classified, depending on their usage:
 		Subpacket types: Reason for Revocation.
 	
 	* Key property subpackets.
-		These are only meaningful in a binding signature (or historically a self-cert over the primary User ID) and define properties of that particular (sub)key.
+		These are only meaningful in a direct or binding self-sig (or historically a self-cert over the primary User ID) and define properties of that particular (sub)key.
 		They SHOULD NOT be used elsewhere.
 		They MUST be placed in the hashed area.
 
@@ -94,7 +94,7 @@ Type| 	Name							| Class	| Crit	| SV| Context		| Notes
 24 	|	Preferred Key Server 			| Pref	| 		|	|				|
 25 	|	Primary User ID 				| Self  |		|	|				| boolean, default false
 26 	|	Policy URI 						| WoT	|		|	|				| (should have been a notation)
-27 	|	Key Flags 						| Key   | SHOULD|	|				|
+27 	|	Key Flags 						| Key   | SHOULD|	|				| ([also vaguely allowed in third-party certs?](https://gitlab.com/openpgp-wg/rfc4880bis/-/issues/120))
 28 	|	Signer's User ID 				| Gen	|		|	|				|
 29 	|	Reason for Revocation 			| Rev	|		|	|				| (free text field should have been a notation)
 30 	|	Features 						| Pref	|		|	|				|
