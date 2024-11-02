@@ -7,9 +7,9 @@ The following topics are addressed:
 
 * Proper specification of Timestamp and Third Party Confirmation signatures.
     * Use of countersignatures to validate keys.
-* OPS nesting.
-    * Signature Subject Encoding registry.
-    * OPS packets as MIME headers.
+* Signed message grammar.
+    * Encrypted message grammar.
+* Pre-hashed signatures.
 * Recursive embedding inside Signature Subpackets.
 * Signature Type ranges and Key Usage flags.
     * Authentication Signatures.
@@ -88,43 +88,110 @@ The keyserver may not wish to make a certification, to prevent the cumulation of
 
 (TBC)
 
-## OPS nesting
+## Signed message grammar
 
-Packet nesting semantics are complex:
+The accepted convention is that a leading signature packet signs over the next literal or compressed packet only, skipping any intervening signatures.
+This is not explicitly specified, but SHOULD be.
 
-* A non-OPS signature signs over everything that follows, including any other signatures.
-* An OPS signature construction with a nonzero nesting octet signs over everything within the OPS construction (nesting).
-* To add multiple signatures over the same data without nesting, all OPS constructions (except the innermost one) have the nesting octet zeroed.
-* It is not clear what SHOULD happen if the nesting octet is zeroed but no OPS packet follows.
+Further, OPS nesting semantics are complex, and the specification is light.
+[RFC9580 section 5.4](https://datatracker.ietf.org/doc/html/rfc9580#section-5.4) defines the nesting octet as:
 
-We wish to concretely specify the nesting behaviour.
+> A 1-octet number holding a flag showing whether the signature is nested.
+> A zero value indicates that the next packet is another One-Pass Signature packet that describes another signature to be applied to the same message data.
 
-### Signature Subject Encoding registry
+The terminology and the specification are obscure, but our interpretation is as follows:
 
-The nesting octet should be promoted to a registry and renamed to "OpenPGP Signature Subject Encoding", with the following initial entries:
+* A zero nesting octet means that the following OPS and its counterpart signature are stripped from the signature's subject.
+    * This process is recursive if multiple sequential OPS packets have a nesting octet of zero.
+* To add multiple OPS signatures over the same message data, all OPS constructions except the innermost one have the nesting octet zeroed.
+    * It is not clear what happens if the innermost nesting octet is zero but no OPS packet follows; this SHOULD be forbidden.
+* The above implies that an OPS with a nonzero nesting octet signs over its entire contents verbatim, including any further signatures.
+    * If not, the nesting octet would be redundant.
 
-Flags   | Description
+There are no additional constraints on signature nesting in [RFC9580 section 10.3](https://datatracker.ietf.org/doc/html/rfc9580#section-10.3).
+We wish therefore to properly constrain signature nesting:
+
+* An OPS with a zero nesting octet is a "Skipping OPS".
+* An OPS with a nonzero nesting octet is a "Verbatim OPS".
+* A leading Signature packet signs over the next literal or compressed packet, skipping any intervening signature or OPS packets.
+* If a skipping OPS packet is not followed by a well-formed OPS packet, then the skipping OPS packet is malformed.
+* The subject of a verbatim OPS MAY include one or more leading signature packets or OPS constructions.
+* If a leading signature and an OPS both sign over the same subject, the leading signature packet MUST precede the OPS.
+
+It is also not clear which packets are signed over by an encrypted-then-signed message.
+This is not idiomatic OpenPGP, and SHOULD be forbidden.
+
+The message grammar is therefore updated to:
+
+OpenPGP Message:
+    Encrypted Message | Unencrypted Message.
+Unencrypted Message:
+    Signed Message | Unsigned Message.
+Unsigned Message:
+    Compressed Message | Literal Message.
+Compressed Message:
+    Compressed Data Packet.
+Literal Message:
+    Literal Data Packet.
+ESK:
+    Public Key Encrypted Session Key Packet | Symmetric Key Encrypted Session Key Packet.
+ESK Sequence:
+    ESK | ESK Sequence, ESK.
+Encrypted Data:
+    Symmetrically Encrypted Data Packet | Symmetrically Encrypted and Integrity Protected Data Packet.
+Encrypted Message:
+    Encrypted Data | ESK Sequence, Encrypted Data.
+Skipping One-Pass Signed Message:
+    Skipping One-Pass Signature Packet, Skipping One-Pass Signed Subject, Corresponding Signature Packet.
+Skipping One-Pass Signed Subject:
+    Unencrypted Message | Skipping One-Pass Signed Message.
+Verbatim One-Pass Signed Message:
+    Verbatim One-Pass Signature Packet, Unencrypted Message, Corresponding Signature Packet.
+One-Pass Signed Message:
+    Skipping One-Pass Signed Message | Verbatim One-Pass Signed Message.
+Signed Message:
+    Signature Packet, Unencrypted Message | One-Pass Signed Message.
+Optionally Padded Message:
+    OpenPGP Message | OpenPGP Message, Padding Packet.
+
+In addition to these rules, a Marker packet (Section 5.8) can appear anywhere in the sequence.
+
+### Encrypted message grammar
+
+It is not currently specified whether an encrypted message may decrypt to another encrypted message.
+This SHOULD be forbidden.
+
+## Pre-hashed signatures
+
+(TBC)
+
+The nesting octet comes last in the OPS packet, and so could be extended to a variable-length field if required.
+The only special value currently defined is 0 ("Skipping"); all other values are treated as "Verbatim".
+This field could easily be promoted to a registry and renamed to "OpenPGP One-Pass Signature Subject Format", with the following initial entries:
+
+Value   | Description
 --------|-----------------------
-0x00    | Nested
-0x01    | Plain
-0x02    | Pre-hashed
+0       | Skipping
+1       | Verbatim
+2       | Pre-hashed
 
 The signature subject is the sequence of bytes that the signature is made over.
-By default, the signature subject is the entire sequence of octets between the end of the OPS and the beginning of the matching Signature packet.
+By default, the signature subject is the entire sequence of octets between the end of the last OPS packet and the beginning of the first Signature packet.
+By default, the signature is made over the subject directly.
 
-* "Nested" means that the subject is identical to the subject of the following OPS packet.
-    The actual encoding format is taken from the following OPS (possibly recursively).
-    If no OPS packet follows, the packet sequence is invalid.
-* "Plain" means that the signature is made over the subject directly.
-* "Pre-hashed" means that the subject is hashed and the signature is made over (subject length || subject digest) instead of the subject itself.
+* If no flags are set, this means that the subject format is identical to that of the following OPS packet.
+    The actual encoding format is taken from the following OPS packet (possibly recursively).
+* "Verbatim" means that the subject is the exact sequence of octets between the end of the current OPS packet and the beginning of the matching Signature packet.
+* "Pre-hashed" means that the subject is hashed and the signature is made over (subject digest || subject length) instead of the subject itself.
     The pre-hash algorithm MUST be the same one used for the signature.
 
-(TBC: how does subject encoding interact with text document sigs?)
+Note that a sequence of skipping OPS signatures MUST use the same subject format.
+If a different subject format is required, then a separate signed message should be made.
 
-### OPS packets as MIME headers
-
-To simplify the definition of MIME one-pass signatures, we encode an entire OPS packet in the headers of the MIME part to be signed.
-The MIME header to be used is "OpenPGP-OPS".
+Text document signatures can be thought of as a special case of signature subject formatting that can be used with non-OPS signatures.
+This seems fragile though; would it be better to define a "pre-hashed" document signature type that can be used on non-OPS messages?
+Do we then need "pre-hashed binary" and "pre-hashed text" document sig types?
+How do we rein in the combinatorics?
 
 ## Recursive embedding inside Signature Subpackets
 
