@@ -123,35 +123,35 @@ This is not idiomatic OpenPGP, and SHOULD be forbidden.
 
 The message grammar is therefore updated to:
 
-OpenPGP Message:
+* OpenPGP Message:
     Encrypted Message | Unencrypted Message.
-Unencrypted Message:
+* Unencrypted Message:
     Signed Message | Unsigned Message.
-Unsigned Message:
+* Unsigned Message:
     Compressed Message | Literal Message.
-Compressed Message:
+* Compressed Message:
     Compressed Data Packet.
-Literal Message:
+* Literal Message:
     Literal Data Packet.
-ESK:
+* ESK:
     Public Key Encrypted Session Key Packet | Symmetric Key Encrypted Session Key Packet.
-ESK Sequence:
+* ESK Sequence:
     ESK | ESK Sequence, ESK.
-Encrypted Data:
+* Encrypted Data:
     Symmetrically Encrypted Data Packet | Symmetrically Encrypted and Integrity Protected Data Packet.
-Encrypted Message:
+* Encrypted Message:
     Encrypted Data | ESK Sequence, Encrypted Data.
-Skipping One-Pass Signed Message:
+* Skipping One-Pass Signed Message:
     Skipping One-Pass Signature Packet, Skipping One-Pass Signed Subject, Corresponding Signature Packet.
-Skipping One-Pass Signed Subject:
+* Skipping One-Pass Signed Subject:
     Unencrypted Message | Skipping One-Pass Signed Message.
-Verbatim One-Pass Signed Message:
+* Verbatim One-Pass Signed Message:
     Verbatim One-Pass Signature Packet, Unencrypted Message, Corresponding Signature Packet.
-One-Pass Signed Message:
+* One-Pass Signed Message:
     Skipping One-Pass Signed Message | Verbatim One-Pass Signed Message.
-Signed Message:
+* Signed Message:
     Signature Packet, Unencrypted Message | One-Pass Signed Message.
-Optionally Padded Message:
+* Optionally Padded Message:
     OpenPGP Message | OpenPGP Message, Padding Packet.
 
 In addition to these rules, a Marker packet (Section 5.8) can appear anywhere in the sequence.
