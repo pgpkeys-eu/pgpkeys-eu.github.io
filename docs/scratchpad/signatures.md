@@ -179,8 +179,7 @@ The signature subject is the sequence of bytes that the signature is made over.
 By default, the signature subject is the entire sequence of octets between the end of the last OPS packet and the beginning of the first Signature packet.
 By default, the signature is made over the subject directly.
 
-* If no flags are set, this means that the subject format is identical to that of the following OPS packet.
-    The actual encoding format is taken from the following OPS packet (possibly recursively).
+* If the octet is zero ("Skipping"), this means that the subject is identical to that of the following OPS packet (recursively).
 * "Verbatim" means that the subject is the exact sequence of octets between the end of the current OPS packet and the beginning of the matching Signature packet.
 * "Pre-hashed" means that the subject is hashed and the signature is made over (subject digest || subject length) instead of the subject itself.
     The pre-hash algorithm MUST be the same one used for the signature.
