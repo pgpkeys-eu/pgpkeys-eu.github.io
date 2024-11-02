@@ -52,7 +52,7 @@ This would appear to indicate that timestamping documents is sufficiently differ
 This is consistent with the idea that "I wrote this document" and "I saw this document" are distinct statements with different consequences.
 This is crucial in the case of an automated timestamping service that makes no claims about the accuracy of document contents.
 
-The OPS packet contains a "nesting" flag that controls whether an inner OPS signature is included in the data signed over by the outer OPS signature.
+The OPS packet contains a "nesting" octet that controls whether an inner OPS signature is included in the data signed over by the outer OPS signature.
 If a Timestamp signature were constructed and placed the same way as a Document signature, it might be possible to reconcile the above variations in semantics.
 
 We therefore define type 0x40 Timestamp signatures as follows:
@@ -93,45 +93,33 @@ The keyserver may not wish to make a certification, to prevent the cumulation of
 Packet nesting semantics are complex:
 
 * A non-OPS signature signs over everything that follows, including any other signatures.
-* An OPS signature construction without nesting flags signs over everything within the OPS construction (nesting).
-* To add multiple signatures over the same data without nesting, all OPS constructions (except possibly the innermost one) have the nesting flag set, to *suppress* nesting.
-* It is not clear what SHOULD happen if the nesting-suppression flag is set but no OPS packet follows.
+* An OPS signature construction with a nonzero nesting octet signs over everything within the OPS construction (nesting).
+* To add multiple signatures over the same data without nesting, all OPS constructions (except the innermost one) have the nesting octet zeroed.
+* It is not clear what SHOULD happen if the nesting octet is zeroed but no OPS packet follows.
 
-Counterproposal 1:
-
-* To sign over a complete OpenPGP packet stream, it SHOULD be wrapped in a Literal packet and treated as a document.
-* An OpenPGP packet parser SHOULD NOT recursively descend into such a document; it is up to the application to decide whether to process the inner message by calling the parser again.
-
-Counterproposal 2:
-
-* To sign over a complete OpenPGP packet stream, the default OPS behaviour SHOULD be used.
-
-In both cases, we wish to concretely specify the nesting behaviour.
+We wish to concretely specify the nesting behaviour.
 
 ### Signature Subject Encoding registry
 
-The nesting flags octet comes last in the OPS packet, and so is trivially extended to a variable-length field.
-Any missing octets MUST be treated as if all flags in them are zero.
-This field should then be promoted to a registry and renamed to "OpenPGP Signature Subject Encoding", with the following initial entries:
+The nesting octet should be promoted to a registry and renamed to "OpenPGP Signature Subject Encoding", with the following initial entries:
 
-Flag    | Description
---------|-------------------------------------------
-0x01..  | OPS packet follows; ignore (deprecated)
-0x02..  | Ignore all inner signatures
-0x04..  | Pre-hashed
+Flags   | Description
+--------|-----------------------
+0x00    | Nested
+0x01    | Plain
+0x02    | Pre-hashed
 
 The signature subject is the sequence of bytes that the signature is made over.
-By default, the signature subject is the entire sequence of packets between the OPS and matching Signature packet.
+By default, the signature subject is the entire sequence of octets between the end of the OPS and the beginning of the matching Signature packet.
 
-* "OPS packet follows; ignore" means that the signature subject is stripped of the following OPS packet and its corresponding Signature packet.
-    If no OPS packet follows, the behaviour is undefined; it is therefore deprecated in favour of "Ignore all inner signatures".
-* "Ignore all inner signatures" means that the signature subject is stripped of all OPS and Signature packets.
-    If no other signatures exist, this flag is a no-op.
-* "Pre-hashed" means that the signature subject is hashed and the signature is made over (subject length || subject digest) instead of the subject itself.
+* "Nested" means that the subject is identical to the subject of the following OPS packet.
+    The actual encoding format is taken from the following OPS (possibly recursively).
+    If no OPS packet follows, the packet sequence is invalid.
+* "Plain" means that the signature is made over the subject directly.
+* "Pre-hashed" means that the subject is hashed and the signature is made over (subject length || subject digest) instead of the subject itself.
     The pre-hash algorithm MUST be the same one used for the signature.
 
-Document signatures SHOULD set the "Ignore all inner signatures" flag.
-Timestamp signatures SHOULD NOT set the "Ignore all inner signatures" flag.
+(TBC: how does subject encoding interact with text document sigs?)
 
 ### OPS packets as MIME headers
 
