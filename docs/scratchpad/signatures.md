@@ -1,11 +1,11 @@
 # OpenPGP Signature Semantics
 
-OpenPGP signatures have a rich vocabulary, however this is often ambiguous or ill-defined.
-This document attempts to fix several of the most notable omissions from earlier specifications.
+OpenPGP signatures have a rich vocabulary, however this is often under-specified.
+This document attempts to fix several of the most notable ambiguities.
 
 The following topics are addressed:
 
-* Proper specification of Timestamp and Third Party Confirmation signatures.
+* Specification of Timestamp and Third Party Confirmation signatures.
     * Use of countersignatures to validate keys.
 * Signed message grammar.
     * Encrypted message grammar.
@@ -161,37 +161,6 @@ In addition to these rules, a Marker packet (Section 5.8) can appear anywhere in
 It is not currently specified whether an encrypted message may decrypt to another encrypted message.
 This SHOULD be forbidden.
 
-## Pre-hashed signatures
-
-(TBC)
-
-The nesting octet comes last in the OPS packet, and so could be extended to a variable-length field if required.
-The only special value currently defined is 0 ("Skipping"); all other values are treated as "Verbatim".
-This field could easily be promoted to a registry and renamed to "OpenPGP One-Pass Signature Subject Format", with the following initial entries:
-
-Value   | Description
---------|-----------------------
-0       | Skipping
-1       | Verbatim
-2       | Pre-hashed
-
-The signature subject is the sequence of bytes that the signature is made over.
-By default, the signature subject is the entire sequence of octets between the end of the last OPS packet and the beginning of the first Signature packet.
-By default, the signature is made over the subject directly.
-
-* If the octet is zero ("Skipping"), this means that the subject is identical to that of the following OPS packet (recursively).
-* "Verbatim" means that the subject is the exact sequence of octets between the end of the current OPS packet and the beginning of the matching Signature packet.
-* "Pre-hashed" means that the subject is hashed and the signature is made over (subject digest || subject length) instead of the subject itself.
-    The pre-hash algorithm MUST be the same one used for the signature.
-
-Note that a sequence of skipping OPS signatures MUST use the same subject format.
-If a different subject format is required, then a separate signed message should be made.
-
-Text document signatures can be thought of as a special case of signature subject formatting that can be used with non-OPS signatures.
-This seems fragile though; would it be better to define a "pre-hashed" document signature type that can be used on non-OPS messages?
-Do we then need "pre-hashed binary" and "pre-hashed text" document sig types?
-How do we rein in the combinatorics?
-
 ## Recursive embedding inside Signature Subpackets
 
 There are currently two places where embedding of signatures is possible in signature subpackets:
@@ -204,16 +173,16 @@ We wish to prevent infinite recursion via embedded signatures, in order to avoid
 This can be achieved as follows:
 
 * Signatures contained within Embedded Signature subpackets MUST NOT contain any Embedded Signature subpackets.
-    This can be done by altering the specification of Embedded Signature subpacket, and/or the signature types that may be contained within it.
-    Belt and braces might be the safest option.
-* Key Block is deprecated.
+    (This can be done by altering the specification of Embedded Signature subpacket, and/or the signature types that may be contained within it.
+    Belt and braces might be the safest option.)
+* Key Block MUST only be used inside a document signature.
 
-Key Block does perform a function, which is to smuggle a key into the OpenPGP layer without requiring support by the application layer.
+Key Block allows us to smuggle a key into the OpenPGP layer without requiring support by the application layer.
 We could instead update the message grammar to allow TPKs to be appended to a signed message.
 This would have to be allowed inside the encrypted layer.
 
 This would also unify the packet sequence syntax so that there is only one kind of sequence, which would include both messages and keyrings.
-See also "mixed keyrings" in draft-gallagher-openpgp-hkp.
+See also "mixed keyrings" in [draft-gallagher-openpgp-hkp section 8.1](https://datatracker.ietf.org/doc/html/draft-gallagher-openpgp-hkp#section-8.1).
 
 ## Signature Type Ranges and Key Usage flags
 
@@ -318,7 +287,7 @@ See also [this issue in rfc4880bis](https://gitlab.com/openpgp-wg/rfc4880bis/-/i
 
 ## Cumulation of Signatures
 
-A cryptographically valid certification or document signature automatically and permanently invalidates any earlier signature of the same type range, by the same key pair, over the same data.
+A cryptographically valid binding, certification or document signature automatically and permanently invalidates any earlier signature of the same type range, by the same key pair, over the same data.
 If a later such signature expires before an earlier one, the earlier signature does not become valid again.
 
 For the purposes of the above:
@@ -331,14 +300,15 @@ For the purposes of the above:
 
 ### Unhashed Subpacket Deduplication
 
+Unhashed subpacket areas are malleable and so may have subpackets added or removed in transit, either innocently or maliciously.
+A receiving implementation SHOULD clean the unhashed area of subpackets that are not meaningful or trustworthy outside the hashed area.
 If two signature packets are bitwise identical apart from differences in their unhashed subpacket areas, an implementation MAY merge them into a single signature.
-The unhashed subpacket area of the merged signature SHOULD contain the subpackets from both original signatures.
-If two unhashed subpackets are bitwise identical, they MUST be deduplicated.
-Otherwise, all unhashed subpackets SHOULD be included, even if this results in multiple subpackets of the same type.
+If two unhashed subpackets in the merged signature are bitwise identical, they MUST be deduplicated.
+Otherwise, the unhashed subpacket area of the merged signature SHOULD contain the useful subpackets from both original signatures, even if this means multiple subpackets of the same type.
 
 ## Redundancy of Certification Signature Types
 
-There are four types of certification signature defined in the standards (0x10..0x13).
+There are four types of certification signature defined in [RFC9580] (0x10..0x13).
 All may be created by either the key owner or a third party, and may be calculated over either a User ID packet or a User Attribute packet.
 In addition, a Certification Revocation signature revokes signatures of any certification type.
 Historically, as in [RFC1991](https://datatracker.ietf.org/doc/html/rfc1991), certifications were only made by third parties.

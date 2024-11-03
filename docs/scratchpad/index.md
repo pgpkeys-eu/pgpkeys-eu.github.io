@@ -11,6 +11,7 @@ Scratchpad entries
 * [GREASE in OpenPGP](grease.html)
 * [Reserved Code Points in the OpenPGP Registries](reservations.html)
 * [Use of the Marker Packet in OpenPGP](marker.html)
+* [Pre-hashed Signatures in OpenPGP](prehash.html)
 
 DISCLAIMER: All these documents are a work in progress and subject to change without notice.
 They are provided for discussion purposes only and do not represent the opinion of any real person, living or dead.
