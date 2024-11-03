@@ -1,7 +1,7 @@
 Scratchpad entries
 ------------------
 
-* [OpenPGP Signature Semantics](signatures.html)
+* [OpenPGP Signature Semantics](https://andrewgdotcom.gitlab.io/openpgp-signatures)
 * [OpenPGP Signature Subpacket Classes](subpacket-classes.html)
 * [OpenPGP Stack Layers](stack-layers.html)
 * [OpenPGP/LibrePGP Tolerance](tolerance.html)

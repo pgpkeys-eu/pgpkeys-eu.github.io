@@ -123,7 +123,7 @@ TBD	|	(Replacement Key)				| Pref  | SHDNOT|	|				| [draft-replacementkey](https
 	Otherwise, with the possible exception of document signatures, it is NOT RECOMMENDED to set the critical bit.
 * It is RECOMMENDED that a signature's creator places all subpackets in the hashed area, even self-verifying subpackets for which this is not strictly necessary.
 	The unhashed area SHOULD be reserved for informational subpackets attached by third parties (which can be safely stripped).
-* The signature type ranges are as defined in [OpenPGP Signature Semantics](signatures.html).
+* The signature type ranges are as defined in [OpenPGP Signatures and Signed Messages](https://andrewgdotcom.gitlab.io/openpgp-signatures).
 
 # Guidance for management of the Signature Subpacket Registry
 
