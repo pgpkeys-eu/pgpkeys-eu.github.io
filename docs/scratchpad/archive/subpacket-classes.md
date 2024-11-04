@@ -1,6 +1,6 @@
-# Signature Subpacket Classes
+# Signature Subpacket Categories
 
-Signature subpacket types may be roughly classified, depending on their usage:
+Signature subpacket types may also be categorised, depending on where they are used:
 
 * General subpackets.
 	These may be attached to any signature type, and define properties of the signature itself.
@@ -10,12 +10,12 @@ Signature subpacket types may be roughly classified, depending on their usage:
 	
 	Subpacket types: Signature Creation Time, Signature Expiration Time, Issuer Key ID (SV), Notation Data, Signer's User ID, Issuer Fingerprint (SV).
 	
-	(Notation subpackets are classified here as general subpackets, however the notations within them may have arbitrary semantics at the application layer)
+	(Notation subpackets are catogorised here as general subpackets, however the notations within them may have arbitrary semantics at the application layer)
 
 * Context subpackets.
-	These have semantics that are meaningful only when used in particular contexts:
+	These have semantics that are meaningful only when used in signatures of a particular type or category:
 
-	* Preference subpackets.
+	* Direct subpackets.
 		These are normally only meaningful in a direct self-sig (or historically a self-cert over the primary User ID) and define usage preferences for the certificate as a whole.
 		They MAY be used in self-certs over other User IDs, in which case they define usage preferences for just that User ID (but this is not always meaningful or universally supported).
 		The Replacement Key subpacket MAY also be used as a key revocation subpacket.
@@ -26,14 +26,14 @@ Signature subpacket types may be roughly classified, depending on their usage:
 		Key Server Preferences, Preferred Key Server, Features, (Preferred AEAD Algorithms), Preferred AEAD Ciphersuites, (Replacement Key).
 
 	* Revocation subpackets.
-		These are only meaningful in a revocation signature.
+		These are only meaningful in signatures of the Key Revocation, Subkey Revocation or Certificate Revocation categories.
 		They SHOULD NOT be used elsewhere.
 		They MUST be placed in the hashed area.
 
 		Subpacket types: Reason for Revocation.
 	
-	* Key property subpackets.
-		These are only meaningful in a direct or binding self-sig (or historically a self-cert over the primary User ID) and define properties of that particular (sub)key.
+	* Binding subpackets.
+		These are only meaningful in a signature of the Binding category (or for v4 keys, a self-cert over the primary User ID) and define properties of that particular (sub)key.
 		They SHOULD NOT be used elsewhere.
 		They MUST be placed in the hashed area.
 
@@ -54,7 +54,7 @@ Signature subpacket types may be roughly classified, depending on their usage:
 		Subpacket types: Exportable Certification, Trust Signature, Regular Expression, Revocable, Policy URI, (Trust Alias).
 	
 	* Document subpackets.
-		These are only meaningful in document signatures, and define properties of the document or message.
+		These are only meaningful in signatures of the Document category, and define properties of the document or message.
 		They SHOULD NOT be used elsewhere.
 		Some of these subpackets are self-verifying (SV) and MAY be placed in the unhashed area.
 		All other document subpackets MUST be placed in the hashed area.
@@ -67,9 +67,9 @@ Signature subpacket types may be roughly classified, depending on their usage:
 	They SHOULD NOT be used elsewhere.
 	They have no intrinsic semantics; all semantics are defined by the enclosing signature.
 	
-	Subpacket types: Signature Target, Embedded Signature, (Delegated Revoker (->Embedded Key?)), (Approved Certifications (->Signature Target List?)).
+	Subpacket types: Signature Target, Embedded Signature, (Delegated Revoker), (Approved Certifications).
 
-Type| 	Name							| Class	| Crit	| SV| Context		| Notes
+Type| 	Name							| Cat	| Crit	| SV| Context		| Notes
 ----|-----------------------------------|-------|-------|---|---------------|-------------------
 0   |	Reserved 	 					|	-	|		|	|				| never used
 1  	|	Reserved 	 					|	-	|		|	|				| never used
@@ -80,36 +80,36 @@ Type| 	Name							| Class	| Crit	| SV| Context		| Notes
 6  	|	Regular Expression 				| WoT	| SHOULD|	|				|
 7  	|	Revocable 						| WoT	|		|	| 			 	| boolean, default false (deprecated in [draft-revocation](https://datatracker.ietf.org/doc/html/draft-dkg-openpgp-revocation))
 8  	|	Reserved 						|	-	|		|	|				| never used
-9  	|	Key Expiration Time 			| Key   | SHOULD|	|				|
-10 	|	(Additional Decryption Key/ARR)	| Pref	|		|	|				| PGP.com proprietary feature
-11 	|	Preferred Symmetric Ciphers 	| Pref	|		|	|				|
-12 	|	Revocation Key (deprecated) 	| Pref	|		|	|				| deprecated in [RFC9580](https://datatracker.ietf.org/doc/html/rfc9580)
+9  	|	Key Expiration Time 			| Bind  | SHOULD|	|				|
+10 	|	(Additional Decryption Key/ARR)	| Direct|		|	|				| PGP.com proprietary feature
+11 	|	Preferred Symmetric Ciphers 	| Direct|		|	|				|
+12 	|	Revocation Key (deprecated) 	| Direct|		|	|				| deprecated in [RFC9580](https://datatracker.ietf.org/doc/html/rfc9580)
 13-15 |	Reserved 	 					|	-	|		|	|				| never used
 16 	|	Issuer Key ID 					| Gen	|		| Y	|				| issuer fingerprint is preferred
 17-19 |	Reserved 	 					|	-	|		|	|				| never used
 20 	|	Notation Data 					| Gen	|		|	|				| notations may be further classified
-21 	|	Preferred Hash Algorithms 		| Pref	|		|	|				|
-22 	|	Preferred Compression Algorithms| Pref	|		|	|				|
-23 	|	Key Server Preferences 			| Pref	|		|	|				|
-24 	|	Preferred Key Server 			| Pref	| 		|	|				|
+21 	|	Preferred Hash Algorithms 		| Direct|		|	|				|
+22 	|	Preferred Compression Algorithms| Direct|		|	|				|
+23 	|	Key Server Preferences 			| Direct|		|	|				|
+24 	|	Preferred Key Server 			| Direct| 		|	|				|
 25 	|	Primary User ID 				| Self  |		|	|				| boolean, default false
 26 	|	Policy URI 						| WoT	|		|	|				| (should have been a notation)
-27 	|	Key Flags 						| Key   | SHOULD|	|				| ([also vaguely allowed in third-party certs?](https://gitlab.com/openpgp-wg/rfc4880bis/-/issues/120))
+27 	|	Key Flags 						| Bind  | SHOULD|	|				| ([also vaguely allowed in third-party certs?](https://gitlab.com/openpgp-wg/rfc4880bis/-/issues/120))
 28 	|	Signer's User ID 				| Gen	|		|	|				|
 29 	|	Reason for Revocation 			| Rev	|		|	|				| (free text field should have been a notation)
-30 	|	Features 						| Pref	|		|	|				|
+30 	|	Features 						| Direct|		|	|				|
 31 	|	Signature Target 				| Data 	|		|	| 0x50 3-p conf	| [utility unclear (not a unique identifier)](https://gitlab.com/dkg/openpgp-revocation/-/issues/13)
 32 	|	Embedded Signature 				| Data 	|		|\* | 0x18 sbind	| (\* Yes IFF it contains an 0x19 primary key binding signature packet)
 33 	|	Issuer Fingerprint 				| Gen	|		| Y	|				|
-34 	|	(Preferred AEAD Algorithms)		| Pref	|		|	|				| [4880bis](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis-10)
+34 	|	(Preferred AEAD Algorithms)		| Direct|		|	|				| [4880bis](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis-10)
 35 	|	Intended Recipient Fingerprint 	| Doc	| SHOULD|	|				|
 36 	|	(Delegated Revoker)				| Data 	| MUST	|	| TBD del rev	| [draft-revocation](https://datatracker.ietf.org/doc/html/draft-dkg-openpgp-revocation)
 37 	|	(Approved Certifications)		| Data 	|		|	| 0x16 1pa3pc 	| [draft-1pa3pc](https://datatracker.ietf.org/doc/html/draft-dkg-openpgp-1pa3pc)
 38 	|	(Key Block)			 	        | Doc	|		| Y	|				| [4880bis](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis-10)
-39 	|	Preferred AEAD Ciphersuites 	| Pref	|		|	|				|
+39 	|	Preferred AEAD Ciphersuites 	| Direct|		|	|				|
 40 	|	(Literal Data Meta Hash)		| Doc	|		|	|				| [librepgp](https://datatracker.ietf.org/doc/html/draft-koch-librepgp) not yet implemented
 41 	|	(Trust Alias)					| WoT	|		|	|				| [librepgp](https://datatracker.ietf.org/doc/html/draft-koch-librepgp) not yet implemented
-TBD	|	(Replacement Key)				| Pref  | SHDNOT|	|				| [draft-replacementkey](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-replacementkey)
+TBD	|	(Replacement Key)				| Direct| SHDNOT|	|				| [draft-replacementkey](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-replacementkey)
 
 
 ## Further notes

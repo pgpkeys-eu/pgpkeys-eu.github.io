@@ -1,8 +1,7 @@
 Scratchpad entries
 ------------------
 
-* [OpenPGP Signature Semantics](https://andrewgdotcom.gitlab.io/openpgp-signatures)
-* [OpenPGP Signature Subpacket Classes](subpacket-classes.html)
+* [OpenPGP Signatures and Signed Messages (Draft)](https://andrewgdotcom.gitlab.io/openpgp-signatures)
 * [OpenPGP Stack Layers](stack-layers.html)
 * [OpenPGP/LibrePGP Tolerance](tolerance.html)
 * [OpenPGP Double Ratchet Mechanism](ratchet.html)
@@ -10,7 +9,6 @@ Scratchpad entries
 * [OpenPGP Code Point Exhaustion](code-point-exhaustion.html)
 * [GREASE in OpenPGP](grease.html)
 * [Reserved Code Points in the OpenPGP Registries](reservations.html)
-* [Use of the Marker Packet in OpenPGP](marker.html)
 * [Pre-hashed Signatures in OpenPGP](prehash.html)
 
 DISCLAIMER: All these documents are a work in progress and subject to change without notice.
