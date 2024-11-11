@@ -4,7 +4,7 @@ The OpenPGP application stack can be roughly considered to be divided into layer
 These layers have no official meaning, and are somewhat fluid.
 They are however useful as a mental model, particularly when defining extensions to OpenPGP.
 
-[RFC9580](https://datatracker.ietf.org/doc/html/rfc9580) fully specifies only layers 2a, 2b, 2c (perhaps) and 2f.
+[RFC9580](https://datatracker.ietf.org/doc/html/rfc9580) fully specifies only layers 2a, 2b, and 2f.
 
 ## Layer 1: Cryptographic primitives
 
@@ -27,10 +27,16 @@ They are however useful as a mental model, particularly when defining extensions
 
 ### Layer 2b: Packet structure
 
-* Packet framing (Legacy vs OpenPGP packet formats)
+* Packet framing
+    * Legacy and OpenPGP packet formats
+    * Partial packet lengths
 * Packet types
-* Signature subpacket types
+* Subpacket types
 * Digest construction
+    * Salting
+    * Subject preprocessing
+    * Trailers
+* Algorithm-specific ESK data
 * KDFs
 
 ### Layer 2c: Packet grammar
@@ -43,7 +49,7 @@ They are however useful as a mental model, particularly when defining extensions
     * One-pass signatures
     * Intended recipient
     * Nesting
-* TPKs
+* Certificates
     * Key material
     * User IDs and attributes
     * Binding and certification signature types (0x10..0x1f)
@@ -52,7 +58,7 @@ They are however useful as a mental model, particularly when defining extensions
     * Exportability
 * Oddities
     * Detached signatures
-    * Bare revocation certificates
+    * Bare revocations
     * Third-party confirmation signatures (0x50)
 
 ### Layer 2d: Temporal evolution
@@ -82,22 +88,24 @@ They are however useful as a mental model, particularly when defining extensions
 
 # Validity
 
-In OpenPGP, the word "valid" is used liberally - but there are at least four kinds of "validity" that must be distinguished:
+In OpenPGP, the word "valid" is used liberally - but there are at least five kinds of "validity" that must be distinguished:
 
-1. cryptographic validity (layer 2b and below)
+1. formal validity (layer 2b)
+    * packet is well-formed and parseable
+2. cryptographic validity (layer 2a)
     * mathematically incorrect signature
-    * incorrect digest (implausible martian)
-2. structural validity (layer 2c)
-    * missing required packets (evaporated key)
+    * incorrect digest ("implausible martian")
+3. structural validity (layer 2c)
+    * missing required packets ("evaporated key")
     * disordered packets
-    * missing self-signatures (unbound signable)
-    * incorrect signature type (structural martian)
-3. temporal validity (layer 2d)
+    * missing self-signatures (unbound signable packet)
+    * incorrect signature type ("structural martian")
+4. temporal validity (layer 2d)
     * expired
     * revoked
         * hard and soft
     * post-dated
-4. claim validity (layer 2e)
+5. issuer validity (layer 2e)
     * uncertified
     * incomplete certification chain
     * insufficient certification weight
