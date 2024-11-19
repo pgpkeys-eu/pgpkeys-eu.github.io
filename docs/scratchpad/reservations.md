@@ -35,7 +35,9 @@ In the below, we classify reserved code points as follows:
 
 ## OpenPGP Signature Subpacket Types
 
-* 0, 1, 8, 13-15, 17-19 [-> experimental PGP5 features?]
+* 0 [aversion to zero?]
+* 1 [-> [Image Attribute subpacket](attributes.html)?]
+* 8, 13-15, 17-19 [-> experimental PGP5 features?]
 * 10 (placeholder for backward compatibility) [-> ADK/ARR?]
 * 34 [[preferred AEAD algorithms (deprecated) -> rfc4880bis 5.2.3.8](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis#section-5.2.3.8)]
 * 37 (attested certifications) [[-> rfc4880bis 5.2.3.30](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis#section-5.2.3.30)]

@@ -8,9 +8,9 @@ In this document, we attempt to make User Attributes useful.
 # Subpacket Registry Merging
 
 User Attribute Packets are simple containers for User Attribute Subpackets.
-These subpackets are defined identically to Signature Subpackets, and the only defined type is the Image Attribute Subpacket type.
-It appears likely that this subpacket was originally intended to be a certification signature subpacket, but was removed to keep the signature size manageable.
-Signature Subpacket Type 1 remains reserved as a consequence.
+These subpackets are wire-format compatible with Signature Subpackets, but the only currently defined type is the Image Attribute Subpacket type.
+It appears likely that this subpacket was originally intended to be a certification signature subpacket, but was removed to keep signature sizes manageable.
+As a result, the User Attribute Packet was created to contain large subpackets, but only this one subpacket type was ever added to its registry.
 
 We therefore (re)merge the Signature and Image Attribute subpacket registries:
 
@@ -47,14 +47,15 @@ It MUST have the critical bit set.
 ## Subject URI Subpacket
 
 We define a Subject URI Subpacket that identifies the resource being claimed.
-It performs a similar function to the User ID subpacket, in a machine-readable form.
-The Subject URI MUST contain a valid URL-encoded URI, i.e an email address is represented as "mailto:user@example.com".
-It MUST NOT contain human-readable commentary.
+It performs a similar function to the User ID packet, in a machine-readable form.
+The Subject URI MUST contain a valid URL-encoded URI, e.g. an email address is represented as "mailto:user@example.com".
+It MUST NOT contain human-readable comments or "real names".
 
-A generating implementation MAY add both a User ID and a User Attribute containing a Subject URI to a certificate.
+A certificate MAY include both a User ID containing an email address, and a User Attribute with a Subject URI subpacket representing the same email address.
 If a receiving implementation supports the Subject URI subpacket, it SHOULD be used in preference to the User ID packet.
 
-An implementation that wishes to certify an RFC822-ish User ID, but only wishes to certify the machine-readable email address (and not the real name or comment fields) MAY instead sign over a User Attribute with a Subject URI subpacket containing the mailto: URI of the email address.
+If an implementation intends to certify the email address component of an RFC822-ish User ID, but not the real name or comment components, it SHOULD instead certify a User Attribute with a Subject URI subpacket containing the `mailto:` URI of the email address.
+If no such User Attribute packet exists, the certifying application MAY create one -- if so, it is RECOMMENDED to notify the keyholder so that they can self-certify the same User Attribute packet.
 
 # User Attribute Packet Grammar
 
