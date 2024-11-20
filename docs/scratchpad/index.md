@@ -1,9 +1,14 @@
 Scratchpad entries
 ------------------
 
+In the draft pipeline:
+
 * [OpenPGP Signatures and Signed Messages (Draft)](https://andrewgdotcom.gitlab.io/openpgp-signatures)
 * [GREASE in OpenPGP (Draft)](https://andrewgdotcom.gitlab.io/openpgp-grease)
 * [OpenPGP Code Point Exhaustion (Draft)](https://andrewgdotcom.gitlab.io/openpgp-code-point-exhaustion)
+
+Other meanderings:
+
 * [OpenPGP Stack Layers](stack-layers.html)
 * [OpenPGP/LibrePGP Tolerance](tolerance.html)
 * [OpenPGP Double Ratchet Mechanism](ratchet.html)
