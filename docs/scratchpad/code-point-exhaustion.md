@@ -314,3 +314,18 @@ UTF-8ish encodings are therefore almost certainly safe in v2 SEIPD packets.
 A compressed data packet consists of a compression algorithm ID followed by data that cannot be parsed if the compression algorithm is unsupported.
 
 UTF-8ish encodings are therefore safe in compressed data packets.
+
+# PGP-GREASE
+
+The following values MAY be used as additional [PGP-GREASE](https://andrewgdotcom.gitlab.io/openpgp-grease) code points:
+
+Sequence| Code Point
+--------|---------------
+9       | 222
+10      | 333
+11      | 444
+12      | 555
+13      | 666
+14      | 777
+15      | 888
+16      | 999

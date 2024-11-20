@@ -24,9 +24,9 @@ PGP-GREASE codepoints MAY be used in either TPKs or messages.
 Note that implementations pre-dating RFC9580 are not required to ignore unknown packet types, so care SHOULD be taken when generating them.
 If in doubt, a Marker packet MAY be used instead.
 
-### TPKs
+### Certificates
 
-An implementation MAY use PGP-GREASE codepoints in the following TPK contexts:
+An implementation MAY use PGP-GREASE codepoints in the following certificate contexts:
 
 * Dummy algorithm IDs in algorithm-preference signature subpackets (subpacket types 11, 21, 22, and 39).
 * Signature subpacket IDs of dummy signature subpackets, in either the hashed or unhashed area.

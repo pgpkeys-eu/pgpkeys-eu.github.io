@@ -2,12 +2,12 @@ Scratchpad entries
 ------------------
 
 * [OpenPGP Signatures and Signed Messages (Draft)](https://andrewgdotcom.gitlab.io/openpgp-signatures)
+* [GREASE in OpenPGP (Draft)](https://andrewgdotcom.gitlab.io/openpgp-grease)
 * [OpenPGP Stack Layers](stack-layers.html)
 * [OpenPGP/LibrePGP Tolerance](tolerance.html)
 * [OpenPGP Double Ratchet Mechanism](ratchet.html)
 * [OpenPGP Double Ratchet Groups](ratchet-groups.html)
 * [OpenPGP Code Point Exhaustion](code-point-exhaustion.html)
-* [GREASE in OpenPGP](grease.html)
 * [Reserved Code Points in the OpenPGP Registries](reservations.html)
 * [Pre-hashed Signatures in OpenPGP](prehash.html)
 * [User Attributes in OpenPGP](attributes.html)
