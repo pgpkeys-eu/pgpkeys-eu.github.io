@@ -36,7 +36,7 @@ In the below, we classify reserved code points as follows:
 ## OpenPGP Signature Subpacket Types
 
 * 0 [aversion to zero?]
-* 1 [-> [Image Attribute subpacket](attributes.html)?]
+* 1 [-> [Image Attribute subpacket](https://andrewgdotcom.gitlab.io/openpgp-user-attributes)?]
 * 8, 13-15, 17-19 [-> experimental PGP5 features?]
 * 10 (placeholder for backward compatibility) [-> ADK/ARR?]
 * 34 [[preferred AEAD algorithms (deprecated) -> rfc4880bis 5.2.3.8](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis#section-5.2.3.8)]
@@ -103,6 +103,7 @@ There are a number of unassigned gaps in the registries that are not specificall
     It was marked "reserved" in [draft-ietf-openpgp-formats-00 section 4.3](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-formats-00#autoid-116) but was unassigned in subsequent drafts and the eventual [RFC2440](https://datatracker.ietf.org/doc/html/rfc2440).
 * Packet type 16 was a "comment packet" in [draft-ietf-openpgp-formats-00 section 5.12](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-formats-00#autoid-162) but was unassigned in subsequent drafts and RFC2440.
     This may have been intended to replace RFC1991's never-implemented "comment packet" (type 14), which was repurposed as a subkey packet.
+    Proposed for use as an extension placeholder in [draft-gallagher-openpgp-code-point-exhaustion](https://andrewgdotcom.gitlab.io/openpgp-code-point-exhaustion#section-4.3).
 * Signature subpacket 36 was silently omitted when 35 and 37 were added in [draft-ietf-openpgp-rfc4880bis-08](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis-08), and the omission persisted when [the change was ported to crypto-refresh](https://gitlab.com/openpgp-wg/rfc4880bis/-/commit/badfc9fec92ea6833bfab60cb70c99e1d549a79e#ec9f85ae915d32d2e0d0d0e5258927a7e3559c4d_1007_1006).
     36 is provisionally used in [draft-dkg-openpgp-revocation](https://datatracker.ietf.org/doc/html/draft-dkg-openpgp-revocation#name-the-delegated-revoker).
 * Public key algorithms 4-15 (born missing in [draft-ietf-openpgp-formats-00](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-formats-00#autoid-164))
