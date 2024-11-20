@@ -5,20 +5,20 @@ Currently their only specified use is to contain images, however it is known tha
 
 In this document, we attempt to make User Attributes useful.
 
-# Subpacket Registry Merging
+# Subpacket Registry Unification
 
-User Attribute Packets are simple containers for User Attribute Subpackets.
+User Attribute Packets are simple containers for one or more User Attribute Subpackets.
 These subpackets are wire-format compatible with Signature Subpackets, but the only currently defined type is the Image Attribute Subpacket type.
 It appears likely that this subpacket was originally intended to be a certification signature subpacket, but was removed to keep signature sizes manageable.
 As a result, the User Attribute Packet was created to contain large subpackets, but only this one subpacket type was ever added to its registry.
 
-We therefore (re)merge the Signature and Image Attribute subpacket registries:
+We therefore (re)unify the Signature and Image Attribute subpacket registries:
 
 * The OpenPGP Signature Subpacket Registry should be renamed to "OpenPGP Subpacket Registry".
 * It should have an added column indicating whether each subpacket is permitted for use in a User Attribute Packet, with the default value of "no".
 * The OpenPGP Image Attribute Subpacket Registry should be deleted.
 
-# Image Attribute Subpacket Deprecation
+## Image Attribute Subpacket
 
 The Image Attribute Subpacket has some odd features, and is wildly over-specified:
 
@@ -27,10 +27,10 @@ The Image Attribute Subpacket has some odd features, and is wildly over-specifie
 * It has an encoding format octet that represents an entire registry with only one value specified.
 * The v1 image header has a further 12 octets of unused fields.
 
-The Image Attribute Subpacket has been abused to store large amounts of data on the OpenPGP keyservers, and as a result modern keyservers refuse to handle any User Attribute packets.
+The Image Attribute Subpacket has been abused to store large amounts of data on the OpenPGP keyservers, and as a result most modern keyservers refuse to handle any User Attribute packets.
 We therefore deprecate the use of Image Attribute subpackets in User Attribute packets, and forbid them in Signature packets:
 
-* The Subpacket Registry should be updated to include the Image Attribute Subpacket at code point 1, and mark it as "Deprecated".
+* The Subpacket Registry should be updated to include "Image Attribute Subpacket (deprecated)" at code point 1, and marked as permitted for use in User Attribute packets.
 * The OpenPGP Image Attribute Encoding Format registry should be deleted.
 
 # New Subpacket Types
@@ -39,7 +39,7 @@ We specify the following new subpacket types, all of which are permitted for use
 
 ## Subject Valid From Subpacket
 
-We define a Subject Valid From subpacket that identifies the date before which the other contents of the User Attribute packet are not valid.
+We define a Subject Valid From subpacket that identifies the time before which the other subpackets of the User Attribute packet are not valid.
 It contains a four-octet timestamp in seconds since midnight, 1st January 1970.
 It performs the same function as the "creation time" field in a Public Key or Public Subkey packet.
 It MUST have the critical bit set.
@@ -59,7 +59,7 @@ If no such User Attribute packet exists, the certifying application MAY create o
 
 # User Attribute Packet Grammar
 
-* A User Attribute packet MUST contain only subpackets that are specified for use in a User Attribute packet.
+* A User Attribute packet MUST contain only subpackets that are explicitly permitted for use in a User Attribute packet.
 * A User Attribute packet SHOULD contain a Subject Valid From subpacket.
 * If a User Attribute packet contains an unknown subpacket whose type field has the critical bit set, it MUST disregard the entire User Attribute packet.
 
