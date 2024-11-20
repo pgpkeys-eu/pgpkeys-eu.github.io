@@ -20,7 +20,7 @@ We therefore (re)unify the Signature and Image Attribute subpacket registries:
 
 ## Image Attribute Subpacket
 
-The Image Attribute Subpacket has some odd features, and is wildly over-specified:
+The Image Attribute Subpacket has some unusual features, and is wildly over-specified:
 
 * The image header has a little-endian length field, uniquely for OpenPGP.
 * It has a version octet that has only one version specified.
@@ -30,7 +30,7 @@ The Image Attribute Subpacket has some odd features, and is wildly over-specifie
 The Image Attribute Subpacket has been abused to store large amounts of data on the OpenPGP keyservers, and as a result most modern keyservers refuse to handle any User Attribute packets.
 We therefore deprecate the use of Image Attribute subpackets in User Attribute packets, and forbid them in Signature packets:
 
-* The Subpacket Registry should be updated to include "Image Attribute Subpacket (deprecated)" at code point 1, and marked as permitted for use in User Attribute packets.
+* The Subpacket Registry should be updated to include "Image Attribute Subpacket (deprecated)" at code point 1, and mark it as permitted for use in User Attribute packets.
 * The OpenPGP Image Attribute Encoding Format registry should be deleted.
 
 # New Subpacket Types

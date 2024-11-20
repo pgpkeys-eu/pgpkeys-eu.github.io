@@ -6,7 +6,7 @@ Scratchpad entries
 * [OpenPGP Signatures and Signed Messages (Draft)](https://andrewgdotcom.gitlab.io/openpgp-signatures)
 * [GREASE in OpenPGP (Draft)](https://andrewgdotcom.gitlab.io/openpgp-grease)
 * [OpenPGP Code Point Exhaustion (Draft)](https://andrewgdotcom.gitlab.io/openpgp-code-point-exhaustion)
-* [User Attributes in OpenPGP](attributes.html)
+* [User Attributes in OpenPGP (Draft)](https://andrewgdotcom.gitlab.io/openpgp-attributes)
 
 ### Other technical randomness
 
