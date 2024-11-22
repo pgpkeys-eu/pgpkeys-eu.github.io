@@ -61,6 +61,8 @@ In the below, we classify reserved code points as follows:
 * 23 (AEDH) [SPECIFICATION MISSING]
 * 24 (AEDSA) [SPECIFICATION MISSING: obsoleted by [RFC9021](https://www.rfc-editor.org/rfc/rfc9021.pdf), which contains a paywalled normative reference]
 
+See also [section 12.8 of RFC9580](https://datatracker.ietf.org/doc/html/rfc9580#section-12.8).
+
 ## OpenPGP Symmetric Key Algorithms
 
 * 5 [SAFER-SK128 -> RFC2440](https://datatracker.ietf.org/doc/html/rfc2440#section-9.2)
