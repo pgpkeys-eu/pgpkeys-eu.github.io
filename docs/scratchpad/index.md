@@ -8,6 +8,8 @@ Scratchpad entries
 * [OpenPGP Code Point Exhaustion (Draft)](https://andrewgdotcom.gitlab.io/openpgp-code-point-exhaustion)
 * [User Attributes in OpenPGP (Draft)](https://andrewgdotcom.gitlab.io/openpgp-user-attributes)
 
+* [Multiple Encryption Keys in OpenPGP](encryption.html)
+
 ### Other technical randomness
 
 * [OpenPGP/LibrePGP Tolerance](tolerance.html)
