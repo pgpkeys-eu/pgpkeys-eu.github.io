@@ -79,4 +79,7 @@ Note that none of these address the stale-implementation use case.
 
 ## Proposals
 
-* 
+* Abuse of [automatic forwarding](https://datatracker.ietf.org/doc/html/draft-wussler-openpgp-forwarding).
+    Cons: requires a cooperating server, keys are not independent, and all keys must use the same algorithm.
+* Group key agreement, as per [MLS](https://www.rfc-editor.org/rfc/rfc9420.html).
+    See also [Double Ratchet Group Messages in OpenPGP](ratchet-groups.html).

@@ -262,3 +262,4 @@ If one device sees that another device in its device group has generated a publi
 ## References
 
 * [Multi-party ECDH exchange](https://crypto.stackexchange.com/questions/72207/ecdh-for-more-than-two-parties)
+* [MLS](https://www.rfc-editor.org/rfc/rfc9420.html)
