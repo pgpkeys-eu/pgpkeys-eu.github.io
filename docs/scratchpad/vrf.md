@@ -52,7 +52,7 @@ It is therefore NOT RECOMMENDED to use VRFs for session keys.
 
 # Specification of VRFs
 
-* Use [ECVRF-EDWARDS25519-SHA512-ELL2](https://www.rfc-editor.org/rfc/rfc9381.html#section-5.5).
+* Use [ECVRF-EDWARDS25519-SHA512-ELL2](https://www.rfc-editor.org/rfc/rfc9381.html#section-5.5)?
 * Signature subkey (prover key) with new key flag ("This key may be used to prove verifiable random functions").
 
 ## Wire format of proofs
@@ -61,11 +61,24 @@ We define a VRF notation for inclusion in a notation signature subpacket.
 This is marked as non-human-readable and contains:
 
 * The versioned fingerprint of the prover key.
+* The beta_string.
 * The pi_string.
 
-The pi_string is a length-prefixed field in the native wire format (as defined in RFC9381).
+The beta_string and pi_string are length-prefixed fields in the native wire format (as defined in RFC9381).
 
 For a v6 signature, the alpha_string is the trailer of the signature and the salt is the first N octets of the beta_string.
+
+### Alternative model (native OpenPGP)
+
+Do we really need the full security properties of VRFs?
+It would be less disruptive to use an OpenPGP signature as the verifiable function.
+This would use existing algorithms.
+
+* Make a signature using the same version, hash algorithm and hashed subpackets area as the real message.
+    * The signature uses type 0x08 to ensure domain separation; it is constructed over a zero-length subject (similar to a standalone signature).
+    * The signature is made using the prover key, even if the issuer fingerprint subpacket identifies a different signing key.
+    * The salt is the first N octets of the string "OpenPGP Verifiable Random Function", repeated as necessary.
+* Use the algorithm-specific signature data as the pi_string, and a digest over the pi_string with the signature hash algorithm as the beta_string.
 
 ## Placement of proofs
 
