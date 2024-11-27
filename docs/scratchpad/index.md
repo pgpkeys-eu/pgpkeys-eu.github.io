@@ -27,7 +27,8 @@ Scratchpad entries
 Discussion documents that may end up as drafts someday.
 
 * [Multiple Encryption Keys in OpenPGP](encryption.html)
-* [Padding and Pseudorandomness in OpenPGP](padding.html)
+* [Padding in OpenPGP](padding.html)
+* [Verifiable Pseudorandom Functions in OpenPGP](vrf.html)
 * [OpenPGP Double Ratchet Mechanism](ratchet.html)
 * [OpenPGP Double Ratchet Groups](ratchet-groups.html)
 * [Pre-hashed Signatures in OpenPGP](prehash.html)
