@@ -1,154 +1,8 @@
-Anonymisation padding for OpenPGP keys
-======================================
+Conformal padding for OpenPGP keys
+==================================
 
-As discussed at the 2023 OpenPGP Email Summit, we would like to define a padding scheme for key lookups.
-This document first analyzes the SKS keystore dataset, and sets out some general principles and considerations.
-It then proposes a conformal padding scheme for OpenPGP keys that buckets keys into the same anonymity classes regardless of whether binary or ASCII padding is used, and which leak no information when transformed between line-ending formats.
-
-Analysis
-========
-
-Take a sample of 1 million keys from the SKS dataset on pgpkeys.eu and log their lengths (as stored in the JSON doc).
-Generate a histogram of how many keys exist with each length, and bucket them by percentile.
-
-```
-SQLCMD='docker-compose exec -T postgres psql hkp -U hkp'
-$SQLCMD -t -c "select doc from keys limit 1000000;" | jq .length >/tmp/lengths
-sort -n /tmp/lengths >/tmp/lengths.sorted
-uniq -c /tmp/lengths.sorted |awk '{print $2 "," $1}' > /tmp/lengths.stats.csv
-ncum=0; nlim=10000; while read -r line; do len="${line%,*}"; n="${line#*,}"; (( ncum+=n )); while (( ncum >= nlim )); do echo "$nlim,$len"; (( nlim+=10000 )); done; done < /tmp/lengths.stats.csv > /tmp/lengths.buckets.csv
-```
-
-(( `lengths.stats.csv` is included in this repo for reference ))
-
-Note that the histogram is far from smooth - there are significant clusters around certain lengths, together with prominent isolate spikes (most notably at 1232, 1280, 1292 and 1306 bytes), and a sparse tail of oversized keys with unique lengths.
-The largest peloton of lengths, between roughly 1110 and 1234 bytes, consists mainly of rsa2048 primary keys each with one rsa2048 encryption subkey and a single email UserID, a common default key configuration.
-The isolate spikes correspond to known spam campaigns against prominent UserIDs, which consisted of large numbers of almost-identical keys.
-
-Design considerations
----------------------
-
-When we choose a padding scheme, our primary goal is to maximise each cohort of keys that are indistinguishable by length, and our secondary goal is to minimise the amount of padding to prevent waste.
-The primary goal ("effectiveness") is trivially met by padding every key to the maximum possible length, so the cohort will always consist of all known keys.
-The secondary goal ("efficiency") is trivially met by using no padding at all.
-
-### Effectiveness
-
-Let us define "bucket capacity" as the number of items in the bucket, and "bucket width" as the range of payload lengths covered by the bucket.
-
-Most algorithmic padding schemes (e.g. power-of-2 or Padme), fail to protect the long tail of large keys.
-Padme in particular is significantly worse at this than power-of-2, as its padding-to-payload ratio decreases asymptotically with message length.
-
-We are therefore motivated to ensure that a minimum number of keys is included in any cohort, no matter how much padding may be required for long-tail keys.
-This requires us to define a _minimum bucket capacity_, derived from the length histogram of our dataset.
-
-We cannot however rely solely on cohorts defined using bucket capacity.
-Such a scheme is vulnerable to spam campaigns and other automated processes that may produce statistical anomalies in the dataset.
-A cohort that includes a large number of keys may not sufficiently disguise its members if a significant number of the keys in the cohort are known to be fake or automated.
-
-To take an extreme example, we could choose "all keys of length 1306 bytes" as a cohort - this contains over a hundred thousand keys and so may sound sufficiently anonymized, but if we assume that the number of non-spam keys of length 1306 bytes is similar to the number of keys of length 1305 or 1307 bytes (which they should be if their UserID lengths are randomly distributed), then the real users that fall within the 1306B cohort are no more protected than if there was no anonymisation scheme at all.
-
-We are therefore motivated to ensure that a significant range of key lengths are included in any cohort, to ensure a diverse sample.
-This requires us to define a _minimum bucket width_ regardless of how many keys this may span.
-
-### Efficiency
-
-Since HTTPS negotiation and HTTP headers typically take up several hundred bytes, there is not much relative efficiency to be gained by economising bandwidth when the payload is less than 1KiB.
-Bucket capacities of over 10% of the dataset add little marginal security, and should be optimised out where this does not conflict with minimum bucket widths.
-
-A toy proposal: double bucketing
---------------------------------
-
-If we use percentiles to define _minimum bucket capacity_, we ensure that passive observers can recover a maximum of 7 bits of information from the message length.
-If we use the typical length of HTTP response headers to define _minimum bucket width_, we set a reasonable expectation of the padding length added to the majority of queries.
-
-* first create primary cohorts by bucket capacity:
-    * allocate each key length to a primary cohort
-    * label each primary cohort with the maximum key length that it contains
-* then create secondary cohorts by bucket width:
-    * starting at the primary cohort with the longest max key length, and iterating downwards:
-    * (A) allocate the current primary cohort to a new secondary cohort
-    * label the secondary cohort with its maximum key length
-    * consider the next primary cohort
-        * if its maximum key length differs from the secondary cohort's maximum key length by less than the minimum bucket width, OR
-        * if its maximum key length is less than the minimum bucket width, THEN
-            * add it to the current secondary cohort and proceed to the next primary cohort
-        * otherwise, repeat from (A)
-
-We therefore produce a list of padding targets:
-
-```
-width=200; top=1048576; sort -t, -nr /tmp/lengths.buckets.csv | while read -r line; do len="${line#*,}"; if (( len < width)); then break; fi; if (( len+width < top )) ; then top=$len; echo $line; fi; done
-1000000,905434
-990000,9817
-980000,6366
-970000,5072
-960000,4578
-950000,4092
-940000,3737
-920000,3326
-910000,2894
-880000,2547
-860000,2268
-730000,1864
-670000,1654
-600000,1419
-470000,1209
-120000,978
-60000,676
-20000,371
-```
-
-About half of the cohorts are of the minimum bucket capacity and cover the largest 10% of the population, while the other 90% fall into narrow cohorts of <2 minimum bucket widths.
-Note that there are very few keys of less than 256B in length, so the minimum padded message length should be at least 512B.
-
-
-Conformal response padding
-==========================
-
-Bucketing strategy
-------------------
-
-It may be possible for an eavesdropper to observe a sequence of requests to multiple keystores (WKD and HKPS).
-If different keystores apply different packet filter policies, the same key will in general have different lengths even after applying padding.
-In addition, if each of these keystores performs its own cohort calculation, this increases the amount of information leaked to an eavesdropper when making multiple queries for the same key.
-This incentivises us to maximise the capacity of our buckets and pin them down to algorithmic limits.
-
-We should also ensure that if the same key material is returned from both WKD and HKPS, it will be bucketed into the same cohort.
-This will be of particular concern for keystores that serve identical material over both protocols (e.g. keys.openpgp.org).
-Since WKD returns binary keys and HKPS uses Base64, this can only be done reliably if the raw bucket lengths are exactly divisible by 48 and ASCII armor is consistently line-broken at 64 characters (see below for details).
-
-This motivates us to apply a (`3*2^n`) bucketing scheme prioritising bucket width at small lengths, with a single large-capacity bucket to (inefficiently) cover the long tail:
-
-    768     1536    3072    1048608
-    6.5%    58.5%   25.5%   9.5%
-
-`{1,3}*3*2^n` alternative bucket scheme:
-
-    768     1152    1536    2304    3072    1048608
-    6.5%    27.5%   31%     22%     5.5%    9.5%
-
-(N.B. 1048608 is the next multiple of 48 above hockeypuck's default length limit of 1048576, however this can safely be set to any multiple of 48 above a server's configured limit)
-
-If keys are padded individually but concatenated when being served, the length of the response may leak the number of results, and by extension the nature of the query.
-We MUST therefore pad the entire response rather than individual keys.
-
-### Response size tuning
-
-The histogram of key sizes is a reasonable indicator of the histogram of fingerprint lookup responses, however other queries are possible.
-These include queries for shortIDs, long IDs, and UserIDs that may return either an index or a sequence of keys.
-
-* LongID lookups will typically return the same number of keys as a fingerprint search (zero or one), but this cannot be relied upon.
-* ShortID lookups are deprecated and SHOULD NOT be supported.
-* UserID lookups will tend to return multiple keys.
-
-WKD servers only provide UserID lookups, but may return more than one key in response.
-HKPS servers will typically return a larger number of keys than WKD in response to a UserID lookup.
-These will both tend to skew the combined histogram of response sizes upwards, compared to the histogram of key sizes.
-It may therefore be desirable for a server to add further buckets between 3072 bytes and the maximum.
-This could take the form of a tuning parameter, but this will have to be carefully tested to ensure that it doesn't result in unexpectedly low-capacity buckets.
-
-HKPS index searches are treated separately below.
+This document proposes a conformal padding scheme for OpenPGP keystore lookups.
+It buckets keys into the same anonymity classes regardless of whether binary or ASCII padding is used, and further preserves that anonymity class when transformed between line-ending formats.
 
 Binary padding (WKD)
 --------------------
@@ -167,8 +21,8 @@ We therefore assume that padding is implemented at request time by the server ap
 Binary keys are padded by appending a padding packet of the appropriate length and tag 21.
 This is only supported by clients that implement the crypto-refresh draft, and so MUST only be used when all keys in the response are v6 or later.
 
-Alternatively, the entire response can be padded by appending a fake (primary) public key packet of the appropriate length and an invalid version number (such as 0 or 255).
-This is safe IFF the client gracefully ignores unknown key versions.
+Alternatively, the entire response can be padded by appending a fake (malformed) subkey packet of the appropriate length and a [GREASEy version number](grease.html).
+This is safe IFF the client gracefully ignores malformed subkey packets.
 
 An OpenPGP padding packet has a minimum length of two bytes: one byte for the packet tag, and at least one byte for the body length (which can be zero).
 Padding packet lengths between p=2 and p=193 bytes consist of a two-byte header and a body of length `p - 2`.
@@ -176,8 +30,8 @@ Padding packet lengths of p=194 bytes and above consist of a six-byte header and
 Note that padding lengths of 194-8389 bytes require an overlong (five-byte) encoding of 188-8383 byte body lengths.
 This allows us to generate packets with total lengths (including headers) that are not representable using one- or two-byte length encodings (194 and 8387-8389).
 
-On OpenPGP public key packet has a minimum length of three bytes: one byte for the packet tag, at least one byte for the body length, and one byte for the key version.
-Aside from the packet tag and key version byte, a fake public key packet is identical to a padding packet of the same length.
+On OpenPGP public (sub)key packet has a minimum length of three bytes: one byte for the packet tag, at least one byte for the body length, and one byte for the key version.
+Aside from the packet tag and key version byte, a fake public (sub)key packet is identical to a padding packet of the same length.
 
 We ensure that padding or fake key packets meet the minimum length requirement by always over-padding to three bytes beyond the target padded length.
 If the unpadded length is `m` bytes and the target padded length is `M` bytes, the amount of padding bytes is `M-m+3` and the actual length of the padded payload is `M+3`.
@@ -252,7 +106,49 @@ A padding string MUST always be present if padding is enabled.
 The prefix and line-wrapping requirements ensure that the combined padding and armor always contains a constant number of printable characters AND a constant number of newlines.
 As a consequence, the anonymity cohort survives transformation between newline formats, and between binary-padded and ASCII-padded format.
 
-### Examples
+Padding Contents
+----------------
+
+The padding SHOULD be a non-compressible octet stream.
+It MAY be generated deterministically, for example using an iterated modular exponentiation over the last N octets of the data.
+See [Verifiable Random Functions](vrf.html) for further details.
+
+
+Other considerations
+====================
+
+Backwards compatibility
+-----------------------
+
+The original HKP draft prohibited extra response data, such as padding, in machine-readable output.
+Therefore, padding MUST NOT be used when responding to legacy machine-readable requests.
+
+Index search padding
+--------------------
+
+HKPS index searches will return a similar number of entries as a direct lookup request, however these entries will be summaries of the matching keys rather than the keys themselves.
+This summary will normally include UserIDs and may also list subkey and signature packets, and will include a separate entry for each of the matching keys.
+The size of an index response will therefore leak significant information about the nature of the query.
+
+A human-readable index is verbose, but can be easily padded by adding an arbitrary amount of HTML commentary to the source of the page.
+Since this page can often be tens of kilobytes long, buckets of 2^n SHOULD be used.
+Variable-sized embedded content such as UAT images SHOULD NOT be present on a padded, human-readable index page.
+Note that human-readable index searches are typically performed manually in a browser rather than automatically, and so the benefits of padding may not be significant.
+
+A machine-readable index has a smaller maximum size, typically 100 keys (hockeypuck), corresponding to a few kilobytes of content.
+This SHOULD be padded to the nearest 1024 bytes using `X-Padding:` headers of the desired total size.
+
+Client request padding
+----------------------
+
+When making machine readable HKP requests, clients SHOULD pad their requests to a standard length.
+Since the length and range of query strings is significantly smaller than that of responses, it is sufficient to pad to a multiple of 64 bytes.
+This can be done by adding a single HTTP request header `X-Padding:`, with a value between 1 and 65 bytes long.
+
+---
+
+Examples
+========
 
 Let us consider a toy model, where the bucket length is 96 bytes (`48*2`), and the byte values of the "data" and "padding" are faked for visual clarity.
 
@@ -351,34 +247,141 @@ Note that in each padded example above there are always 214 bytes over 6 lines.
 This is a conserved property of a 96-byte bucket.
 
 
-Other considerations
-====================
+Rationale
+=========
 
-Backwards compatibility
------------------------
+Take a sample of 1 million keys from the SKS dataset on pgpkeys.eu and log their lengths (as stored in the JSON doc).
+Generate a histogram of how many keys exist with each length, and bucket them by percentile.
 
-Previous HKP drafts prohibit extra response data, such as padding, in machine-readable output.
-Clients MUST therefore indicate their ability to handle padding by supplying the `v=1` request parameter.
-Servers MUST NOT return padded output unless the `v=1` request parameter is given.
+```
+SQLCMD='docker-compose exec -T postgres psql hkp -U hkp'
+$SQLCMD -t -c "select doc from keys limit 1000000;" | jq .length >/tmp/lengths
+sort -n /tmp/lengths >/tmp/lengths.sorted
+uniq -c /tmp/lengths.sorted |awk '{print $2 "," $1}' > /tmp/lengths.stats.csv
+ncum=0; nlim=10000; while read -r line; do len="${line%,*}"; n="${line#*,}"; (( ncum+=n )); while (( ncum >= nlim )); do echo "$nlim,$len"; (( nlim+=10000 )); done; done < /tmp/lengths.stats.csv > /tmp/lengths.buckets.csv
+```
 
-Index search padding
---------------------
+(( `lengths.stats.csv` is included in this repo for reference ))
 
-HKPS index searches will return a similar number of entries as a direct lookup request, however these entries will be summaries of the matching keys rather than the keys themselves.
-This summary will normally include UserIDs and may also list subkey and signature packets, and will include a separate entry for each of the matching keys.
-The size of an index response will therefore leak significant information about the nature of the query.
+Note that the histogram is far from smooth - there are significant clusters around certain lengths, together with prominent isolate spikes (most notably at 1232, 1280, 1292 and 1306 bytes), and a sparse tail of oversized keys with unique lengths.
+The largest peloton of lengths, between roughly 1110 and 1234 bytes, consists mainly of rsa2048 primary keys each with one rsa2048 encryption subkey and a single email UserID, a common default key configuration.
+The isolate spikes correspond to known spam campaigns against prominent UserIDs, which consisted of large numbers of almost-identical keys.
 
-A human-readable index is verbose, but can be easily padded by adding an arbitrary amount of HTML commentary to the source of the page.
-Since this page can often be tens of kilobytes long, buckets of 2^n SHOULD be used.
-Variable-sized embedded content such as UAT images SHOULD NOT be present on a padded, human-readable index page.
-Note that human-readable index searches are typically performed manually in a browser rather than automatically, and so the benefits of padding may not be significant.
+Design considerations
+---------------------
 
-A machine-readable index has a smaller maximum size, typically 100 keys (hockeypuck), corresponding to a few kilobytes of content.
-This SHOULD be padded to the nearest 1024 bytes using `X-Padding:` headers of the desired total size.
+When we choose a padding scheme, our primary goal is to maximise each cohort of keys that are indistinguishable by length, and our secondary goal is to minimise the amount of padding to prevent waste.
+The primary goal ("effectiveness") is trivially met by padding every key to the maximum possible length, so the cohort will always consist of all known keys.
+The secondary goal ("efficiency") is trivially met by using no padding at all.
 
-Client request padding
-----------------------
+### Effectiveness
 
-When requesting padded output, clients SHOULD pad their requests to a standard length.
-Since the length and range of query strings is significantly smaller than that of responses, it is sufficient to pad to a multiple of 64 bytes.
-This can be done by adding a single HTTP request header `X-Padding:`, with a value between 1 and 65 bytes long.
+Let us define "bucket capacity" as the number of items in the bucket, and "bucket width" as the range of payload lengths covered by the bucket.
+
+Most algorithmic padding schemes (e.g. power-of-2 or Padme), fail to protect the long tail of large keys.
+Padme in particular is significantly worse at this than power-of-2, as its padding-to-payload ratio decreases asymptotically with message length.
+
+We are therefore motivated to ensure that a minimum number of keys is included in any cohort, no matter how much padding may be required for long-tail keys.
+This requires us to define a _minimum bucket capacity_, derived from the length histogram of our dataset.
+
+We cannot however rely solely on cohorts defined using bucket capacity.
+Such a scheme is vulnerable to spam campaigns and other automated processes that may produce statistical anomalies in the dataset.
+A cohort that includes a large number of keys may not sufficiently disguise its members if a significant number of the keys in the cohort are known to be fake or automated.
+
+To take an extreme example, we could choose "all keys of length 1306 bytes" as a cohort - this contains over a hundred thousand keys and so may sound sufficiently anonymized, but if we assume that the number of non-spam keys of length 1306 bytes is similar to the number of keys of length 1305 or 1307 bytes (which they should be if their UserID lengths are randomly distributed), then the real users that fall within the 1306B cohort are no more protected than if there was no anonymisation scheme at all.
+
+We are therefore motivated to ensure that a significant range of key lengths are included in any cohort, to ensure a diverse sample.
+This requires us to define a _minimum bucket width_ regardless of how many keys this may span.
+
+### Efficiency
+
+Since HTTPS negotiation and HTTP headers typically take up several hundred bytes, there is not much relative efficiency to be gained by economising bandwidth when the payload is less than 1KiB.
+Bucket capacities of over 10% of the dataset add little marginal security, and should be optimised out where this does not conflict with minimum bucket widths.
+
+A toy proposal: double bucketing
+--------------------------------
+
+If we use percentiles to define _minimum bucket capacity_, we ensure that passive observers can recover a maximum of 7 bits of information from the message length.
+If we use the typical length of HTTP response headers to define _minimum bucket width_, we set a reasonable expectation of the padding length added to the majority of queries.
+
+* first create primary cohorts by bucket capacity:
+    * allocate each key length to a primary cohort
+    * label each primary cohort with the maximum key length that it contains
+* then create secondary cohorts by bucket width:
+    * starting at the primary cohort with the longest max key length, and iterating downwards:
+    * (A) allocate the current primary cohort to a new secondary cohort
+    * label the secondary cohort with its maximum key length
+    * consider the next primary cohort
+        * if its maximum key length differs from the secondary cohort's maximum key length by less than the minimum bucket width, OR
+        * if its maximum key length is less than the minimum bucket width, THEN
+            * add it to the current secondary cohort and proceed to the next primary cohort
+        * otherwise, repeat from (A)
+
+We therefore produce a list of padding targets:
+
+```
+width=200; top=1048576; sort -t, -nr /tmp/lengths.buckets.csv | while read -r line; do len="${line#*,}"; if (( len < width)); then break; fi; if (( len+width < top )) ; then top=$len; echo $line; fi; done
+1000000,905434
+990000,9817
+980000,6366
+970000,5072
+960000,4578
+950000,4092
+940000,3737
+920000,3326
+910000,2894
+880000,2547
+860000,2268
+730000,1864
+670000,1654
+600000,1419
+470000,1209
+120000,978
+60000,676
+20000,371
+```
+
+About half of the cohorts are of the minimum bucket capacity and cover the largest 10% of the population, while the other 90% fall into narrow cohorts of <2 minimum bucket widths.
+Note that there are very few keys of less than 256B in length, so the minimum padded message length should be at least 512B.
+
+Bucketing strategy
+------------------
+
+It may be possible for an eavesdropper to observe a sequence of requests to multiple keystores (WKD and HKPS).
+If different keystores apply different packet filter policies, the same key will in general have different lengths even after applying padding.
+In addition, if each of these keystores performs its own cohort calculation, this increases the amount of information leaked to an eavesdropper when making multiple queries for the same key.
+This incentivises us to maximise the capacity of our buckets and pin them down to algorithmic limits.
+
+We should also ensure that if the same key material is returned from both WKD and HKPS, it will be bucketed into the same cohort.
+This will be of particular concern for keystores that serve identical material over both protocols (e.g. keys.openpgp.org).
+Since WKD returns binary keys and HKPS uses Base64, this can only be done reliably if the raw bucket lengths are exactly divisible by 48 and ASCII armor is consistently line-broken at 64 characters (see below for details).
+
+This motivates us to apply a (`3*2^n`) bucketing scheme prioritising bucket width at small lengths, with a single large-capacity bucket to (inefficiently) cover the long tail:
+
+    768     1536    3072    1048608
+    6.5%    58.5%   25.5%   9.5%
+
+`{1,3}*3*2^n` alternative bucket scheme:
+
+    768     1152    1536    2304    3072    1048608
+    6.5%    27.5%   31%     22%     5.5%    9.5%
+
+(N.B. 1048608 is the next multiple of 48 above hockeypuck's default length limit of 1048576, however this can safely be set to any multiple of 48 above a server's configured limit)
+
+If keys are padded individually but concatenated when being served, the length of the response may leak the number of results, and by extension the nature of the query.
+We MUST therefore pad the entire response rather than individual keys.
+
+### Response size tuning
+
+The histogram of key sizes is a reasonable indicator of the histogram of fingerprint lookup responses, however other queries are possible.
+These include queries for shortIDs, long IDs, and UserIDs that may return either an index or a sequence of keys.
+
+* LongID lookups will typically return the same number of keys as a fingerprint search (zero or one), but this cannot be relied upon.
+* ShortID lookups are deprecated and SHOULD NOT be supported.
+* UserID lookups MAY return multiple keys.
+
+WKD servers only provide UserID lookups, but may return more than one key in response.
+HKPS servers will typically return a larger number of keys than WKD in response to a UserID lookup.
+These will both tend to skew the combined histogram of response sizes upwards, compared to the histogram of key sizes.
+It may therefore be desirable for a server to add further buckets between 3072 bytes and the maximum.
+This could take the form of a tuning parameter, but this will have to be carefully tested to ensure that it doesn't result in unexpectedly low-capacity buckets.
