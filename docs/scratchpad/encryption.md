@@ -64,11 +64,9 @@ Cons:
 * Current implementations are not consistent; alignment may cause breakage.
 * Does not not address multi-device or stale-implementation use cases.
 
-# Key material sharing
+# Key Material Sharing
 
 A key holder may wish to share their secret key material between multiple implementations and/or devices.
-
-## Current mechanisms
 
 * Hardware tokens (smartcards etc).
 * Secure enclaves.
@@ -77,7 +75,7 @@ A key holder may wish to share their secret key material between multiple implem
 
 Note that none of these address the stale-implementation use case.
 
-## Proposals
+# Other Proposals
 
 * Abuse of [automatic forwarding](https://datatracker.ietf.org/doc/html/draft-wussler-openpgp-forwarding).
     Cons: requires a cooperating server, keys are not independent, and all keys must use the same algorithm.
