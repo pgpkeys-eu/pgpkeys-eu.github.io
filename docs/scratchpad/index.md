@@ -1,24 +1,42 @@
+Internet-Draft Pipeline
+-----------------------
+
+### Internet Drafts
+
+Working copies of various OpenPGP Internet Drafts (follow the datatracker links to find the I-D itself). 
+
+* [OpenPGP Key Replacement](https://andrewgdotcom.gitlab.io/openpgp-replacementkey)
+* [OpenPGP HTTP Keyserver Protocol](https://andrewgdotcom.gitlab.io/draft-gallagher-openpgp-hkp)
+* [OpenPGP Signatures and Signed Messages](https://andrewgdotcom.gitlab.io/openpgp-signatures)
+* [Revocation in OpenPGP](https://dkg.gitlab.io/openpgp-revocation)
+* [OpenPGP Literal Data Metadata Integrity](https://andrewgdotcom.gitlab.io/draft-gallagher-openpgp-literal-metadata)
+
+### Gitlab Drafts
+
+These are published using the draft template in gitlab pages, but not yet on the datatracker.
+
+* [GREASE in OpenPGP](https://andrewgdotcom.gitlab.io/openpgp-grease)
+* [OpenPGP Code Point Exhaustion](https://andrewgdotcom.gitlab.io/openpgp-code-point-exhaustion)
+* [User Attributes in OpenPGP](https://andrewgdotcom.gitlab.io/openpgp-user-attributes)
+
 Scratchpad entries
 ------------------
 
-### Serious technical proposals
+### Pre-drafts
 
-* [OpenPGP Signatures and Signed Messages (Draft)](https://andrewgdotcom.gitlab.io/openpgp-signatures)
-* [GREASE in OpenPGP (Draft)](https://andrewgdotcom.gitlab.io/openpgp-grease)
-* [OpenPGP Code Point Exhaustion (Draft)](https://andrewgdotcom.gitlab.io/openpgp-code-point-exhaustion)
-* [User Attributes in OpenPGP (Draft)](https://andrewgdotcom.gitlab.io/openpgp-user-attributes)
+Discussion documents that may end up as drafts someday.
 
 * [Multiple Encryption Keys in OpenPGP](encryption.html)
-
-### Other technical randomness
-
-* [OpenPGP/LibrePGP Tolerance](tolerance.html)
+* [Padding and Pseudorandomness in OpenPGP](padding.html)
 * [OpenPGP Double Ratchet Mechanism](ratchet.html)
 * [OpenPGP Double Ratchet Groups](ratchet-groups.html)
 * [Pre-hashed Signatures in OpenPGP](prehash.html)
 
-### Informational musings
+### Informational
 
+These may end up as blog posts or other non-canonical documents.
+
+* [OpenPGP/LibrePGP Tolerance](tolerance.html)
 * [OpenPGP Stack Layers](stack-layers.html)
 * [Reserved Code Points in the OpenPGP Registries](reservations.html)
 
