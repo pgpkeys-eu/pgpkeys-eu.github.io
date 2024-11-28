@@ -261,7 +261,7 @@ uniq -c /tmp/lengths.sorted |awk '{print $2 "," $1}' > /tmp/lengths.stats.csv
 ncum=0; nlim=10000; while read -r line; do len="${line%,*}"; n="${line#*,}"; (( ncum+=n )); while (( ncum >= nlim )); do echo "$nlim,$len"; (( nlim+=10000 )); done; done < /tmp/lengths.stats.csv > /tmp/lengths.buckets.csv
 ```
 
-(( `lengths.stats.csv` is included in this repo for reference ))
+(( [lengths.stats.csv](lengths.stats.csv) is included in this repo for reference ))
 
 Note that the histogram is far from smooth - there are significant clusters around certain lengths, together with prominent isolate spikes (most notably at 1232, 1280, 1292 and 1306 bytes), and a sparse tail of oversized keys with unique lengths.
 The largest peloton of lengths, between roughly 1110 and 1234 bytes, consists mainly of rsa2048 primary keys each with one rsa2048 encryption subkey and a single email UserID, a common default key configuration.
