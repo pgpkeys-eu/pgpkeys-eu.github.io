@@ -35,6 +35,7 @@ Discussion documents that may end up as drafts someday.
 * [OpenPGP Double Ratchet Mechanism](ratchet.html)
 * [OpenPGP Double Ratchet Groups](ratchet-groups.html)
 * [Pre-hashed Signatures in OpenPGP](prehash.html)
+* [Canonical JSON Representation of OpenPGP Objects](json.html)
 
 ### Informational
 
