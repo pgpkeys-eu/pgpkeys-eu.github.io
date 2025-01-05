@@ -14,10 +14,11 @@ type Packet struct {
     Frames []*Frame  `json:"frames,omitempty"`
 }
 
-// TODO: fix inconsistent lowercasing (it's like this in hockeypuck)
-type algorithm struct {
-    Name string `json:"name"`
-    Code int    `json:"code"`
+type Algorithm struct {
+    Name      string `json:"name"`
+    Code      int    `json:"code"`
+    BitLength int    `json:"bitLength"`       // TODO: should this be optional?
+    Curve     string `json:"curve,omitempty"`
 }
 
 type PublicKey struct {
@@ -27,16 +28,13 @@ type PublicKey struct {
     Expiration   string       `json:"expiration,omitempty"`
     NeverExpires bool         `json:"neverExpires,omitempty"`
     Version      uint8        `json:"version"`
-    Algorithm    algorithm    `json:"algorithm"`
-    BitLength    int          `json:"bitLength"`      // TODO: this should be optional
+    Algorithm    Algorithm    `json:"algorithm"`
     Signatures   []*Signature `json:"signatures,omitempty"`
     Packet       *Packet      `json:"packet,omitempty"`
 
     // no longer used by hockeypuck
     ShortKeyID   string       `json:"shortKeyID"`
-
-    // NEW FIELD - see hockeypuck#340
-    Curve        curve        `json:"curve,omitempty"`
+    BitLength    int          `json:"bitLength"` // Moved under Algorithm; not meaningful for all algorithm types
 }
 
 type PrimaryKey struct {
@@ -77,8 +75,8 @@ type Signature struct {
 
     // NEW PACKET FIELDS
     Version         uint8        `json:"version"`
-    PubkeyAlgorithm algorithm    `json:"pubkeyAlgorithm"`
-    HashAlgorithm   algorithm    `json:"hashAlgorithm"`
+    PubkeyAlgorithm Algorithm    `json:"pubkeyAlgorithm"`
+    HashAlgorithm   Algorithm    `json:"hashAlgorithm"`
     HashedArea      []*Subpacket `json:"hashedArea,omitempty"`
     UnhashedArea    []*Subpacket `json:"unhashedArea,omitempty"`
 
@@ -87,11 +85,11 @@ type Signature struct {
     Trust            Trust          `json:"trust,omitempty"`
     Regex            string         `json:"regexes,omitempty"`
     Revocable        bool           `json:"revocable" default:"true"`
-    PrefSymmetric    []algorithm    `json:"prefSymmetric,omitempty"`
+    PrefSymmetric    []Algorithm    `json:"prefSymmetric,omitempty"`
     RevocationKeys   []string       `json:"revocationKeys,omitempty"`
     Notations        []*Notation    `json:"notations,omitempty"`
-    PrefHash         []algorithm    `json:"prefHash,omitempty"`
-    PrefCompression  []algorithm    `json:"prefCompression,omitempty"`
+    PrefHash         []Algorithm    `json:"prefHash,omitempty"`
+    PrefCompression  []Algorithm    `json:"prefCompression,omitempty"`
     KeyServerPrefs   KeyServerPrefs `json:"keyserverPrefs,omitempty"`
     PrefKeyServer    string         `json:"prefKeyserver,omitempty"`
     Flags            Flags          `json:"flags,omitempty"`
@@ -104,7 +102,7 @@ type Signature struct {
     Recipients       []VFP          `json:"recipients,omitempty"`
     ApprovedCerts    [][]byte       `json:"approvedCerts,omitempty"`
     KeyBlocks        []KeyBlock     `json:"keyBlocks,omitempty"`    // BEWARE recursion
-    PrefAEAD         []algorithm    `json:"prefAEAD",omitempty"`
+    PrefAEAD         []Algorithm    `json:"prefAEAD",omitempty"`
     PrefSuites       []AEADSuite    `json:"prefSuites,omitempty"`
     LiteralMetadata  MetaData       `json:"literalMetadata,omitempty"`
     Replacement      Replacement    `json:"replacement,omitempty"`
@@ -137,7 +135,7 @@ type Subpacket struct {
 
 type SessionKey struct {
     Version   uint8     `json:"version"`
-    Algorithm algorithm `json:"algorithm"`
+    Algorithm Algorithm `json:"algorithm"`
     Packet    *Packet   `json:"packet,omitempty"`
 }
 
@@ -155,7 +153,7 @@ type SKESK struct {
 }
 
 type CompressedData struct {
-    Algorithm algorithm `json:"algorithm"`
+    Algorithm Algorithm `json:"algorithm"`
     Packet    *Packet   `json:"packet,omitempty"`
 }
 
@@ -212,11 +210,6 @@ type Frame struct {
     Legacy bool `json:"legacy" default:"false"`
 }
 
-type Curve struct {
-    Name string `json:"name"`
-    OID  string `json:"oid"`
-}
-
 type VFP struct {
     Version     uint8  `json:"version"`
     Fingerprint string `json:"fingerprint"`
@@ -224,7 +217,7 @@ type VFP struct {
 
 type S2KSpecifier struct {
     Type          uint8     `json:"type"`
-    HashAlgorithm algorithm `json:"algorithm,omitempty"`
+    HashAlgorithm Algorithm `json:"algorithm,omitempty"`
     Salt          []byte    `json:"salt,omitempty"`
     Count         uint32    `json:"count,omitempty"`    // if type==3, decoded!
     Parallel      uint8     `json:"parallel,omitempty"`
@@ -232,8 +225,8 @@ type S2KSpecifier struct {
 }
 
 type AEADSuite struct {
-    SymmetricAlgorithm algorithm `json:"symmetricAlgorithm"`
-    AEADAlgorithm      algorithm `json:"aeadAlgorithm"`
+    SymmetricAlgorithm Algorithm `json:"symmetricAlgorithm"`
+    AEADAlgorithm      Algorithm `json:"aeadAlgorithm"`
 }
 
 type Trust struct {
@@ -242,8 +235,8 @@ type Trust struct {
 }
 
 type SigTarget struct {
-    PubkeyAlgorithm algorithm `json:"pubkeyAlgorithm"`
-    HashAlgorithm   algorithm `json:"hashAlgorithm"`
+    PubkeyAlgorithm Algorithm `json:"pubkeyAlgorithm"`
+    HashAlgorithm   Algorithm `json:"hashAlgorithm"`
     Digest          []byte    `json:"digest"`
 }
 
@@ -333,7 +326,7 @@ For example:
 
 * If an application includes `Packet` objects it MAY omit `Frames`.
 
-* An application MAY choose not to populate the human-readable `Name` fields in data types such as `Curve` and `algorithm`.
+* An application MAY choose not to populate the human-readable `Name` fields in data types such as `Algorithm`.
 
 The schema does however impose some restrictions:
 
