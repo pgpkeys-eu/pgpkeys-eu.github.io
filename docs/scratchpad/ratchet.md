@@ -46,7 +46,7 @@ We use standard OpenPGP encrypted messages, but:
 * The initial message in each direction is encrypted to the recipient's standard encryption subkey.
     It is signed by the sender's EKA subkey (not their signing key) and the signature contains:
     * A Flow Control request subpacket with the DR Init flag set (see below).
-    * An Ephemeral Key subpacket containing an public ephemeral subkey, to initialise a new double ratchet (once in each direction).
+    * An Ephemeral Key subpacket containing a public ephemeral subkey, to initialise a new double ratchet (once in each direction).
 * Subsequent double-ratchet messages use PKESKs with slightly altered semantics:
     * The key ID (PKESKv3) or versioned fingerprint (PKESKv6) identifies the EKA subkey (not an encryption key).
     * The "public key algorithm" octet identifies an ephemeral cipher suite (not the algorithm of the EKA subkey).
@@ -72,7 +72,7 @@ The Literal Data packet SHOULD NOT be signed; any signature subpackets that woul
 ### Algorithm-specific PKESK data
 
 An ephemeral-algorithm PKESK contains the sender's public ratchet state for the current message, in addition to the symmetric algorithm used in the following SEIPD packet.
-The symmetric algorithm MUST have the same key length as the ECDH algorithm of the current DR.
+The symmetric algorithm MUST have the same key length as the asymmetric algorithm of the current DR.
 
 * Symmetric Algorithm (1 octet)
 * Symmetric Chain Sequence (2 octets)
@@ -89,7 +89,7 @@ The decrypted DR session information contains:
 * Symmetric session key
 * A signature subpacket area length
 * A signature subpacket area
-* A full public subkey packet containing the sender's most recent public ephemeral key, to progress the ECDH ratchet
+* A full public subkey packet containing the sender's most recent public ephemeral key, to progress the asymmetric ratchet
 
 The signature subpacket area contains any signature subpackets that would have been included in a signature over the encrypted data, if it had been signed (see below).
 These MUST include a Signature Creation Time subpacket.
