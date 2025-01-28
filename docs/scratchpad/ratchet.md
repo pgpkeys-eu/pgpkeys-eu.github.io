@@ -34,11 +34,11 @@ We define:
 * One or more new public-key algorithm IDs (in a special range) that identify ephemeral cipher suites.
     * Implementations MUST support X25519+HKDF+DR and MAY support X448+HKDF+DR.
 * A new signature subpacket type, "Ephemeral Key", of the Document class, which contains:
-    * A public ephemeral key, as a full Public Subkey packet using the appropriate ephemeral algorithm.
-* A new signature subpacket type, "Preferred Ephemeral Ciphers", of the Preference class.
+    * A public ephemeral key, as a full Public Key packet using the appropriate ephemeral algorithm.
+* A new signature subpacket type, "Preferred Ephemeral Ciphers", of the Direct class.
     * It contains an ordered list of public ephemeral key algorithms.
-    * It is used in (( the subkey binding signature over the key exchange subkey OR the usual self-signature locations )) (?TBC?).
-* A new signature subpacket type, "Flow Control request", of the Document class.
+    * It is used in the same way as any other algorithm preference subpacket.
+* A new signature subpacket type, "Flow Control request", of the Literal Data class.
     * It contains one octet of request type, and one octet of flags (see below).
 
 We use standard OpenPGP encrypted messages, but:
@@ -46,7 +46,7 @@ We use standard OpenPGP encrypted messages, but:
 * The initial message in each direction is encrypted to the recipient's standard encryption subkey.
     It is signed by the sender's EKA subkey (not their signing key) and the signature contains:
     * A Flow Control request subpacket with the DR Init flag set (see below).
-    * An Ephemeral Key subpacket containing a public ephemeral subkey, to initialise a new double ratchet (once in each direction).
+    * An Ephemeral Key subpacket containing a public ephemeral key, to initialise a new double ratchet (once in each direction).
 * Subsequent double-ratchet messages use PKESKs with slightly altered semantics:
     * The key ID (PKESKv3) or versioned fingerprint (PKESKv6) identifies the EKA subkey (not an encryption key).
     * The "public key algorithm" octet identifies an ephemeral cipher suite (not the algorithm of the EKA subkey).
@@ -54,8 +54,9 @@ We use standard OpenPGP encrypted messages, but:
     * Session keys are encrypted symmetrically using the key derived from the DR state.
     * DR messages are authenticated by knowledge of the DR state and are not normally signed.
 
-Note that public ephemeral keys are always represented by a Public *Subkey* packet, so that they cannot be mistaken for a TPK.
-A Subkey Binding Signature MUST NOT be made over an ephemeral subkey.
+Note that public ephemeral keys are always represented by a Public Key packet, so that they cannot be mistaken for a subkey of the keyholder's long-lived primary key.
+The ephemeral key is therefore a primary encryption key, which can not make self-signatures.
+Binding and Certification Signatures MUST NOT be made over an ephemeral key.
 
 A single DR message may be encrypted to multiple recipients by prefixing it with multiple PKESKs.
 Care must be taken to ensure that flow control request subpackets are located in the correct PKESK(s) according to their intended audience.
@@ -78,8 +79,8 @@ The symmetric algorithm MUST have the same key length as the asymmetric algorith
 * Symmetric Chain Sequence (2 octets)
 * Previous Symmetric Chain Sequence (2 octets)
 * Length in octets of the following two fields (2 octets)
-* Counterpart's last published ephemeral subkey version (1 octet)
-* Counterpart's last published ephemeral subkey fingerprint (N octets)
+* Counterpart's last published ephemeral key version (1 octet)
+* Counterpart's last published ephemeral key fingerprint (N octets)
 * Symmetrically-encrypted DR session information
 
 The Symmetric Chain Sequence and Previous Symmetric Chain Sequence fields are used to calculate the number of missing messages.
@@ -89,12 +90,12 @@ The decrypted DR session information contains:
 * Symmetric session key
 * A signature subpacket area length
 * A signature subpacket area
-* A full public subkey packet containing the sender's most recent public ephemeral key, to progress the asymmetric ratchet
+* A full public key packet containing the sender's most recent public ephemeral key, to progress the asymmetric ratchet
 
 The signature subpacket area contains any signature subpackets that would have been included in a signature over the encrypted data, if it had been signed (see below).
 These MUST include a Signature Creation Time subpacket.
 The subpackets are instead validated by implied knowledge of the shared ratchet state.
-The Public Subkey packet MUST be of the same ephemeral algorithm type as the enclosing PKESK.
+The Public Key packet MUST be of the same ephemeral algorithm type as the enclosing PKESK.
 Unless otherwise specified, this signature subpacket area is equivalent to a hashed subpacket area for the purposes of BCP 14 [RFC2119] [RFC8174].
 
 If the message's content can be encoded entirely within the PKESK, the Literal Data packet MAY be empty.
@@ -105,7 +106,7 @@ The parties to a double-ratchet communications channel SHOULD negotiate an alter
 The easiest way of doing this is to set up multiple independent DRs, and alternating messages between the DRs.
 
 Multiple DRs may be initialised by including multiple Ephemeral Key subpackets in the initial message, and pairing them off in order with the Ephemeral Key subpackets in the initial response.
-If the second party responds with fewer ephemeral subkeys, then the first party MUST destroy the excess keys.
+If the second party responds with fewer ephemeral keys, then the first party MUST destroy the excess keys.
 After this step, each DR operates independently of the others.
 If a failure is detected in any of the double ratchets, a flow control request SHOULD be sent using one of the other DRs.
 
@@ -119,7 +120,7 @@ Flow Control requests are located in the subpacket area of the DR session inform
 A typical Flow Control request consists of one or more of the following subpackets, in addition to any generic subpackets such as signature creation time etc.:
 
 * A Flow Control Request subpacket.
-* An Ephemeral Key subpacket containing an public ephemeral subkey, to initialise a new double ratchet.
+* An Ephemeral Key subpacket containing a public ephemeral key, to initialise a new double ratchet.
 * An Intended Recipient subpacket, to identify another DR ratchet
 
 ### Flow control request subpacket
@@ -129,21 +130,21 @@ A Flow Control Request subpacket contains one octet of request type, and one oct
 The following request types are defined:
 
 * DR Init (0): Initialises a new DR.
-    * An Ephemeral Key subpacket with an initial ephemeral subkey MUST be included in the hashed area.
-    * The expected response to a DR Init request is another DR Init request containing the other party's initial ephemeral subkey.
+    * An Ephemeral Key subpacket with an initial ephemeral key MUST be included in the hashed area.
+    * The expected response to a DR Init request is another DR Init request containing the other party's initial ephemeral key.
 * Fork (1): Forks the current double ratchet into two separate DRs.
-    * An Ephemeral Key subpacket with an ephemeral subkey MUST be included in the hashed area.
-    * A new DR is created by copying the state of the current DR and applying the ephemeral subkey from the Ephemeral Key subpacket.
-    * The current DR continues as normal using the trailing ephemeral subkey packet.
+    * An Ephemeral Key subpacket with an ephemeral key MUST be included in the hashed area.
+    * A new DR is created by copying the state of the current DR and applying the ephemeral key from the Ephemeral Key subpacket.
+    * The current DR continues as normal using the trailing ephemeral key packet.
 * Reap (2): Marks another double ratchet as broken and asks for its recent messages to be resent.
     * An Intended Recipient Fingerprint subpacket MUST be included in the hashed area.
-    * The IRF subpacket identifies an ephemeral subkey in another DR chain.
-    * The DR containing that ephemeral subkey SHOULD be marked as broken at a point immediately before that subkey was applied.
+    * The IRF subpacket identifies an ephemeral key in another DR chain.
+    * The DR containing that ephemeral key SHOULD be marked as broken at a point immediately before that key was applied.
     * Any messages sent using that DR (or any of its forks) since the break point SHOULD be resent using the current DR.
 * Reap and Fork (3): Combines the semantics of both Reap and Fork, in that order.
 * Resend (4): Asks for a double ratchet's historical messages to be resent, without marking the DR as broken.
     * An Intended Recipient Fingerprint subpacket MUST be included in the hashed area.
-    * The IRF identifies the ephemeral subkey at the head of a symmetric chain.
+    * The IRF identifies the ephemeral key at the head of a symmetric chain.
     * Any messages sent using that symmetric chain only SHOULD be resent using the current DR.
 
 The following flag bits are defined:
@@ -170,8 +171,8 @@ If resending requires multiple response messages, the Partial flag MUST be set o
 ### Algorithm upgrades
 
 During a long-running conversation it may eventually become necessary to upgrade the DR algorithm.
-One party to a conversation may invoke an algorithm upgrade by sending a DR Init request with an Ephemeral Key subpacket containing an ephemeral subkey of the new algorithm type.
-The DR session information ephemeral subkey continues the current DR, while the Ephemeral Key subpacket attempts to initialise a new DR.
+One party to a conversation may invoke an algorithm upgrade by sending a DR Init request with an Ephemeral Key subpacket containing an ephemeral key of the new algorithm type.
+The DR session information ephemeral key continues the current DR, while the Ephemeral Key subpacket attempts to initialise a new DR.
 The other party can accept the upgrade by replying in the existing double ratchet with a matching DR Init request that uses the new algorithm.
 Once both parties have sent DR Init requests, the new double ratchet acts as a direct continuation of the old.
 
