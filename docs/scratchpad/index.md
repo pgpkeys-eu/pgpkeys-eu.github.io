@@ -1,5 +1,7 @@
-Scratchpad
-==========
+PGPKeys.EU Assorted Marginalia
+==============================
+
+Various works in progress and random thoughts.
 
 Internet-Draft Pipeline
 -----------------------
@@ -43,7 +45,6 @@ These may end up as blog posts or other non-canonical documents.
 
 * [OpenPGP/LibrePGP Tolerance](tolerance.html)
 * [OpenPGP Stack Layers](stack-layers.html)
-* [Reserved Code Points in the OpenPGP Registries](reservations.html)
 
 DISCLAIMER: All these documents are a work in progress and subject to change without notice.
 They are provided for discussion purposes only and do not represent the opinion of any real person, living or dead.

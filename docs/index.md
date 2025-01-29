@@ -1,6 +1,8 @@
+PGPKeys.EU Blog
+===============
 
-Blog entries by date
---------------------
+Latest Posts
+------------
 
 January 2025:
 
@@ -23,3 +25,4 @@ Links
 -----
 
 * [PGPKeys.EU OpenPGP keyserver](https://pgpkeys.eu/)
+* [Hockeypuck project](https://hockeypuck.io)
