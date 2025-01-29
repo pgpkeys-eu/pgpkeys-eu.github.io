@@ -117,3 +117,5 @@ There are a number of unassigned gaps in the registries that are not specificall
 * Public key algorithms 4-15 (born missing in [draft-ietf-openpgp-formats-00](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-formats-00#autoid-164))
 * Reasons for revocation 4-31 (born missing in [draft-ietf-openpgp-formats-04](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-formats-04#section-5.2.3.22))
 * The Signature Types registry [emerged from prehistory](https://datatracker.ietf.org/doc/html/draft-atkins-pgpformat-01#section-6.2.1) complete with gaps which were obviously intended to group sub-ranges with similar semantics, however they are not formally defined.
+
+Andrew Gallagher (29 January 2025)
