@@ -8,6 +8,12 @@ Others are reserved to avoid incompatibility with deprecated or experimental fea
 Some have been reserved for speculative features that were never implemented, and so MAY be more appropriately classified as “unassigned".
 It is not always clear which case is which, or under what conditions an un-reservation should be performed.
 
+# Analysis and Classification of Reserved Code Points
+
+This blog attempts to reconstruct the rationale for each of the reserved code points.
+The primary sources for this analysis are mainly the various RFCs, but earlier draft versions are also referenced where necessary, and in some cases the only known sources are discussions on various public forums.
+All sources are referenced inline below.
+
 In the below, we classify reserved code points as follows:
 
 * [GOOD] (documented and referenced)
