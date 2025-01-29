@@ -2,6 +2,10 @@
 Blog entries by date
 --------------------
 
+January 2025:
+
+* [Analysis of OpenPGP Reserved Code Points](reservations.html) (Andrew, 2024-01-29)
+
 August 2024:
 
 * [A Summary of Known Security Issues in LibrePGP](security-issues-librepgp-2024-08.html) (Andrew, 2024-08-19)
