@@ -23,9 +23,13 @@ In the below, we classify reserved code points as follows:
 
 ## OpenPGP String-to-Key (S2K) Types
 
+[Registry](https://www.iana.org/assignments/openpgp/openpgp.xhtml#openpgp-s2k-types)
+
 * 2 [iterated and unsalted S2K?]
 
 ## OpenPGP Packet Types
+
+[Registry](https://www.iana.org/assignments/openpgp/openpgp.xhtml#openpgp-packet-types)
 
 * 0 (MUST NOT be used) [why?]
 * 19 (MDC) [GOOD]
@@ -33,13 +37,19 @@ In the below, we classify reserved code points as follows:
 
 ## OpenPGP User Attribute Subpacket Types
 
+[Registry](https://www.iana.org/assignments/openpgp/openpgp.xhtml#openpgp-user-attribute-subpacket-types)
+
 * 0 [aversion to zero?]
 
 ## OpenPGP Image Attribute Encoding Format
 
+[Registry](https://www.iana.org/assignments/openpgp/openpgp.xhtml#openpgp-user-attribute-encoding-format)
+
 * 0 [aversion to zero?]
 
 ## OpenPGP Signature Subpacket Types
+
+[Registry](https://www.iana.org/assignments/openpgp/openpgp.xhtml#openpgp-signature-subpacket-types)
 
 * 0 [aversion to zero?]
 * 1 [-> [Image Attribute subpacket](https://andrewgdotcom.gitlab.io/openpgp-user-attributes)?]
@@ -51,15 +61,21 @@ In the below, we classify reserved code points as follows:
 
 ## OpenPGP Features Flags
 
+[Registry](https://www.iana.org/assignments/openpgp/openpgp.xhtml#openpgp-features-flags)
+
 * 0x02 [[AEAD and v5 SKESK packets (deprecated) -> rfc4880bis-10 5.2.3.25](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis#section-5.2.3.25)]
 * 0x04 [[v5 Public Key packet (deprecated) -> rfc4880bis-10 5.2.3.25](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis#section-5.2.3.25)]
 
 ## OpenPGP Key Flags
 
+[Registry](https://www.iana.org/assignments/openpgp/openpgp.xhtml#openpgp-key-flags)
+
 * 0x0004 (ADSK) [[-> rfc4880bis-10 5.2.3.22?](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis#section-5.2.3.22)]
 * 0x0008 (timestamping) [[-> rfc4880bis-10 5.2.3.22?](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis#section-5.2.3.22)]
 
 ## OpenPGP Public Key Algorithms
+
+[Registry](https://www.iana.org/assignments/openpgp/openpgp.xhtml#openpgp-public-key-algorithms)
 
 * 0 [OBV: 0 implies "none"]
 * 20 (ElGamal Encrypt or Sign, deprecated) [GOOD]
@@ -71,11 +87,15 @@ See also [section 12.8 of RFC9580](https://datatracker.ietf.org/doc/html/rfc9580
 
 ## OpenPGP Symmetric Key Algorithms
 
+[Registry](https://www.iana.org/assignments/openpgp/openpgp.xhtml#openpgp-symmetric-key-algorithms)
+
 * 5 [SAFER-SK128 -> RFC2440](https://datatracker.ietf.org/doc/html/rfc2440#section-9.2)
 * 6 [DES/SK -> RFC2440](https://datatracker.ietf.org/doc/html/rfc2440#section-9.2)
 * 253-255 (compatibility with s2k usage octet registry) [GOOD]
 
 ## OpenPGP Hash Algorithms
+
+[Registry](https://www.iana.org/assignments/openpgp/openpgp.xhtml#openpgp-hash-algorithms)
 
 * 0 [OBV: 0 implies "none"]
 * 4 [[Double-width SHA (experimental) -> RFC2440 9.4](https://datatracker.ietf.org/doc/html/rfc2440#section-9.4)]
@@ -88,9 +108,13 @@ Action: code point 15 SHOULD be reserved for SHA3-224.
 
 ## OpenPGP Signature Types
 
+[Registry](https://www.iana.org/assignments/openpgp/openpgp.xhtml#openpgp-signature-types)
+
 * 0xFF [GOOD]
 
 ## OpenPGP AEAD Algorithms
+
+[Registry](https://www.iana.org/assignments/openpgp/openpgp.xhtml#openpgp-aead-algorithms)
 
 * 0 [OBV: 0 implies "none"]
 
