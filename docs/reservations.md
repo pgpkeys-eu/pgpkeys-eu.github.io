@@ -33,7 +33,7 @@ In the below, we classify reserved code points as follows:
 
 * 0 (MUST NOT be used) [why?]
 * 19 (MDC) [GOOD]
-* 20 [[AEAD encrypted data (deprecated) -> rfc4880bis 5.16](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis#section-5.16)]
+* 20 [[AEAD encrypted data (deprecated) -> rfc4880bis-10 5.16](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis-10#section-5.16)]
 
 ## OpenPGP User Attribute Subpacket Types
 
@@ -55,23 +55,23 @@ In the below, we classify reserved code points as follows:
 * 1 [-> [Image Attribute subpacket](https://andrewgdotcom.gitlab.io/openpgp-user-attributes)?]
 * 8, 13-15, 17-19 [-> experimental PGP5 features?]
 * 10 (placeholder for backward compatibility) [-> ADK/ARR?]
-* 34 [[preferred AEAD algorithms (deprecated) -> rfc4880bis 5.2.3.8](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis#section-5.2.3.8)]
-* 37 (attested certifications) [[-> rfc4880bis 5.2.3.30](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis#section-5.2.3.30)]
-* 38 (key block) [[-> rfc4880bis 5.2.3.31](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis#section-5.2.3.31)]
+* 34 [[preferred AEAD algorithms (deprecated) -> rfc4880bis-10 5.2.3.8](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis-10#section-5.2.3.8)]
+* 37 (attested certifications) [[-> rfc4880bis-10 5.2.3.30](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis-10#section-5.2.3.30)]
+* 38 (key block) [[-> rfc4880bis-10 5.2.3.31](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis-10#section-5.2.3.31)]
 
 ## OpenPGP Features Flags
 
 [Registry](https://www.iana.org/assignments/openpgp/openpgp.xhtml#openpgp-features-flags)
 
-* 0x02 [[AEAD and v5 SKESK packets (deprecated) -> rfc4880bis-10 5.2.3.25](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis#section-5.2.3.25)]
-* 0x04 [[v5 Public Key packet (deprecated) -> rfc4880bis-10 5.2.3.25](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis#section-5.2.3.25)]
+* 0x02 [[AEAD and v5 SKESK packets (deprecated) -> rfc4880bis-10 5.2.3.25](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis-10#section-5.2.3.25)]
+* 0x04 [[v5 Public Key packet (deprecated) -> rfc4880bis-10 5.2.3.25](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis-10#section-5.2.3.25)]
 
 ## OpenPGP Key Flags
 
 [Registry](https://www.iana.org/assignments/openpgp/openpgp.xhtml#openpgp-key-flags)
 
-* 0x0004 (ADSK) [[-> rfc4880bis-10 5.2.3.22?](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis#section-5.2.3.22)]
-* 0x0008 (timestamping) [[-> rfc4880bis-10 5.2.3.22?](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis#section-5.2.3.22)]
+* 0x0004 (ADSK) [[-> rfc4880bis-10 5.2.3.22?](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis-10#section-5.2.3.22)]
+* 0x0008 (timestamping) [[-> rfc4880bis-10 5.2.3.22?](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis-10#section-5.2.3.22)]
 
 ## OpenPGP Public Key Algorithms
 
@@ -102,7 +102,7 @@ See also [section 12.8 of RFC9580](https://datatracker.ietf.org/doc/html/rfc9580
 * 5 [[MD2 -> RFC2440 9.4](https://datatracker.ietf.org/doc/html/rfc2440#section-9.4)]
 * 6 [[TIGER/192 -> RFC2440 9.4](https://datatracker.ietf.org/doc/html/rfc2440#section-9.4)]
 * 7 [[HAVAL 5-pass 160-bit -> RFC2440 9.4](https://datatracker.ietf.org/doc/html/rfc2440#section-9.4)]
-* 13 [[SHA3-384 -> rfc4880bis-10 10.3.3](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis#section-10.3.3)] (this also implies that 15 == SHA3-224)
+* 13 [[SHA3-384 -> rfc4880bis-10 10.3.3](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis-10#section-10.3.3)] (this also implies that 15 == SHA3-224)
 
 Action: code point 15 SHOULD be reserved for SHA3-224.
 
@@ -125,6 +125,7 @@ Zero is however used in the Signature Types registry as a non-special code point
 This probably represents a general aversion to using zero as a non-special code point, and the Signature Types registry may be considered an outlier.
 
 RFC1991 used 255 as an "experimental" code point in several registries, however RFC2440 subsequently moved the experimental ranges to their current locations.
+RFC9580 reserved 255 (0xFF) in the Signature Types registry to avoid a downgrade attack against the v3 signature packet encoding.
 255 is otherwise is not considered special in any subsequent document, and is used as a non-special code point in the S2K Usage Octet registry.
 
 # Unassigned gaps in OpenPGP registries
@@ -143,3 +144,5 @@ There are a number of unassigned gaps in the registries that are not specificall
 * The Signature Types registry [emerged from prehistory](https://datatracker.ietf.org/doc/html/draft-atkins-pgpformat-01#section-6.2.1) complete with gaps which were obviously intended to group sub-ranges with similar semantics, however they are not formally defined.
 
 Andrew Gallagher (29 January 2025)
+
+(Edited 2025-02-01 to fix references and clarify 0xFF)
