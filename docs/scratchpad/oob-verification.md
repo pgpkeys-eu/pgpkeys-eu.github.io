@@ -8,16 +8,16 @@ For example, a service that sends out large numbers of verification emails may h
 
 It is therefore desirable for a service to allow its users to prove ownership of their email address by other means.
 
-# Protocol Overview
+# OOB Proof Overview
 
 In the below, the service that requires email validation is called the "verifier", and the user or client is called the "prover".
 
-There are a small number of variations on the basic protocol:
+There are a small number of variations on the basic proof format:
 
 * "challenge-response" (c) vs "pre-agreed" (p) indicate how challenges are obtained.
 * "direct" (d) vs "indirect" (i) indicate how proofs are submitted.
 
-The mode of the protocol consists of the direct sum of each of the variants, e.g. "challenge-response direct" or "pre-agreed indirect".
+The mode of the proof consists of the direct sum of each of the variants, e.g. "challenge-response direct" or "pre-agreed indirect".
 
 * The prover constructs a challenge:
     * In the challenge-response mode, the prover calls an API endpoint on the verifier to obtain a challenge.
@@ -29,35 +29,36 @@ The mode of the protocol consists of the direct sum of each of the variants, e.g
 * In the indirect mode, the prover submits the received email via an API endpoint.
 * The verifier looks up the email domain's public DKIM key and verifies the submitted proof.
 
-The "interactive direct" case differs from traditional email verification systems only in that SMTP delivery of the challenge is bypassed.
-The "non-interactive indirect" case requires only that the verifier receives pre-constructed proofs via an API.
+The "challerge-response direct" case differs from traditional email verification systems only in that SMTP delivery of the challenge is bypassed.
+The "pre-agreed indirect" case requires only that the verifier receives pre-constructed proofs via an API.
 
-# Caveats
+## Caveats
 
-The verification protocol is intended to be managed by the user's MUA, rather than by hand.
-The MUA must therefore have explicit support for the protocol.
+Generation and submission of proofs is intended to be managed by the user's MUA, rather than by hand.
+The MUA must therefore have explicit support for OOB proofs.
 
-To prevent abuse stemming from advance calculation of many proofs, non-interactive challenges SHOULD require the use of a public source of randomness, e.g [DRAND](https://drand.love).
+To prevent abuse stemming from advance calculation of many proofs, pre-agreed challenges SHOULD require the use of a public source of randomness, e.g [DRAND](https://drand.love).
 
-An attacker could try to trick a victim into creating an email that the attacker could then present as "proof" that they controlled the victim's email address.
-Domain separation is achieved by including a Content-type header in the comment field of the From: message header, which is normally not attacker-controllable.
+# OOB Proof Wire Format
+
+Domain separation is achieved by embedding a `Content-type:` header in the comment field of the From: message header, which is normally not attacker-controllable.
 In addition, the From: header is the only one that MUST be signed by DKIM, and so we place all of the necessary data as additional fields in the embedded Content-type.
 
 The `Content-type` header MUST indicate the MIME type `application/oob-email-proof`.
 The additional fields are:
 
-* `v` : MUST be 1.
-* `p` : the protocol that the verifier acts on behalf of. 
-* `r` : the domain that the verifier acts on behalf of.
+* `v` : the version of the proof format; MUST be 1.
+* `p` : the application protocol of the service that the verifier acts on behalf of, e.g. `https`.
+* `r` : the domain of the service that the verifier acts on behalf of.
 * `m` : the mode, one of `cd`, `ci`, `pd`, or `pi`.
-* `d` : additional data (protocol-dependent).
+* `d` : additional data (application-dependent).
 * `c` : the challenge, in BASE-64 encoding.
 
 All additional fields MUST be supplied, even if the additional data is the empty string.
 Protocol designers should ensure that additional data uses an encoding format that is tolerant of line-breaking and whitespace; BASE-64 is RECOMMENDED.
 
-The body of the email MAY be empty, or MAY contain additional data as required by the protocol.
-If it contains verified data, a checksum or signature over it SHOULD be included in the OOB additional data field, since not all DKIM implementations sign over the whole email body.
+The body of the email MAY be empty, or MAY contain additional data as required by the application protocol.
+If it contains application protocol data, a checksum or signature over it SHOULD be included in the OOB additional data field, since not all DKIM implementations sign over the whole email body.
 
 The proof consists of the received email from the beginning of the `DKIM-Signature` header until the end of the body.
 
