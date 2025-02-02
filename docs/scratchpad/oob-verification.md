@@ -29,7 +29,7 @@ The *mode* of the proof is a direct sum of the variations usee, e.g. "challenge-
 * In the indirect mode, the prover submits the received email via an API endpoint on the verifier.
 * The verifier looks up the email domain's public DKIM key and verifies the submitted proof.
 
-The "challerge-response direct" mode differs substantially from traditional email verification systems only in that SMTP delivery of the challenge is bypassed.
+The "challenge-response direct" mode differs substantially from traditional email verification systems only in that SMTP delivery of the challenge is bypassed.
 The "pre-agreed indirect" mode requires only that the verifier receives pre-constructed proofs via an API; no email service is required by the verifier.
 
 ## Caveats
@@ -44,21 +44,22 @@ To prevent abuse via the advance calculation of large numbers of proofs, pre-agr
 Domain separation is achieved by embedding a `Content-type:` header in the comment field of the `From:` message header, which is normally not attacker-controllable.
 In addition, the `From:` header is the only one that MUST be signed by DKIM, and so we place all of the necessary data as additional fields in the embedded Content-type.
 
-The embedded `Content-type` header MUST indicate the MIME type `application/oob-email-proof`.
-The additional fields are:
+The embedded `Content-type` header MUST indicate the MIME type `application/oob-email-proof`, with the following attributes:
 
 * `v` : the version of the proof format; MUST be 1.
+* `t` : the time of proof generation, as an integer number of seconds since the UNIX epoch.
 * `p` : the application protocol of the service that the verifier acts on behalf of, e.g. `https`.
-* `r` : the domain of the service that the verifier acts on behalf of.
+* `d` : the domain of the service that the verifier acts on behalf of.
 * `m` : the mode, one of `cd`, `ci`, `pd`, or `pi`.
-* `d` : additional data (application-dependent).
-* `c` : the challenge, in BASE-64 encoding.
+* `a` : body hash algorithm; provers SHOULD use sha256.
+* `bh`: body hash, in BASE-64 encoding.
+* `ch`: the challenge, in BASE-64 encoding.
 
-All additional fields MUST be supplied.
-Protocol designers should ensure that additional data uses an encoding format that is tolerant of line-breaking and whitespace; BASE-64 is RECOMMENDED.
+All attributes MUST be supplied, however the order is not important.
 
 The body of the email MAY be empty, or MAY contain additional data as required by the application protocol.
-If it contains application protocol data, a checksum or signature over it SHOULD be included in the OOB additional data field, since not all DKIM implementations sign over the whole email body.
+The complete message body MUST be hashed, even if empty, using DKIM's simple body canonicalisation, and the hash recorded in the `bh` attribute.
+This is necessary because not all DKIM deployments sign over the full message body.
 
 The proof consists of the received email from the beginning of the `DKIM-Signature` header until the end of the body.
 
@@ -66,25 +67,26 @@ The proof consists of the received email from the beginning of the `DKIM-Signatu
 
 ```
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=andrewg.com;
-	s=andrewg-com; t=1738426955;
+	s=andrewg-com; t=1738518305;
 	bh=frcCV1k9oG9oKj3dpUqdJg1PxRT2RSN/XKdLCPjaYaY=;
 	h=From:To:Subject:Date:From;
-	b=od2FneewzZk3Ng/14lAFxxcp+W7Fyeklu8uzoXxcByOajejynQn7H925KgBDDJKO/
-	 EMyaFxEXvm1dpkxABkgHc3Iuy39fS/CDFA7G20hJnboLdyuxnNG1WFlVhImyrLjG1X
-	 HbQSIUVx4r0d/XZaJIxfRI50+ex3i9BEpy40GEPMcPLaMk5wiI36yNYHS0SbQTj9od
-	 vUaEnnum5tLfLmU01+ucD2m8L4pWnfCFogI8p0zU13X0rxyDHEIp9sqa58TAlVHE7k
-	 mGqUfXbzyuPpZL/Kw0NuB3quWncZQSEieVe6i2Thht3RpJ3qAwShefiw5ggV0gAnNn
-	 HuD06u6ntXR6Q==
+	b=YqoWjdOE2LZhlby0yJ64NiqAR49HDi/HC89V7YzJzg/+8DoES2q31BCVi+C6Fo6CH
+	 4g3900BDVjgA1a+Qxb+twiJIQXsdbFVdF+hTtHbf/jgo/u2bksNte1C2ge61x7NX+4
+	 7YrZ2CyUFSNxhQb9KLk650Ink49o1/w2sLeu5bDTkEo7WMLjtjtBrQhUVIvjPdXY0q
+	 s0nazZmm2vdgd4xf1LGLR/7xKBBKqXvvPKNJo7t5sa97mQcZ+/x4s9ZYln4bLLyCyb
+	 nZ44vyk3dnVRbbNslXSwYHwwH19ZNgq6m8Q34ZBJpWKM35pq6mErGZ2bm1AMbrb1oD
+	 7Afn+jEkyEgJQ==
 Received: from localhost (localhost [127.0.0.1])
-	by fum.andrewg.com (Postfix) with ESMTP id 0759D5DC93
-	for <andrewg@andrewg.com>; Sat,  1 Feb 2025 16:22:18 +0000 (UTC)
+	by fum.andrewg.com (Postfix) with ESMTP id 717B05E34C
+	for <andrewg@andrewg.com>; Sun,  2 Feb 2025 17:44:44 +0000 (UTC)
 From: andrewg@andrewg.com (
-  Content-type: application/oob-email-proof; v=1,
-    p=hkp, r=verifier.example.com, m=cd, d=,
-    c=yIslAhDENZley39x/EIyAnE8twWapjB654MqywKbMRPM1OSRn1s2p1Nh/q4ibnsKpa )
+  Content-type: application/oob-email-proof; v=1;
+    p=hkp; d=verifier.example.com; m=cd; a=sha256; t=1738517505;
+    bh=frcCV1k9oG9oKj3dpUqdJg1PxRT2RSN/XKdLCPjaYaY=;
+    ch=yIslAhDENZley39x/EIyAnE8twWapjB654MqywKbMRP= )
 To: Me <andrewg@andrewg.com>
 Subject: OOB Proof of Email Identity for verifier.example.com
-Message-Id: <20250201162223.0759D5DC93@fum.andrewg.com>
-Date: Sat,  1 Feb 2025 16:22:18 +0000 (UTC)
+Message-Id: <20250202174447.717B05E34C@fum.andrewg.com>
+Date: Sun,  2 Feb 2025 17:44:44 +0000 (UTC)
 
 ```
