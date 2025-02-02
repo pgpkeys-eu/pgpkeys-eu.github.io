@@ -41,10 +41,10 @@ To prevent abuse via the advance calculation of large numbers of proofs, pre-agr
 
 # OOB Proof Wire Format
 
-Domain separation is achieved by embedding a `Content-type:` header in the comment field of the `From:` message header, which is normally not attacker-controllable.
-In addition, the `From:` header is the only one that MUST be signed by DKIM, and so we place all of the necessary data as additional fields in the embedded Content-type.
+Domain separation is achieved by embedding an `X-OOB-Proof:` header in the comment field of the `From:` message header, which is normally not attacker-controllable.
+The `From:` header is also the only header that MUST be signed by DKIM, and so we include all of the necessary data in the `X-OOB-Proof:` embedded header as attributes.
 
-The embedded `Content-type` header MUST indicate the MIME type `application/oob-email-proof`, with the following attributes:
+The embedded `X-OOB-Proof:` header takes the following attributes:
 
 * `v` : the version of the proof format; MUST be 1.
 * `t` : the time of proof generation, as an integer number of seconds since the UNIX epoch.
@@ -67,26 +67,25 @@ The proof consists of the received email from the beginning of the `DKIM-Signatu
 
 ```
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=andrewg.com;
-	s=andrewg-com; t=1738518305;
+	s=andrewg-com; t=1738518927;
 	bh=frcCV1k9oG9oKj3dpUqdJg1PxRT2RSN/XKdLCPjaYaY=;
 	h=From:To:Subject:Date:From;
-	b=YqoWjdOE2LZhlby0yJ64NiqAR49HDi/HC89V7YzJzg/+8DoES2q31BCVi+C6Fo6CH
-	 4g3900BDVjgA1a+Qxb+twiJIQXsdbFVdF+hTtHbf/jgo/u2bksNte1C2ge61x7NX+4
-	 7YrZ2CyUFSNxhQb9KLk650Ink49o1/w2sLeu5bDTkEo7WMLjtjtBrQhUVIvjPdXY0q
-	 s0nazZmm2vdgd4xf1LGLR/7xKBBKqXvvPKNJo7t5sa97mQcZ+/x4s9ZYln4bLLyCyb
-	 nZ44vyk3dnVRbbNslXSwYHwwH19ZNgq6m8Q34ZBJpWKM35pq6mErGZ2bm1AMbrb1oD
-	 7Afn+jEkyEgJQ==
+	b=QSJJqV2InGOpcLSir7g3o8WN+UoWBpl79aI3SlxcANXNYCGUXo7gcT/w3EJpVS8yI
+	 nWXGpfAzLbcy3wYQDju7wr4b7fhE4mWVBe6wcD7p6WarAOkQGb/oHqWrdmwhLMHvEW
+	 HBwRKIzXwBU9OPM8AFcQwQ0Nmi5mkL8ZtK41iLgcAif+NgZL6RMI3CyzbmDjn4atnL
+	 arzpQ3jNs8lXVniStFEymbWE6+3WUeooCkN8CFOE1hOxHpLnwMymmzHbkNGAMB5xMv
+	 JDst3rEDj8RSVaVedZyqzgrF2q6qRj4SX3WTBst6xYfIg9AXNIfprq/FjdM/AnYjS0
+	 OxOBV6MBvXP6w==
 Received: from localhost (localhost [127.0.0.1])
-	by fum.andrewg.com (Postfix) with ESMTP id 717B05E34C
-	for <andrewg@andrewg.com>; Sun,  2 Feb 2025 17:44:44 +0000 (UTC)
+	by fum.andrewg.com (Postfix) with ESMTP id 789B45E34C
+	for <andrewg@andrewg.com>; Sun,  2 Feb 2025 17:55:15 +0000 (UTC)
 From: andrewg@andrewg.com (
-  Content-type: application/oob-email-proof; v=1;
-    p=hkp; d=verifier.example.com; m=cd; a=sha256; t=1738517505;
-    bh=frcCV1k9oG9oKj3dpUqdJg1PxRT2RSN/XKdLCPjaYaY=;
+  X-OOB-Proof: v=1; p=hkp; d=verifier.example.com; a=sha256; m=cd;
+    t=1738517505; bh=frcCV1k9oG9oKj3dpUqdJg1PxRT2RSN/XKdLCPjaYaY=;
     ch=yIslAhDENZley39x/EIyAnE8twWapjB654MqywKbMRP= )
 To: Me <andrewg@andrewg.com>
 Subject: OOB Proof of Email Identity for verifier.example.com
-Message-Id: <20250202174447.717B05E34C@fum.andrewg.com>
-Date: Sun,  2 Feb 2025 17:44:44 +0000 (UTC)
+Message-Id: <20250202175517.789B45E34C@fum.andrewg.com>
+Date: Sun,  2 Feb 2025 17:55:15 +0000 (UTC)
 
 ```
