@@ -10,14 +10,14 @@ It is therefore desirable for a service to allow its users to prove ownership of
 
 # OOB Proof Overview
 
-In the below, the service that requires email validation is called the "verifier", and the user or client is called the "prover".
+In the below, the service that requires email validation is called the "verifier", and the user (or her client) is called the "prover".
 
 There are a small number of variations on the basic proof format:
 
 * "challenge-response" (c) vs "pre-agreed" (p) indicate how challenges are obtained.
 * "direct" (d) vs "indirect" (i) indicate how proofs are submitted.
 
-The mode of the proof consists of the direct sum of each of the variants, e.g. "challenge-response direct" or "pre-agreed indirect".
+The *mode* of the proof is a direct sum of the variations usee, e.g. "challenge-response direct" or "pre-agreed indirect".
 
 * The prover constructs a challenge:
     * In the challenge-response mode, the prover calls an API endpoint on the verifier to obtain a challenge.
@@ -26,25 +26,25 @@ The mode of the proof consists of the direct sum of each of the variants, e.g. "
     * In the direct mode, this email is sent to the verifier.
     * In the indirect mode, the prover sends the email to itself.
 * The prover's email provider signs over the email using its private DKIM key.
-* In the indirect mode, the prover submits the received email via an API endpoint.
+* In the indirect mode, the prover submits the received email via an API endpoint on the verifier.
 * The verifier looks up the email domain's public DKIM key and verifies the submitted proof.
 
-The "challerge-response direct" case differs from traditional email verification systems only in that SMTP delivery of the challenge is bypassed.
-The "pre-agreed indirect" case requires only that the verifier receives pre-constructed proofs via an API.
+The "challerge-response direct" mode differs substantially from traditional email verification systems only in that SMTP delivery of the challenge is bypassed.
+The "pre-agreed indirect" mode requires only that the verifier receives pre-constructed proofs via an API; no email service is required by the verifier.
 
 ## Caveats
 
 Generation and submission of proofs is intended to be managed by the user's MUA, rather than by hand.
 The MUA must therefore have explicit support for OOB proofs.
 
-To prevent abuse stemming from advance calculation of many proofs, pre-agreed challenges SHOULD require the use of a public source of randomness, e.g [DRAND](https://drand.love).
+To prevent abuse via the advance calculation of large numbers of proofs, pre-agreed challenges SHOULD require the use of a public source of randomness, e.g [DRAND](https://drand.love).
 
 # OOB Proof Wire Format
 
-Domain separation is achieved by embedding a `Content-type:` header in the comment field of the From: message header, which is normally not attacker-controllable.
-In addition, the From: header is the only one that MUST be signed by DKIM, and so we place all of the necessary data as additional fields in the embedded Content-type.
+Domain separation is achieved by embedding a `Content-type:` header in the comment field of the `From:` message header, which is normally not attacker-controllable.
+In addition, the `From:` header is the only one that MUST be signed by DKIM, and so we place all of the necessary data as additional fields in the embedded Content-type.
 
-The `Content-type` header MUST indicate the MIME type `application/oob-email-proof`.
+The embedded `Content-type` header MUST indicate the MIME type `application/oob-email-proof`.
 The additional fields are:
 
 * `v` : the version of the proof format; MUST be 1.
@@ -54,7 +54,7 @@ The additional fields are:
 * `d` : additional data (application-dependent).
 * `c` : the challenge, in BASE-64 encoding.
 
-All additional fields MUST be supplied, even if the additional data is the empty string.
+All additional fields MUST be supplied.
 Protocol designers should ensure that additional data uses an encoding format that is tolerant of line-breaking and whitespace; BASE-64 is RECOMMENDED.
 
 The body of the email MAY be empty, or MAY contain additional data as required by the application protocol.
