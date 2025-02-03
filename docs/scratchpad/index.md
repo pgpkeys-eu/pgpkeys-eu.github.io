@@ -15,12 +15,12 @@ Working copies of various OpenPGP Internet Drafts (follow the datatracker links 
 * [OpenPGP Signatures and Signed Messages](https://andrewgdotcom.gitlab.io/openpgp-signatures)
 * [Revocation in OpenPGP](https://dkg.gitlab.io/openpgp-revocation)
 * [OpenPGP Literal Data Metadata Integrity](https://andrewgdotcom.gitlab.io/draft-gallagher-openpgp-literal-metadata)
+* [GREASE in OpenPGP](https://andrewgdotcom.gitlab.io/openpgp-grease)
 
 ### Gitlab Drafts
 
 These are published using the draft template in gitlab pages, but not yet on the datatracker.
 
-* [GREASE in OpenPGP](https://andrewgdotcom.gitlab.io/openpgp-grease)
 * [OpenPGP Code Point Exhaustion](https://andrewgdotcom.gitlab.io/openpgp-code-point-exhaustion)
 * [User Attributes in OpenPGP](https://andrewgdotcom.gitlab.io/openpgp-user-attributes)
 
