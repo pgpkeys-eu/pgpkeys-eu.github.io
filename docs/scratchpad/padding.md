@@ -19,9 +19,9 @@ There is therefore little marginal utility in implementing padding for small (st
 We therefore assume that padding is implemented at request time by the server application.
 
 Binary keys are padded by appending a padding packet of the appropriate length and tag 21.
-This is only supported by clients that implement the crypto-refresh draft, and so MUST only be used when all keys in the response are v6 or later.
+This is only supported by clients that implement RFC9580, and so MUST only be used when all keys in the response are v6 or later.
 
-Alternatively, the entire response can be padded by appending a fake (malformed) subkey packet of the appropriate length and a [GREASEy version number](grease.html).
+Alternatively, the entire response can be padded by appending a fake (malformed) subkey packet of the appropriate length and a [GREASEy version number](https://datatracker.ietf.org/doc/draft-gallagher-openpgp-grease/).
 This is safe IFF the client gracefully ignores malformed subkey packets.
 
 An OpenPGP padding packet has a minimum length of two bytes: one byte for the packet tag, and at least one byte for the body length (which can be zero).
