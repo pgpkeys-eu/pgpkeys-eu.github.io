@@ -17,7 +17,7 @@ There are a small number of variations on the basic proof format:
 * "challenge-response" (c) vs "pre-agreed" (p) indicate how challenges are obtained.
 * "direct" (d) vs "indirect" (i) indicate how proofs are submitted.
 
-The *mode* of the proof is a direct sum of the variations usee, e.g. "challenge-response direct" or "pre-agreed indirect".
+The *mode* of the proof is a direct sum of the variations used, e.g. "challenge-response direct" or "pre-agreed indirect".
 
 * The prover constructs a challenge:
     * In the challenge-response mode, the prover calls an API endpoint on the verifier to obtain a challenge.
@@ -58,6 +58,11 @@ The embedded `X-OOB-Proof:` header takes the following attributes:
 All attributes MUST be supplied, however the order is not important.
 
 The body of the email MAY be empty, or MAY contain additional data as required by the application protocol.
+Each application protocol MUST exactly specify the wire format of the email body.
+This MAY include a human-readable warning that the email body is part of an OOB proof.
+A proof that does not match the specified format MUST be invalidated.
+This makes it more difficult for an attacker to trick a victim into unwittingly generating a valid proof.
+
 The complete message body MUST be hashed, even if empty, using DKIM's simple body canonicalisation, and the hash recorded in the `bh` attribute.
 This is necessary because not all DKIM deployments sign over the full message body.
 
