@@ -4,6 +4,10 @@ PGPKeys.EU Blog
 Latest Posts
 ------------
 
+February 2025:
+
+* [OpenPGP Stack Layers](stack-layers.html) (Andrew, 2024-02-06)
+
 January 2025:
 
 * [Analysis of OpenPGP Reserved Code Points](reservations.html) (Andrew, 2024-01-29)
