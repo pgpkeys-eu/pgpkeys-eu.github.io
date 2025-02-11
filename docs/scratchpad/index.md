@@ -10,10 +10,19 @@ Internet-Draft Pipeline
 
 Working copies of various OpenPGP Internet Drafts (follow the datatracker links to find the I-D itself). 
 
+V6 migration:
+
 * [OpenPGP Key Replacement](https://andrewgdotcom.gitlab.io/openpgp-replacementkey)
 * [OpenPGP HTTP Keyserver Protocol](https://andrewgdotcom.gitlab.io/draft-gallagher-openpgp-hkp)
-* [OpenPGP Signatures and Signed Messages](https://andrewgdotcom.gitlab.io/openpgp-signatures)
+
+Semantic cleanup:
+
 * [Revocation in OpenPGP](https://dkg.gitlab.io/openpgp-revocation)
+* [OpenPGP Signatures and Signed Messages](https://andrewgdotcom.gitlab.io/openpgp-signatures)
+* [User Attributes in OpenPGP](https://andrewgdotcom.gitlab.io/openpgp-user-attributes)
+
+Other features:
+
 * [OpenPGP Literal Data Metadata Integrity](https://andrewgdotcom.gitlab.io/draft-gallagher-openpgp-literal-metadata)
 * [GREASE in OpenPGP](https://andrewgdotcom.gitlab.io/openpgp-grease)
 
@@ -22,7 +31,6 @@ Working copies of various OpenPGP Internet Drafts (follow the datatracker links 
 These are published using the draft template in gitlab pages, but not yet on the datatracker.
 
 * [OpenPGP Code Point Exhaustion](https://andrewgdotcom.gitlab.io/openpgp-code-point-exhaustion)
-* [User Attributes in OpenPGP](https://andrewgdotcom.gitlab.io/openpgp-user-attributes)
 
 Scratchpad entries
 ------------------
