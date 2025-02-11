@@ -47,6 +47,7 @@ Discussion documents that may end up as drafts someday.
 * [Pre-hashed Signatures in OpenPGP](prehash.html)
 * [Canonical JSON Representation of OpenPGP Objects](json.html)
 * [Out-of-Band Email Address Verification](oob-verification.html)
+* [Authentication Signatures in OpenPGP](authentication.html)
 
 ### Informational
 
