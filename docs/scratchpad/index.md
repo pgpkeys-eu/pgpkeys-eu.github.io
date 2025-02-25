@@ -54,6 +54,7 @@ Discussion documents that may end up as drafts someday.
 These may end up as blog posts or other non-canonical documents.
 
 * [OpenPGP/LibrePGP Tolerance](tolerance.html)
+* [The Principles of User-Friendly Cryptography](user-friendly.html)
 
 DISCLAIMER: All these documents are a work in progress and subject to change without notice.
 They are provided for discussion purposes only and do not represent the opinion of any real person, living or dead.
