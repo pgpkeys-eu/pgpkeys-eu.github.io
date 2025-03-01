@@ -43,15 +43,17 @@ A simple protocol for authenticating against a remote web service is specified a
     * The HTTP request line in case-normalised form, e.g. `GET / HTTP/1.1`.
     * The `Host` HTTP header of the request.
     * A `WWW-Authenticate` HTTP header with the value `PGAP realm="simple"` or `PGAP realm="session"`.
-* The prover encodes the signature as a Base64 armor body, but does not include any of the armor headers or checksum.
-* The prover encodes the authentication credentials in the form `PGAP <base-64-body>`.
-* If the PGAP realm is `session`:
-    * The prover submits the encoded credentials in the `Authentication` header of an HTTP POST request to the well-known endpoint `/.well-known/openpgp/login` on the remote service.
-    * The prover saves the returned session cookie and uses it in future requests for resources on the remote service.
+* The prover encodes the authentication credentials in the form `PGAP <base-64-encoded-signature-packet>`.
 * If the PGAP realm is `simple`:
     * The prover submits the encoded credentials in the `Authentication` header of an HTTP request for the desired resource.
+* If the PGAP realm is `session`:
+    * The prover submits the encoded credentials in the `Authentication` header of an HTTP POST request to the well-known endpoint `/.well-known/openpgp/login` on the remote service.
 
-Authentication credentials and session cookies MUST only be submitted over a secure transport layer, such as HTTPS.
+If session authentication is successful, subsequest requests supply `PGAP ~<base-64-encoded-signature-digest>` in the `Authentication` header.
+The digest is calculated over the binary signature packet (including framing), and the hash algorithm used MUST be the same as the one used in the signature packet.
+This saves bandwidth and CPU, particularly with post-quantum signature algorithms.
+
+Authentication credentials MUST only be submitted over a secure transport layer, such as HTTPS.
 
 ## Verifier actions
 
@@ -59,9 +61,12 @@ On throwing a 401 Unauthorized response, the verifier MAY return a `WWW-Authenti
 
 On receiving a PGAP authentication request:
 
-* The verifier checks that the signature was made by a known authentication subkey and that the Signature Creation Time subpacket is within acceptable limits.
+* The verifier checks that the signature was made by a known authentication subkey and that the Signature Creation Time subpacket is within the acceptable clock drift limit.
 * The verifier regenerates the challenge from the request headers and verifies the signature.
-* If the PGAP realm is `session`, the verifier sets a session cookie in its response.
+* If the PGAP realm is `session`: 
+    * After a successful request to `/.well-known/openpgp/login`, the verifier records the digest of the signature packet in a table of active sessions.
+    * Requests to other resources are checked against the active session table.
+    * Sessions SHOULD time out after a reasonable period of time, which SHOULD be longer than the clock drift limit of the authentication signature.
 
 # IANA Actions
 
