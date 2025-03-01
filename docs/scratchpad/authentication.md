@@ -9,11 +9,12 @@ In this document, we use the term "prover" to mean the application that connects
 
 # Challenge-Response Signature (Type 0x08)
 
-A Challenge-Response signature is constructed identically to a signature over a document, but with the signature type 0x08.
+A Challenge-Response signature is constructed identically to a signature over a binary document, but with the signature type 0x08.
 
-The document signed over MAY be empty or MAY contain a challenge.
-A challenge MAY be supplied to the prover by the verifier as part of a multi-step protocol, otherwise it SHOULD be generated separately by both the prover and the verifier using a pre-agreed method.
-In either case, the challenge SHOULD NOT be included as part of the response.
+The type-specific data passed to the signature digest function contains a challenge, which SHOULD be generated separately by both the prover and the verifier using a pre-agreed method.
+
+A Challenge-Response signature SHOULD be distributed as either a detached signature, or in an Embedded Signature subpacket.
+It MUST NOT be made over a Literal Data packet or used directly in a Message or Certificate (TPK) packet sequence.
 
 ## Subpackets
 
@@ -21,12 +22,11 @@ A Challenge-Response signature MUST contain the following subpackets in its hash
 
 * a Signature Creation Time subpacket
 * an Issuer Fingerprint subpacket containing the fingerprint of the authentication key
-A verifier SHOULD ensure that the creation time of an authentication signature is in the recent past, however the time limit is application-dependent.
 
-## Placement of the Challenge-Response Signature
+The creation timestamp SHOULD be in the immediate past, however the acceptable time range is application-dependent.
+An application SHOULD tolerate a reasonable amount of clock drift.
 
-A Challenge-Response signature MAY be distributed as either a detached signature, or in an Embedded Signature subpacket.
-It MUST NOT be made over a Literal Data packet or placed where a Literal Data signature would be expected.
+Other subpackets SHOULD NOT be included, and any unexpected subpackets MUST be ignored.
 
 ## Key Flags
 
@@ -35,21 +35,33 @@ A signature in the Authentication Category MUST NOT be made by a component key u
 
 # Pretty Good Authentication Protocol (PGAP)
 
-A simple protocol for authenticating against a remote web service works as follows:
+A simple protocol for authenticating against a remote web service is specified as follows:
 
-* The prover generates a Challenge-Response signature over a zero-length challenge, with the following additional hashed subpackets:
-    * a human-readable Notation Data subpacket with the name `login-hostname` and a value containing the domain name of the service being authenticated to (e.g. `example.com`).
-    * a human-readable Notation Data subpacket with the name `login-service` and a value containing the name of the service being authenticated to (e.g. `https`).
-    * a human-readable Notation Data subpacket with the name `login-mode` and a value of either `session` or `once`.
+## Prover actions
+
+* The prover generates a Challenge-Response signature over a challenge consisting of the following CRLF-terminated records:
+    * The HTTP request line in case-normalised form, e.g. `GET / HTTP/1.1`.
+    * The `Host` HTTP header of the request.
+    * A `WWW-Authenticate` HTTP header with the value `PGAP realm="simple"` or `PGAP realm="session"`.
 * The prover encodes the signature as a Base64 armor body, but does not include any of the armor headers or checksum.
-* If `login-mode` is `session`:
-    * The prover submits the encoded signature in the `X-PGAP-Session` header of an HTTP POST request to the well-known endpoint `/.well-known/openpgp/login` on the remote service.
-    * The verifier checks that the signature was made by a known authentication subkey and that the Signature Creation Time and Notation Data subpackets conform to its local policy.
-    * The verifier records the successful authentication, and sets a session cookie in its response.
-* If `login-mode` is `once`:
-    * The prover submits the encoded signature in the `X-PGAP-Once` header of an HTTP request.
-    * The verifier checks that the signature was made by a known authentication subkey and that the Signature Creation Time and Notation Data subpackets conform to its local policy.
-    * The verifier processes the current HTTP request and does not set a session cookie in its response.
+* The prover encodes the authentication credentials in the form `PGAP <base-64-body>`.
+* If the PGAP realm is `session`:
+    * The prover submits the encoded credentials in the `Authentication` header of an HTTP POST request to the well-known endpoint `/.well-known/openpgp/login` on the remote service.
+    * The prover saves the returned session cookie and uses it in future requests for resources on the remote service.
+* If the PGAP realm is `simple`:
+    * The prover submits the encoded credentials in the `Authentication` header of an HTTP request for the desired resource.
+
+Authentication credentials and session cookies MUST only be submitted over a secure transport layer, such as HTTPS.
+
+## Verifier actions
+
+On throwing a 401 Unauthorized response, the verifier MAY return a `WWW-Authenticate` header that contains the challenge `PGAP realm="simple"` or `PGAP realm="session"` as appropriate.
+
+On receiving a PGAP authentication request:
+
+* The verifier checks that the signature was made by a known authentication subkey and that the Signature Creation Time subpacket is within acceptable limits.
+* The verifier regenerates the challenge from the request headers and verifies the signature.
+* If the PGAP realm is `session`, the verifier sets a session cookie in its response.
 
 # IANA Actions
 
@@ -59,14 +71,6 @@ ID      | Name                          | Embeddable    | Reference
 --------|-------------------------------|---------------|-------------------
 0x08    | Challenge-Response signature  | Yes           | This document
 
-IANA is requested to register the following entries in the OpenPGP Signature Notation Data Subpacket Types registry:
-
-Notation Name   | Data Type         | Allowed Values        | Reference
-----------------|-------------------|-----------------------|-------------------
-login-hostname  | human-readable    | DNS host name         | This document
-login-service   | human-readable    | Service name          | This document
-login-mode      | human-readable    | "session" or "once"   | This document
-
 IANA is requested to update the following entry in the OpenPGP Key Flags registry:
 
 Flag    | Definition                                                                                    | Reference
@@ -75,6 +79,10 @@ Flag    | Definition                                                            
 
 IANA is requested to register the well-known path `openpgp/login`, with a reference to this document.
 
+IANA is requested to register the HTTP authentication scheme `PGAP`, with a reference to this document.
+
 # References
 
 This document is based on [previous work by Justus Winter](https://gitlab.com/sequoia-pgp/sequoia-login)
+
+See also [RFC9110](https://datatracker.ietf.org/doc/html/rfc9110)
