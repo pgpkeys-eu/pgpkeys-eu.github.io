@@ -25,11 +25,6 @@ Other features:
 
 * [OpenPGP Literal Data Metadata Integrity](https://andrewgdotcom.gitlab.io/draft-gallagher-openpgp-literal-metadata)
 * [GREASE in OpenPGP](https://andrewgdotcom.gitlab.io/openpgp-grease)
-
-### Gitlab Drafts
-
-These are published using the draft template in gitlab pages, but not yet on the datatracker.
-
 * [OpenPGP Code Point Exhaustion](https://andrewgdotcom.gitlab.io/openpgp-code-point-exhaustion)
 
 Scratchpad entries
@@ -46,7 +41,6 @@ Discussion documents that may end up as drafts someday.
 * [OpenPGP Double Ratchet Groups](ratchet-groups.html)
 * [Pre-hashed Signatures in OpenPGP](prehash.html)
 * [Canonical JSON Representation of OpenPGP Objects](json.html)
-* [Out-of-Band Email Address Verification](oob-verification.html)
 * [Authentication Signatures in OpenPGP](authentication.html)
 
 ### Informational
