@@ -27,12 +27,18 @@ Other features:
 * [GREASE in OpenPGP](https://andrewgdotcom.gitlab.io/openpgp-grease)
 * [OpenPGP Code Point Exhaustion](https://andrewgdotcom.gitlab.io/openpgp-code-point-exhaustion)
 
+### Secondary documents
+
+Documents that live inside other draft repos but whose text isn't included in any actual draft (yet).
+
+* [Out of Band Email Verification](https://andrewgdotcom.gitlab.io/draft-gallagher-openpgp-hkp/oob-verification.md)
+
 Scratchpad entries
 ------------------
 
 ### Pre-drafts
 
-Discussion documents that may end up as drafts someday.
+Documents that may end up as drafts someday.
 
 * [Multiple Encryption Keys in OpenPGP](encryption.html)
 * [Conformal Padding for OpenPGP Keys](padding.html)
