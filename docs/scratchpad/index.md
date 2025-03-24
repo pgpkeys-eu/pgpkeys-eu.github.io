@@ -31,7 +31,7 @@ Other features:
 
 Documents that live inside other draft repos but whose text isn't included in any actual draft (yet).
 
-* [Out of Band Email Verification](https://andrewgdotcom.gitlab.io/draft-gallagher-openpgp-hkp/oob-verification.md)
+* [Out of Band Email Verification](https://gitlab.com/andrewgdotcom/draft-gallagher-openpgp-hkp/-/blob/main/oob-verification.md)
 
 Scratchpad entries
 ------------------
