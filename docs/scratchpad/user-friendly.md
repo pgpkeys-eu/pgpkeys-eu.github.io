@@ -36,3 +36,13 @@ In particular, cryptographic errors that are associated with a user may cause ha
 The third principle is therefore:
 
 > A user must be able to destroy their cryptographic identity at any time.
+
+## Every Cryptography Problem Can Be Solved by Another Global Authority (Which Must Not Exist)
+
+Decentralisation is A Very Hard Problem, and decentralisation of trust roots is practically impossible.
+The only viable alternative method is to implement global trusted authorities, and those never end well.
+On the other hand, requiring users to manage their own trust roots never even *starts* well.
+
+The fourth principle is therefore:
+
+> Every user must delegate their own cryptographic trust roots, and must not be aware that they have done so.
