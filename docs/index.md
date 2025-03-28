@@ -4,13 +4,17 @@ PGPKeys.EU Blog
 Latest Posts
 ------------
 
+March 2025:
+
+* [The Principles of User-Friendly Cryptography](user-friendly.html) (Andrew, 2025-03-28)
+
 February 2025:
 
-* [OpenPGP Stack Layers](stack-layers.html) (Andrew, 2024-02-06)
+* [OpenPGP Stack Layers](stack-layers.html) (Andrew, 2025-02-06)
 
 January 2025:
 
-* [Analysis of OpenPGP Reserved Code Points](reservations.html) (Andrew, 2024-01-29)
+* [Analysis of OpenPGP Reserved Code Points](reservations.html) (Andrew, 2025-01-29)
 
 August 2024:
 
