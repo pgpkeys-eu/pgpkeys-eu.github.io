@@ -2,7 +2,7 @@
 
 Cryptography has a well-deserved reputation for being unfriendly, even hostile, to non-experts.
 The most successful applications of cryptography therefore attempt to hide the gory details from the end user as far as possible.
-But there is no such thing as a leak-proof abstraction, and the existence of cryptograpy will inevitably become apparent.
+But there is no such thing as a leak-proof abstraction, and the existence of cryptography will inevitably become apparent.
 It is the responsibility of the application developer to ensure that the unpleasantness is kept to a minimum.
 
 The following is a (non-exhaustive) list of some general principles that application developers should keep in mind.
