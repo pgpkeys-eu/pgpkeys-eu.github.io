@@ -26,6 +26,7 @@ Other features:
 * [OpenPGP Literal Data Metadata Integrity](https://andrewgdotcom.gitlab.io/draft-gallagher-openpgp-literal-metadata)
 * [GREASE in OpenPGP](https://andrewgdotcom.gitlab.io/openpgp-grease)
 * [OpenPGP Code Point Exhaustion](https://andrewgdotcom.gitlab.io/openpgp-code-point-exhaustion)
+* [Invisible Signatures over Emails](https://andrewgdotcom.gitlab.io/invisible-signatures)
 
 ### Secondary documents
 
@@ -40,12 +41,10 @@ Scratchpad entries
 
 Documents that may end up as drafts someday.
 
-* [Multiple Encryption Keys in OpenPGP](encryption.html)
 * [Conformal Padding for OpenPGP Keys](padding.html)
 * [Verifiable Pseudorandom Functions in OpenPGP](vrf.html)
 * [OpenPGP Double Ratchet Mechanism](ratchet.html)
 * [OpenPGP Double Ratchet Groups](ratchet-groups.html)
-* [Pre-hashed Signatures in OpenPGP](prehash.html)
 * [Canonical JSON Representation of OpenPGP Objects](json.html)
 * [Authentication Signatures in OpenPGP](authentication.html)
 
