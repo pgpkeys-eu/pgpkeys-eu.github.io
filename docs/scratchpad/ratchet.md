@@ -33,7 +33,7 @@ We define:
     * It is used on a subkey with a signing-capable algorithm, and permits that subkey to authenticate ephemeral key exchange.
 * One or more new public-key algorithm IDs (in a special range) that identify ephemeral cipher suites.
     * Implementations MUST support X25519+HKDF+DR and MAY support X448+HKDF+DR.
-* A new signature subpacket type, "Ephemeral Key", of the Document class, which contains:
+* A new signature subpacket type, "Ephemeral Key", of the Literal Data class, which contains:
     * A public ephemeral key, as a full Public Key packet using the appropriate ephemeral algorithm.
 * A new signature subpacket type, "Preferred Ephemeral Ciphers", of the Direct class.
     * It contains an ordered list of public ephemeral key algorithms.
