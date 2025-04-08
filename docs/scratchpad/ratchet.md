@@ -1,10 +1,10 @@
 # Double Ratchet Messages in OpenPGP
 
-We consider the development of "Perfect" Forward Secrecy (PFS) based on the double ratchet (DR) mechanism.
+We consider the development of Forward Secrecy based on the double ratchet (DR) mechanism.
 
 ## Motivation
 
-PFS increases security under the following circumstances:
+FS increases security under the following circumstances:
 
 1. the adversary captures an encrypted message in transit, and retains a copy,
 2. the user's devices have their copies, and their secret keys,
