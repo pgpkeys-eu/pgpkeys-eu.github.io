@@ -179,5 +179,6 @@ Once both parties have sent DR Init requests, the new double ratchet acts as a d
 ## References
 
 * [Signal's double ratchet specification](https://signal.org/docs/specifications/doubleratchet/)
+* [Justus's test implementation](https://gitlab.com/sequoia-pgp/openpgp-dr/-/tree/wip-openpgp)
 * [Justus's presentation from 2018](https://sequoia-pgp.org/talks/2018-08-moving-forward/moving-forward.pdf)
 * [Earlier PFS draft by Brown, Back, and Laurie (2003)](https://datatracker.ietf.org/doc/html/draft-brown-pgp-pfs-03)
