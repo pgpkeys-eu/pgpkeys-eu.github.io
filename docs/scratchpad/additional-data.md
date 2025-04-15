@@ -21,7 +21,7 @@ Flag    | Definition                                                            
 --------|---------------------------------------------------------------------------------------|---------------------
 TBC     | This key may be used to make signatures in the Additional Data Category (0x48..0x4f)  | This document
 
-# Use of Additional Data Signatures
+# Use of Additional Data Signatures for Domain Separation
 
 We define a notation in the IETF notation namespace:
 
@@ -41,8 +41,13 @@ Without a `domsep` notation subpacket, the component key in question cannot be u
 The `domsep` notation subpacket SHOULD NOT be used elsewhere, and MUST be ignored if found elsewhere.
 The `domsep` notation subpacket SHOULD NOT be marked critical.
 
-When constructing or verifying an Additional Data signature, the full `domsep` notation subpacket from the signing key’s binding signature, including the subpacket header, MUST be passed as the initial octets of Additional Data.
+The `domsep` notation subpacket MUST NOT be included in an Additional Data signature.
+This ensures that a naive application cannot verify the signature.
+
+## Type 0x48 Signature Creation and Verification
+
+When constructing or verifying a Type 0x48 signature, the relevant `domsep` notation subpacket from the signing key’s binding signature, including the subpacket header, MUST be passed as the initial octets of Additional Data.
 An application MAY specify that further Additional Data is included in the digest calculation.
 
-The `domsep` notation subpacket MUST NOT be included in the Additional Data signature itself.
-This ensures that a naive application cannot verify the signature.
+An application MUST check that the `domsep` notation matches the expected identifier, based on the application context.
+If the signing key has more than one `domsep` notation, it is the application's responsibility to ensure that the correct notation is passed as Additional Data.
