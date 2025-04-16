@@ -51,10 +51,18 @@ In the below, we classify reserved code points as follows:
 
 [Registry](https://www.iana.org/assignments/openpgp/openpgp.xhtml#openpgp-signature-subpacket-types)
 
+Many of the signature subpacket types were speculatively allocated in Lutz Donnerhacke's individual drafts that eventually became RFC2440.
+They underwent significant reorganisation during the RFC2440 drafting process, and several low-numbered code points were left vacant without any official reason.
+Donnerhacke's contemporary emails to the IETF OpenPGP WG are the only reference material, as his individual drafts were never submitted to the IETF datatracker. 
+
 * 0 [aversion to zero?]
-* 1 [-> [Image Attribute subpacket](https://andrewgdotcom.gitlab.io/openpgp-user-attributes)?]
-* 8, 13-15, 17-19 [-> experimental PGP5 features?]
-* 10 (placeholder for backward compatibility) [-> ADK/ARR?]
+* 1 [[signature version -> Donnerhacke](https://mailarchive.ietf.org/arch/msg/openpgp/UxnqxZw_lqjb8FXqmQ9s79MjN0E/)]
+* 8 [[user ID flags (now 25) THEN key usage (now 27) -> Donnerhacke](https://mailarchive.ietf.org/arch/msg/openpgp/UxnqxZw_lqjb8FXqmQ9s79MjN0E/)]
+* 10 (placeholder for backward compatibility) [[ADK/ARR -> draft-ietf-openpgp-formats-00 5.2.2.2](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-formats-00)]
+* 13-15 [apparently never specified]
+* 17 [[signer's user ID (now 28) -> Donnerhacke](https://mailarchive.ietf.org/arch/msg/openpgp/UxnqxZw_lqjb8FXqmQ9s79MjN0E/)]
+* 18 [[URL (now 26) -> Donnerhacke](https://mailarchive.ietf.org/arch/msg/openpgp/UxnqxZw_lqjb8FXqmQ9s79MjN0E/)]
+* 19 [[finger -> Donnerhacke](https://mailarchive.ietf.org/arch/msg/openpgp/UxnqxZw_lqjb8FXqmQ9s79MjN0E/)]
 * 34 [[preferred AEAD algorithms (deprecated) -> rfc4880bis-10 5.2.3.8](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis-10#section-5.2.3.8)]
 * 37 (attested certifications) [[-> rfc4880bis-10 5.2.3.30](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis-10#section-5.2.3.30)]
 * 38 (key block) [[-> rfc4880bis-10 5.2.3.31](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-rfc4880bis-10#section-5.2.3.31)]
@@ -146,3 +154,4 @@ There are a number of unassigned gaps in the registries that are not specificall
 Andrew Gallagher (29 January 2025)
 
 (Edited 2025-02-01 to fix references and clarify 0xFF)
+(Edited 2025-04-16 to add Donnerhacke references for early subpacket IDs)
