@@ -9,12 +9,17 @@ In this document, we use the term "prover" to mean the application that connects
 
 # Challenge-Response Signature (Type 0x08)
 
-A Challenge-Response signature is constructed identically to a signature over a binary document, but with the signature type 0x08.
+A Challenge-Response signature is constructed identically to a signature over a binary document, except:
+
+* The signature type is 0x08.
+* The three octets corresponding to "PGP" in UTF-8 encoding are hashed in before the salt (if any).
 
 The type-specific data passed to the signature digest function contains a challenge, which SHOULD be generated separately by both the prover and the verifier using a pre-agreed method.
 
 A Challenge-Response signature SHOULD be distributed as either a detached signature, or in an Embedded Signature subpacket.
 It MUST NOT be made over a Literal Data packet or used directly in a Message or Certificate (TPK) packet sequence.
+
+The "PGP" prefix is used for cross-protocol domain separation, since authentication subkeys are commonly shared with other protocols such as SSH.
 
 ## Subpackets
 

@@ -10,10 +10,12 @@ Since the file type of any given document is in general invisible to the OpenPGP
 
 We define an Additional Data category of signature types (0x48..0x4f), initially containing one signature type (0x48).
 
-A type 0x48 signature is constructed identically to a type 0x00 signature, but the following data is hashed in after the salt (if any) and before the document:
+A type 0x48 signature is constructed identically to a type 0x00 signature, except:
 
-* Additional Data length (4 octets)
-* Additional Data (N octets)
+* The three octets corresponding to "PGP" in UTF-8 encoding are hashed in before the salt (if any).
+* The following data is hashed in after the salt (if any) and before the document:
+    * Additional Data length (4 octets)
+    * Additional Data (N octets)
 
 We define a corresponding Key Flag:
 
