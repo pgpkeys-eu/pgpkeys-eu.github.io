@@ -50,3 +50,158 @@ It is therefore difficult to predict how the time evolution of unhashed subpacke
 * Human-readable annotations could be formatted as email or HTTP headers, for compatibility.
 * Binary annotations could be stored in raw format to save base64 encoding costs.
 * Could instead be implemented as unhashed notation subpackets, which support both human readable and binary formats.
+
+
+# GnuPG Trust Packet
+
+We reverse-engineer the GnuPG Trust Packet wire format.
+
+octets | name            | type    | description
+-------|-----------------|---------|--------------------------------------------
+1      | trustval / flag | uint8   | key/uid/uat trust value OR "sig flag" (?)
+1      | sigcache        | uint8   | signature flags (ignored unless SIG)
+4      | (domsep)        |         | (optional)
+├ 3    |   (unnamed)     | char[3] | generating application, i.e. "gpg"
+└ 1    |   subtype       | uint8   | 0=SIG, 1=KEY, 2=UID
+6+N    | (keydata)       |         | (optional, ignored if SIG)
+├ 1    |   keyorg / src  | uint8   | key origin (see below)
+├ 4    |   keyupdate     | uint32  | time of last update
+├ 1    |   namelen       | uint8   | length of following field
+└ N    |   updateurl     | char[N] | where to update key from?
+
+The sigcache field is an octet of flag bits:
+    bit 7: MUST be 0 (otherwise sigcache field is ignored)
+    ...
+    bit 1: valid (ignored if bit 0 is unset)
+    bit 0: checked
+
+All other bits are undefined.
+
+The subtype field MUST correspond to the preceding packet:
+    SIG: preceding packet is a signature
+    KEY: preceding packet is a component key (public or secret)
+    UID: preceding packet is a User ID or User Attribute
+
+The trust packet is ignored if the preceding packet type does not match the subtype, or if the generating application is not "gpg".
+
+The sigcache field is ignored if the trustval/flag field is nonzero, even if the subtype is SIG.
+
+If any of the subfields of the domsep or keydata groups are omitted, the entire group is ignored.
+
+The key origin is one of the following values:
+
+    KEYORG_UNKNOWN = 0,    
+    KEYORG_KS      = 1, /* Public keyserver.    */    
+    KEYORG_KS_PREF = 2, /* Preferred keysrver.  */    
+    KEYORG_DANE    = 3, /* OpenPGP DANE.        */    
+    KEYORG_WKD     = 4, /* Web Key Directory.   */    
+    KEYORG_URL     = 5, /* Trusted URL.         */    
+    KEYORG_FILE    = 6, /* Trusted file.        */    
+    KEYORG_SELF    = 7  /* We generated it.     */
+
+
+# HKP Trust Packet
+
+
+HKP trust packets MUST start with the eleven octets:
+    
+    [ value, flags, 'h', 'k', 'p', subtype, keyorg, keyupdate ]
+
+The first octet holds the confidence value that the server attributes to the User ID.
+The second octet contains flags:
+    bit 7: MUST be 1 (so that legacy gnupg will ignore it)
+    bit 6: authoritative response
+    ...
+    bit 1: valid (ignored if bit 0 is unset)
+    bit 0: checked
+
+All other bits are undefined.
+
+The next three octets contain the string "hkp", for domain separation.
+The following six octets are the same as GnuPG:
+
+* subtype (uint8)
+* keyorg (uint8): (WKD, DANE, etc.)
+* keyupdate (uint32)
+
+The remainder of the trust packet consists of zero or more signature subpackets.
+These MAY include:
+    
+* embedded signature
+* notation data
+
+Notations MAY include:
+
+* source (string): authoritative URL
+* proof (data): (format to be defined)
+
+
+## Use of the HKP Trust Packet for User ID verification
+
+One or more HKP Trust packets MAY be included when submitting or retrieving a certificate over HKPv2.
+The HKP Trust packet immediately follows the User ID packet to which it applies, before any certification signatures.
+A Trust packet in this position MUST have subtype 2 (UID).
+
+When submitting a User ID:
+    value MUST be 0
+    flags MUST be 128
+    domsep MUST be 'hkp\x02'
+    keyorg MUST be 7 (KEYORG_SELF)
+    keyupdate SHOULD be now
+    proof notation SHOULD include an offline proof of User ID ownership (e.g. DKIM signed mail) [HIP-8]
+
+Note that submitting a Trust packet with no proof notation is not useful.
+
+When storing (and subsequently serving) a User ID:
+    value SHOULD be zero unless the keyserver has performed verification
+    flags SHOULD be set according to the verification results
+    domsep MUST be 'hkp\x02'
+    keyorg SHOULD be set to indicate the source of the certificate
+    keyupdate SHOULD be the date of submission
+    source notation (if given) SHOULD be the authoritative URL of the certificate
+    proof notation MAY include any offline proof(s) known to the keyserver
+
+On receiving a User ID with a suffixed Trust packet over HKP, the receiving application SHOULD NOT blindly import the Trust packet.
+Trust packets record subjective information - the receiving application SHOULD evaluate that information and reconstruct the Trust packet to reflect its own calculations, otherwise it SHOULD discard the Trust packet.
+In particular, the value, flags and origin fields SHOULD be recalculated.
+
+If a UserID was submitted over HKP, the origin SHOULD be set to KEYORG_KS.
+If it was loaded from a dump, the origin SHOULD be set to KEYORG_FILE.
+If it is subsequently refreshed from DANE, WKD or its preferred keyserver, the origin SHOULD be updated accordingly.
+The other origin values are not currently used.
+
+Care SHOULD be taken to validate or strip incoming trust packets, to prevent poisoning attacks.
+
+
+### SKS considerations
+
+Trust packets MUST be excluded from any digest calculation over a certificate for SKS purposes.
+A keyserver MAY apply different weight to evidence obtained over different channels.
+In particular, a Trust packet synced from a known SKS peer MAY be given more credence than one submitted or obtained over HKP.
+
+For the purposes of [HIP-3], when reconciling two User IDs that have the same most-recent self-certification but disjoint third-party certifications, the copy with the earlier date field in the trust packet SHOULD take precedence.
+
+
+## Use of the HKP Trust Packet to Cache User ID Data
+
+We MAY wish to cache User ID data outside the User ID packet, for example if we wanted to serve hard revocations for enumerable domains we could store the domain portion in a Trust packet following the primary key after the corresponding userid has been redacted. [#317]
+This MAY be synced between servers that share an enumerable domain configuration, but SHOULD be removed before serving to clients.
+
+A Trust packet in this position MUST have subtype 1 (KEY).
+
+When storing (and subsequently serving) a key with a redacted User ID:
+    value SHOULD be 0
+    flags SHOULD be 128
+    domsep MUST be 'hkp\x01'
+    keyorg SHOULD be 0
+    keyupdate SHOULD be 0
+
+One or more "domain" notations SHOULD be included, each containing a string representing the email domain of a redacted User ID.
+
+
+# References
+
+* https://gitlab.com/freepg/gnupg/-/blob/master/g10/parse-packet.c#L3423
+* https://gitlab.com/freepg/gnupg/-/blob/master/g10/packet.h#L529
+* https://gitlab.com/freepg/gnupg/-/blob/master/g10/keydb.h#L144
+
