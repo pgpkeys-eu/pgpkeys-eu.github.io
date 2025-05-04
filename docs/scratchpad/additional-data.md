@@ -12,10 +12,13 @@ We define an Additional Data category of signature types (0x48..0x4f), initially
 
 A type 0x48 signature is constructed identically to a type 0x00 signature, except:
 
-* The three octets corresponding to "PGP" in UTF-8 encoding are hashed in before the salt (if any).
+* The first four octets of the salt MUST be "!PGP" in UTF-8 encoding.
 * The following data is hashed in after the salt (if any) and before the document:
     * Additional Data length (4 octets)
     * Additional Data (N octets)
+
+The "!PGP" salt prefix is used for cross-protocol domain separation.
+This prevents an attacker from creating a signature in OpenPGP using a salt whose initial octets correspond to the domain separation string of another protocol.
 
 We define a corresponding Key Flag:
 
