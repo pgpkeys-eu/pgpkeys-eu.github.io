@@ -20,7 +20,7 @@ A Challenge-Response signature SHOULD be distributed as either a detached signat
 It MUST NOT be made over a Literal Data packet or used directly in a Message or Certificate (TPK) packet sequence.
 
 The "!PGP" salt prefix is used for cross-protocol domain separation, since authentication subkeys are commonly shared with other protocols such as SSH.
-This prevents an attacker from creating a signature in OpenPGP using a salt whose initial octets correspond to the domain separation string of another protocol.
+This prevents an attacker from creating an authentication signature in OpenPGP using a salt whose initial octets correspond to the domain separation string of another protocol.
 
 ## Subpackets
 
@@ -48,14 +48,14 @@ A simple protocol for authenticating against a remote web service is specified a
 * The prover generates a Challenge-Response signature over a challenge consisting of the following CRLF-terminated records:
     * The HTTP request line in case-normalised form, e.g. `GET / HTTP/1.1`.
     * The `Host` HTTP header of the request.
-    * A `WWW-Authenticate` HTTP header with the value `PGAP realm="simple"` or `PGAP realm="session"`.
-* The prover encodes the authentication credentials in the form `PGAP <base-64-encoded-signature-packet>`.
-* If the PGAP realm is `simple`:
-    * The prover submits the encoded credentials in the `Authentication` header of an HTTP request for the desired resource.
-* If the PGAP realm is `session`:
-    * The prover submits the encoded credentials in the `Authentication` header of an HTTP POST request to the well-known endpoint `/.well-known/openpgp/login` on the remote service.
+    * A `WWW-Authenticate` HTTP header with the value `PGAP t="simple"` or `PGAP t="session"`.
+* The prover encodes the authentication credentials in the form `PGAP b=<base-64-encoded-signature-packet>`.
+* If the PGAP type is `simple`:
+    * The prover submits the encoded credentials in the `Authorization` header of an HTTP request for the desired resource.
+* If the PGAP type is `session`:
+    * The prover submits the encoded credentials in the `Authorization` header of an HTTP POST request to the well-known endpoint `/.well-known/openpgp/login` on the remote service.
 
-If session authentication is successful, subsequest requests supply `PGAP ~<base-64-encoded-signature-digest>` in the `Authentication` header.
+If session authentication is successful, subsequest requests supply `PGAP sh=<base-64-encoded-signature-digest>` in the `Authorization` header.
 The digest is calculated over the binary signature packet (including framing), and the hash algorithm used MUST be the same as the one used in the signature packet.
 This saves bandwidth and CPU, particularly with post-quantum signature algorithms.
 
@@ -63,13 +63,13 @@ Authentication credentials MUST only be submitted over a secure transport layer,
 
 ## Verifier actions
 
-On throwing a 401 Unauthorized response, the verifier MAY return a `WWW-Authenticate` header that contains the challenge `PGAP realm="simple"` or `PGAP realm="session"` as appropriate.
+On throwing a 401 Unauthorized response, the verifier MAY return a `WWW-Authenticate` header that contains the challenge `PGAP t="simple"` or `PGAP t="session"` as appropriate.
 
 On receiving a PGAP authentication request:
 
 * The verifier checks that the signature was made by a known authentication subkey and that the Signature Creation Time subpacket is within the acceptable clock drift limit.
 * The verifier regenerates the challenge from the request headers and verifies the signature.
-* If the PGAP realm is `session`: 
+* If the PGAP type is `session`: 
     * After a successful request to `/.well-known/openpgp/login`, the verifier records the digest of the signature packet in a table of active sessions.
     * Requests to other resources are checked against the active session table.
     * Sessions SHOULD time out after a reasonable period of time, which SHOULD be longer than the clock drift limit of the authentication signature.
