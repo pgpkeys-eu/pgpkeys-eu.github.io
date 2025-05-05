@@ -14,11 +14,11 @@ A type 0x48 signature is constructed identically to a type 0x00 signature, excep
 
 * The first four octets of the salt MUST be "!PGP" in UTF-8 encoding.
 * The following data is hashed in after the salt (if any) and before the document:
-    * Additional Data length (4 octets)
+    * Additional Data Length (4 octets)
     * Additional Data (N octets)
 
 The "!PGP" salt prefix is used for cross-protocol domain separation.
-This prevents an attacker from creating a signature in OpenPGP using a salt whose initial octets correspond to the domain separation string of another protocol.
+This prevents an attacker from creating an Additional Data signature in OpenPGP using a salt whose initial octets correspond to the domain separation string of another protocol.
 
 We define a corresponding Key Flag:
 
@@ -51,8 +51,10 @@ This ensures that a naive application cannot verify the signature.
 
 ## Type 0x48 Signature Creation and Verification
 
-When constructing or verifying a Type 0x48 signature, the relevant `domsep` notation subpacket from the signing key’s binding signature, including the subpacket header, MUST be passed as the initial octets of Additional Data.
-An application MAY specify that further Additional Data is included in the digest calculation.
+When constructing or verifying a Type 0x48 signature, the relevant `domsep` notation subpacket from the signing key’s binding signature, including the subpacket header, SHOULD be passed as the initial octets of Additional Data.
+An application MAY specify that further Additional Data is included.
 
-An application MUST check that the `domsep` notation matches the expected identifier, based on the application context.
+An application MUST check that the `domsep` notation on the signing key matches the expected identifier, based on the application context.
 If the signing key has more than one `domsep` notation, it is the application's responsibility to ensure that the correct notation is passed as Additional Data.
+
+An OpenPGP API MUST be designed so that the Additional Data is passed in as a separate parameter, and MUST calculate the Additional Data Length field itself, to ensure that an application cannot accidentally create a malleable signature.
