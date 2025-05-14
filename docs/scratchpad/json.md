@@ -6,129 +6,146 @@ This is a JSON schema adapted from the one used internally by Hockeypuck.
 
 ```
 type Packet struct {
-    Tag    uint8  `json:"tag"`
-    Data   []byte `json:"data"`
-    Parsed bool   `json:"parsed"`
+	Tag    uint8  `json:"tag"`
+	Data   []byte `json:"data"`
+	Parsed bool   `json:"parsed"`
 
-    // NEW FIELD required for lossless roundtripping
-    Frames []*Frame  `json:"frames,omitempty"`
+	/*
+	   // NEW FIELD required for lossless roundtripping
+	   Frames []*Frame  `json:"frames,omitempty"`
+	*/
 }
 
 type Algorithm struct {
-    Name      string `json:"name"`
-    Code      int    `json:"code"`
-    BitLength int    `json:"bitLength"`       // TODO: should this be optional?
-    Curve     string `json:"curve,omitempty"`
+	Name      string `json:"name"`
+	Code      int    `json:"code"`
+	BitLength int    `json:"bitLength"`       // TODO: should this be optional?
+	Curve     string `json:"curve,omitempty"`
 }
 
 type PublicKey struct {
-    Fingerprint  string       `json:"fingerprint"`
-    LongKeyID    string       `json:"longKeyID"`
-    Creation     string       `json:"creation,omitempty"` // TODO: is this ever empty?
-    Expiration   string       `json:"expiration,omitempty"`
-    NeverExpires bool         `json:"neverExpires,omitempty"`
-    Version      uint8        `json:"version"`
-    Algorithm    Algorithm    `json:"algorithm"`
-    Signatures   []*Signature `json:"signatures,omitempty"`
-    Packet       *Packet      `json:"packet,omitempty"`
-
-    // no longer used by hockeypuck
-    ShortKeyID   string       `json:"shortKeyID"`
-    BitLength    int          `json:"bitLength"` // Moved under Algorithm; not meaningful for all algorithm types
+	Fingerprint  string       `json:"fingerprint"`
+	LongKeyID    string       `json:"longKeyID"`
+	ShortKeyID   string       `json:"shortKeyID"` // only used for testing
+	Creation     string       `json:"creation,omitempty"` // TODO: is this ever empty?
+	Expiration   string       `json:"expiration,omitempty"`
+	NeverExpires bool         `json:"neverExpires,omitempty"`
+	Version      uint8        `json:"version"`
+	Algorithm    Algorithm    `json:"algorithm"`
+	BitLength    int          `json:"bitLength"` // now under Algorithm; not meaningful for all algorithm types
+	Signatures   []*Signature `json:"signatures,omitempty"`
+	Packet       *Packet      `json:"packet,omitempty"`
+	/*
+	   // NEW CONTEXT-DERIVED FIELD
+	   TrustPacket *TrustPacket `json:"trustPacket,omitempty"`
+	*/
 }
 
 type PrimaryKey struct {
-    *PublicKey
+	*PublicKey
 
-    MD5       string           `json:"md5"`         // SKS digest
-    Length    int              `json:"length"`
-    SubKeys   []*SubKey        `json:"subKeys,omitempty"`
-    UserIDs   []*UserID        `json:"userIDs,omitempty"`
-
-    // no longer used by hockeypuck
-    UserAttrs []*UserAttribute `json:"userAttrs,omitempty"`
+	MD5     string    `json:"md5"`         // SKS digest
+	Length  int       `json:"length"`
+	SubKeys []*SubKey `json:"subKeys,omitempty"`
+	UserIDs []*UserID `json:"userIDs,omitempty"`
+	/*
+		// no longer used
+		UserAttrs []*UserAttribute `json:"userAttrs,omitempty"`
+	*/
 }
 
 type SubKey struct {
-    *PublicKey
+	*PublicKey
 }
 
 type UserID struct {
-    Keywords   string       `json:"keywords"`
-    Packet     *Packet      `json:"packet,omitempty"`
-    Signatures []*Signature `json:"signatures,omitempty"`
+	Keywords   string       `json:"keywords"`
+	Packet     *Packet      `json:"packet,omitempty"`
+	Signatures []*Signature `json:"signatures,omitempty"`
+	/*
+	   // NEW CONTEXT-DERIVED FIELD
+	   TrustPacket *TrustPacket `json:"trustPacket,omitempty"`
+	*/
 }
 
-type Signature struct {
-    // existing packet fields
-    SigType      int     `json:"sigType"`
-    Revocation   bool    `json:"revocation,omitempty"`
-    Packet       *Packet `json:"packet,omitempty"`
-
-    // existing subpacket-derived fields
-    Primary      bool    `json:"primary,omitempty"`
-    IssuerKeyID  string  `json:"issuerKeyID,omitempty"`
-    Creation     string  `json:"creation,omitempty"`
-    Expiration   string  `json:"expiration,omitempty"`  // EITHER sig OR key expiration
-    NeverExpires bool    `json:"neverExpires,omitempty"`
-    PolicyURI    string  `json:"policyURI,omitempty"`
-
-    // NEW PACKET FIELDS
-    Version         uint8        `json:"version"`
-    PubkeyAlgorithm Algorithm    `json:"pubkeyAlgorithm"`
-    HashAlgorithm   Algorithm    `json:"hashAlgorithm"`
-    HashedArea      []*Subpacket `json:"hashedArea,omitempty"`
-    UnhashedArea    []*Subpacket `json:"unhashedArea,omitempty"`
-
-    // NEW SUBPACKET-DERIVED FIELDS
-    Exportable       bool           `json:"exportable" default:"true"`
-    Trust            Trust          `json:"trust,omitempty"`
-    Regex            string         `json:"regexes,omitempty"`
-    Revocable        bool           `json:"revocable" default:"true"`
-    PrefSymmetric    []Algorithm    `json:"prefSymmetric,omitempty"`
-    RevocationKeys   []string       `json:"revocationKeys,omitempty"`
-    Notations        []*Notation    `json:"notations,omitempty"`
-    PrefHash         []Algorithm    `json:"prefHash,omitempty"`
-    PrefCompression  []Algorithm    `json:"prefCompression,omitempty"`
-    KeyServerPrefs   KeyServerPrefs `json:"keyserverPrefs,omitempty"`
-    PrefKeyServer    string         `json:"prefKeyserver,omitempty"`
-    Flags            Flags          `json:"flags,omitempty"`
-    SignerUserID     string         `json:"signerUserID,omitempty"`
-    RevocationReason Reason         `json:"revocationReason,omitempty"`
-    Features         Features       `json:"features,omitempty"`
-    SigTarget        SigTarget      `json:"sigTarget,omitempty"`
-    EmbeddedSigs     []*Signature   `json:"embeddedSigs,omitempty"` // BEWARE recursion
-    Issuer           VFP            `json:"issuer,omitempty"`
-    Recipients       []VFP          `json:"recipients,omitempty"`
-    ApprovedCerts    [][]byte       `json:"approvedCerts,omitempty"`
-    KeyBlocks        []KeyBlock     `json:"keyBlocks,omitempty"`    // BEWARE recursion
-    PrefAEAD         []Algorithm    `json:"prefAEAD",omitempty"`
-    PrefSuites       []AEADSuite    `json:"prefSuites,omitempty"`
-    LiteralMetadata  MetaData       `json:"literalMetadata,omitempty"`
-    Replacement      Replacement    `json:"replacement,omitempty"`
-}
-
+/*
 // no longer used by hockeypuck
 
 type UserAttribute struct {
     Photos      []*Photo     `json:"photos,omitempty"`
     Packet      *Packet      `json:"packet,omitempty"`
     Signatures  []*Signature `json:"signatures,omitempty"`
-    Unsupported []*Subpacket `json:"unsupported,omitempty"`
+
+    // NEW CONTEXT-DERIVED FIELD
+    TrustPacket *TrustPacket `json:"trustPacket,omitempty"`
 }
 
 type Photo struct {
     MIMEType string `json:"mimeType"` // always 'image/jpeg'
-    Data     []byte `json:"data"`
+    Contents []byte `json:"contents"`
+}
+*/
+
+type Signature struct {
+	SigType      int     `json:"sigType"`
+	Revocation   bool    `json:"revocation,omitempty"`
+	Primary      bool    `json:"primary,omitempty"`
+	IssuerKeyID  string  `json:"issuerKeyID,omitempty"`
+	Creation     string  `json:"creation,omitempty"`
+	Expiration   string  `json:"expiration,omitempty"`  // EITHER sig OR key expiration
+	NeverExpires bool    `json:"neverExpires,omitempty"`
+	Packet       *Packet `json:"packet,omitempty"`
+	PolicyURI    string  `json:"policyURI,omitempty"`
+
+	/*
+	   // NEW PACKET FIELDS
+	   Version         uint8        `json:"version"`
+	   PubkeyAlgorithm Algorithm    `json:"pubkeyAlgorithm"`
+	   HashAlgorithm   Algorithm    `json:"hashAlgorithm"`
+	   HashedArea      []*Subpacket `json:"hashedArea,omitempty"`
+	   UnhashedArea    []*Subpacket `json:"unhashedArea,omitempty"`
+
+	   // NEW SUBPACKET-DERIVED FIELDS
+	   Exportable       bool           `json:"exportable" default:"true"`
+	   TrustSig         TrustSig       `json:"trustSig,omitempty"`
+	   Regex            string         `json:"regexes,omitempty"`
+	   Revocable        bool           `json:"revocable" default:"true"`
+	   PrefSymmetric    []Algorithm    `json:"prefSymmetric,omitempty"`
+	   RevocationKeys   []string       `json:"revocationKeys,omitempty"`
+	   Notations        []*Notation    `json:"notations,omitempty"`
+	   PrefHash         []Algorithm    `json:"prefHash,omitempty"`
+	   PrefCompression  []Algorithm    `json:"prefCompression,omitempty"`
+	   KeyServerPrefs   KeyServerPrefs `json:"keyserverPrefs,omitempty"`
+	   PrefKeyServer    string         `json:"prefKeyserver,omitempty"`
+	   Flags            Flags          `json:"flags,omitempty"`
+	   SignerUserID     string         `json:"signerUserID,omitempty"`
+	   RevocationReason Reason         `json:"revocationReason,omitempty"`
+	   Features         Features       `json:"features,omitempty"`
+	   SigTarget        SigTarget      `json:"sigTarget,omitempty"`
+	   EmbeddedSigs     []*Signature   `json:"embeddedSigs,omitempty"` // BEWARE recursion
+	   Issuer           VFP            `json:"issuer,omitempty"`
+	   Recipients       []VFP          `json:"recipients,omitempty"`
+	   ApprovedCerts    [][]byte       `json:"approvedCerts,omitempty"`
+	   KeyBlocks        []*KeyBlock    `json:"keyBlocks,omitempty"`    // BEWARE recursion
+	   PrefAEAD         []Algorithm    `json:"prefAEAD,omitempty"`
+	   PrefSuites       []AEADSuite    `json:"prefSuites,omitempty"`
+	   LiteralMetadata  MetaData       `json:"literalMetadata,omitempty"`
+	   Replacement      Replacement    `json:"replacement,omitempty"`
+
+	   // NEW CONTEXT-DERIVED FIELD
+	   TrustPacket *TrustPacket `json:"trustPacket,omitempty"`
+	*/
 }
 
+/*
 // NEW STRUCTS
 
 type Subpacket struct {
     Tag      uint8  `json:"tag"`
     Critical bool   `json:"critical"`
     Data     []byte `json:"data"`
-    Parsed   bool   `json:"parsed"` // If true, the value has been copied to the parent object
+    Parsed   bool   `json:"parsed"`          // If true, the value has been copied to the parent object
+	Frame	 *Frame `json:"frame,omitempty"` // lossless roundtripping
 }
 
 // packets
@@ -157,7 +174,7 @@ type CompressedData struct {
     Packet    *Packet   `json:"packet,omitempty"`
 }
 
-type LiteralData struct {    
+type LiteralData struct {
     Metadata VerbatimMetadata `json:"metadata,omitempty"`
     Packet   *Packet          `json:"packet,omitempty"`
 }
@@ -184,6 +201,11 @@ type Type20 {
     Packet    *Packet   `json:"packet,omitempty"`
 }
 
+// trust packets are treated as blobs
+type TrustPacket {
+	Packet *Packet `json:"packet,omitempty"`
+}
+
 // packet sequences
 
 type Message struct {
@@ -206,8 +228,9 @@ type MixedKeyring struct {
 // data types
 
 type Frame struct {
-    Length int  `json:"length"`
-    Legacy bool `json:"legacy" default:"false"`
+    Length         int   `json:"length"`
+    Legacy         bool  `json:"legacy" default:"false"` // packets only
+	LengthOfLength uint8 `json:"lengthOfLength"`
 }
 
 type VFP struct {
@@ -229,7 +252,7 @@ type AEADSuite struct {
     AEADAlgorithm      Algorithm `json:"aeadAlgorithm"`
 }
 
-type Trust struct {
+type TrustSig struct {
     Depth  uint8 `json:"depth"`
     Amount uint8 `json:"amount"`
 }
@@ -248,8 +271,8 @@ type Reason struct {
 type Notation struct {
     Class NotationClass `json:"class"`
     Name  string        `json:"name"`
-    Value string        `json:"value,omitempty"` // if human-readable
-    Data  []byte        `json:"data,omitempty"`  // if not human-readable
+    Text  string        `json:"text,omitempty"` // if human-readable
+    Data  []byte        `json:"data,omitempty"` // if not human-readable
 }
 
 // as per draft-gallagher-openpgp-literal-data-metadata
@@ -313,6 +336,8 @@ type NotationClass struct {
 type ReplacementClass struct {
     Inverse bool `json:"inverse" default:"false"`
 }
+*/
+
 ```
 
 ## Notes for Implementers
