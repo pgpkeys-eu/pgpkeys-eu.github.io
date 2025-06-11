@@ -12,7 +12,7 @@ We define an Additional Data category of signature types (0x48..0x4f), initially
 
 A type 0x48 signature is constructed identically to a type 0x00 signature, except:
 
-* The first five octets of the salt MUST be "\xCA\x03PGP", i.e. the OpenPGP format wire encoding of a Marker Packet.
+* The first five octets of the salt MUST be ( 0xCA, 0x03, 0x50, 0x47, 0x50 ), i.e. the OpenPGP format wire encoding of a Marker Packet.
 * The following data is hashed in after the salt (if any) and before the document:
     * Additional Data Length (4 octets)
     * Additional Data (N octets)
