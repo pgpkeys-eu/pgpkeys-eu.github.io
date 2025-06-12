@@ -42,6 +42,7 @@ It is RECOMMENDED that domain-separation identifiers be either:
 
 At least one `domsep` notation subpacket SHOULD be included in the hashed subpacket area of a direct or subkey binding signature that has the Additional Data key flag set.
 Without a `domsep` notation subpacket, the component key in question cannot be used to make any Additional Data signatures, because the form of the Additional Data is undefined.
+The `domsep` notation does not modify the semantics of any other key flags that may be set on the component key.
 
 The `domsep` notation subpacket SHOULD NOT be used elsewhere, and MUST be ignored if found elsewhere.
 The `domsep` notation subpacket SHOULD NOT be marked critical.
@@ -51,7 +52,7 @@ This ensures that a naive application cannot verify the signature.
 
 ## Type 0x48 Signature Creation and Verification
 
-When constructing or verifying a Type 0x48 signature, the relevant `domsep` notation subpacket from the signing key’s binding signature, including the subpacket header, SHOULD be passed as the initial octets of Additional Data.
+When constructing or verifying a Type 0x48 signature, the relevant `domsep` notation subpacket from the signing key’s binding signature, including the subpacket header, MUST be passed as the initial octets of Additional Data.
 An application MAY specify that further Additional Data is included.
 
 An application MUST check that the `domsep` notation on the signing key matches the expected identifier, based on the application context.
