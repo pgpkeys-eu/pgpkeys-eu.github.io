@@ -61,9 +61,9 @@ octets | name            | type    | description
 1      | trustval / flag | uint8   | key/uid/uat trust value OR "sig flag" (?)
 1      | sigcache        | uint8   | signature flags (ignored unless SIG)
 4      | (domsep)        |         | (optional)
-├ 3    |   (unnamed)     | char[3] | generating application, i.e. "gpg"
+├ 3    |   (unnamed)     | char[3] | "gpg" in UTF-8
 └ 1    |   subtype       | uint8   | 0=SIG, 1=KEY, 2=UID
-6+N    | (keydata)       |         | (optional, ignored if SIG)
+6+N    | (keydata)       |         | (optional, ignored if subtype is SIG)
 ├ 1    |   keyorg / src  | uint8   | key origin (see below)
 ├ 4    |   keyupdate     | uint32  | time of last update
 ├ 1    |   namelen       | uint8   | length of following field
@@ -78,9 +78,9 @@ The sigcache field is an octet of flag bits:
 All other bits are undefined.
 
 The subtype field MUST correspond to the preceding packet:
-    SIG: preceding packet is a signature
-    KEY: preceding packet is a component key (public or secret)
-    UID: preceding packet is a User ID or User Attribute
+    0 (SIG): preceding packet is a signature
+    1 (KEY): preceding packet is a component key (public or secret)
+    2 (UID): preceding packet is a User ID or User Attribute
 
 The trust packet is ignored if the preceding packet type does not match the subtype, or if the generating application is not "gpg".
 
@@ -100,16 +100,33 @@ The key origin is one of the following values:
     KEYORG_SELF    = 7  /* We generated it.     */
 
 
+# OpenPGP Trust Packet
+
+We define a generic construction for OpenPGP Trust Packets that is backwards compatible with the GnuPG Trust Packet:
+
+octets | name            | type    | description
+-------|-----------------|---------|--------------------------------------------
+1      | trustval / flag | uint8   | key/uid/uat trust value OR "sig flag" (?)
+1      | sigcache        | uint8   | signature flags
+4      | domsep          | any     | domain separation
+N      | further data    | any     | application-specific data (optional)
+
+The basic form of the Trust Packet is two octets long, and consists of only the `trustval` and `sigcache` octets, which MUST be present.
+The most-significant bit of the `sigcache` octet MUST be set, to prevent processing by legacy clients ((TODO: is this necessary?)).
+In the OpenPGP packet format, these SHOULD be followed by four octets of domain separator, the first three of which SHOULD be constant for any given application.
+The fourth octet of the domain separator MAY be used to differentiate between different modes of operation of the same application; it is RECOMMENDED to use the same semantics as GnuPG above.
+An arbitrary number of further octets MAY be appended; the contents are application-dependent.
+
+
 # HKP Trust Packet
 
-
-HKP trust packets MUST start with the eleven octets:
+HKP trust packets MUST start with the six octets:
     
-    [ value, flags, 'h', 'k', 'p', subtype, keyorg, keyupdate ]
+    [ value, flags, 'h', 'k', 'p', subtype ]
 
 The first octet holds the confidence value that the server attributes to the User ID.
 The second octet contains flags:
-    bit 7: MUST be 1 (so that legacy gnupg will ignore it)
+    bit 7: MUST be 1
     bit 6: authoritative response
     ...
     bit 1: valid (ignored if bit 0 is unset)
@@ -117,23 +134,38 @@ The second octet contains flags:
 
 All other bits are undefined.
 
-The next three octets contain the string "hkp", for domain separation.
-The following six octets are the same as GnuPG:
-
-* subtype (uint8)
-* keyorg (uint8): (WKD, DANE, etc.)
-* keyupdate (uint32)
+The next four octets contain the string "hkp" in UTF-8, followed by the subtype octet, which admits the same values as GnuPG.
+The trust packet MUST be ignored if the subtype octet does not correspond to the type of the preceding packet.
 
 The remainder of the trust packet consists of zero or more signature subpackets.
 These MAY include:
-    
+
 * embedded signature
 * notation data
 
-Notations MAY include:
+An embedded signature subpacket MAY be used to store signature packets that the local implementation wishes to associate with the preceding packet.
+This is often more convenient than storing an embedded signature in the unhashed area of another signature, particularly if certificate merging and/or minimisation is implemented.
 
-* source (string): authoritative URL
-* proof (data): (format to be defined)
+Supported notations include:
+
+* keyorigin (string): (see below)
+* keyupdate (uint32): OpenPGP timestamp
+* updateurl (string): authoritative URL
+* proof (data): (format TBC)
+
+The notation names will be allocated in the user namespace (exact format TBC).
+
+Supported keyorigin values include:
+
+value       | description
+------------|------------------------------------------------
+submitted   | directly submitted from a client
+dump        | loaded from a dump that did not record an origin, or which was not sufficiently trusted
+dns         | obtained from DNS lookup (DANE)
+well-known  | fetched from a domain-authoritative web service such as WKD or HKP discovery
+preferred   | fetched from the advertised preferred keyserver
+
+Other keyorigin values are not currently used.
 
 
 ## Use of the HKP Trust Packet for User ID verification
@@ -146,8 +178,6 @@ When submitting a User ID:
     value MUST be 0
     flags MUST be 128
     domsep MUST be 'hkp\x02'
-    keyorg MUST be 7 (KEYORG_SELF)
-    keyupdate SHOULD be now
     proof notation SHOULD include an offline proof of User ID ownership (e.g. DKIM signed mail) [HIP-8]
 
 Note that submitting a Trust packet with no proof notation is not useful.
@@ -156,19 +186,14 @@ When storing (and subsequently serving) a User ID:
     value SHOULD be zero unless the keyserver has performed verification
     flags SHOULD be set according to the verification results
     domsep MUST be 'hkp\x02'
-    keyorg SHOULD be set to indicate the source of the certificate
-    keyupdate SHOULD be the date of submission
-    source notation (if given) SHOULD be the authoritative URL of the certificate
+    keyorigin notation SHOULD be set to indicate the source of the certificate
+    keyupdate notation SHOULD be the date of submission
+    updateurl notation (if given) SHOULD be the authoritative URL of the certificate
     proof notation MAY include any offline proof(s) known to the keyserver
 
 On receiving a User ID with a suffixed Trust packet over HKP, the receiving application SHOULD NOT blindly import the Trust packet.
 Trust packets record subjective information - the receiving application SHOULD evaluate that information and reconstruct the Trust packet to reflect its own calculations, otherwise it SHOULD discard the Trust packet.
-In particular, the value, flags and origin fields SHOULD be recalculated.
-
-If a UserID was submitted over HKP, the origin SHOULD be set to KEYORG_KS.
-If it was loaded from a dump, the origin SHOULD be set to KEYORG_FILE.
-If it is subsequently refreshed from DANE, WKD or its preferred keyserver, the origin SHOULD be updated accordingly.
-The other origin values are not currently used.
+In particular, the value and flags fields and keyorigin notation SHOULD be recalculated.
 
 Care SHOULD be taken to validate or strip incoming trust packets, to prevent poisoning attacks.
 
