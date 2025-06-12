@@ -12,14 +12,14 @@ In this document, we use the term "prover" to mean the application that connects
 A Challenge-Response signature is constructed identically to a signature over a binary document, except:
 
 * The signature type is 0x08.
-* The first four octets of the salt MUST be "!PGP" in UTF-8 encoding.
+* The first five octets of the salt MUST be ( 0xCA, 0x03, 0x50, 0x47, 0x50 ), i.e. the OpenPGP format wire encoding of a Marker Packet.
 
 The type-specific data passed to the signature digest function contains a challenge, which SHOULD be generated separately by both the prover and the verifier using a pre-agreed method.
 
 A Challenge-Response signature SHOULD be distributed as either a detached signature, or in an Embedded Signature subpacket.
 It MUST NOT be made over a Literal Data packet or used directly in a Message or Certificate (TPK) packet sequence.
 
-The "!PGP" salt prefix is used for cross-protocol domain separation, since authentication subkeys are commonly shared with other protocols such as SSH.
+The Marker Packet salt prefix is used for cross-protocol domain separation, since authentication subkeys are commonly shared with other protocols such as SSH.
 This prevents an attacker from creating an authentication signature in OpenPGP using a salt whose initial octets correspond to the domain separation string of another protocol.
 
 ## Subpackets
