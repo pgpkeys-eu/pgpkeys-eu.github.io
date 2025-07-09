@@ -62,6 +62,8 @@ An OpenPGP API MUST be designed so that the Additional Data is passed in as a se
 
 # References
 
-* https://mailarchive.ietf.org/arch/msg/openpgp/B6t3IjqcaaNepgUgXd6u6dA4gmo/
-* https://mailarchive.ietf.org/arch/msg/openpgp/EMgxWh4lghA9CEqr6Wkl6Zurx3g/
-* https://mailarchive.ietf.org/arch/msg/openpgp/mYxkttqgjC5M-I4zYy_Gepf3cLI/
+Mailing list posts from the crypto-refresh discussion:
+
+* [A more modest proposal (dh)](https://mailarchive.ietf.org/arch/msg/openpgp/B6t3IjqcaaNepgUgXd6u6dA4gmo/)
+* [Context parameters (dkg)](https://mailarchive.ietf.org/arch/msg/openpgp/EMgxWh4lghA9CEqr6Wkl6Zurx3g/)
+* [Third way (abg)](https://mailarchive.ietf.org/arch/msg/openpgp/mYxkttqgjC5M-I4zYy_Gepf3cLI/)
