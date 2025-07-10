@@ -387,3 +387,7 @@ The schema does however impose some restrictions:
 * Packets and subpackets are logically divided into structured fields where this seems useful; this choice is to some extent arbitrary.
 
 * Where an object has only one algorithm-like field, and the algorithm registry is therefore obvious, the field is just named "algorithm".
+
+## Media Type(s)
+
+As per [RFC6838](https://www.rfc-editor.org/rfc/rfc6838), OpenPGP packet sequences encoded in the above JSON-LD schema SHOULD use the media type suffix `+json`.
