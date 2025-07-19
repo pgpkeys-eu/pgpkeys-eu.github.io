@@ -141,6 +141,7 @@ The remainder of the trust packet consists of zero or more signature subpackets.
 These MAY include:
 
 * embedded signature
+* preferred keyserver
 * notation data
 
 An embedded signature subpacket MAY be used to store signature packets that the local implementation wishes to associate with the preceding packet.
@@ -150,7 +151,6 @@ Supported notations include:
 
 * keyorigin (string): (see below)
 * keyupdate (uint32): OpenPGP timestamp
-* updateurl (string): authoritative URL
 * proof (data): (format TBC)
 
 The notation names will be allocated in the user namespace (exact format TBC).
@@ -163,7 +163,7 @@ submitted   | directly submitted from a client
 dump        | loaded from a dump that did not record an origin, or which was not sufficiently trusted
 dns         | obtained from DNS lookup (DANE)
 well-known  | fetched from a domain-authoritative web service such as WKD or HKP discovery
-preferred   | fetched from the advertised preferred keyserver
+preferred   | fetched from the owner's self-declared preferred keyserver
 
 Other keyorigin values are not currently used.
 
@@ -188,7 +188,7 @@ When storing (and subsequently serving) a User ID:
     domsep MUST be 'hkp\x02'
     keyorigin notation SHOULD be set to indicate the source of the certificate
     keyupdate notation SHOULD be the date of submission
-    updateurl notation (if given) SHOULD be the authoritative URL of the certificate
+    preferred keyserver (if given) SHOULD be the authoritative location of the certificate
     proof notation MAY include any offline proof(s) known to the keyserver
 
 On receiving a User ID with a suffixed Trust packet over HKP, the receiving application SHOULD NOT blindly import the Trust packet.

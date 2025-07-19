@@ -27,6 +27,7 @@ Other features:
 * [GREASE in OpenPGP](https://andrewgdotcom.gitlab.io/openpgp-grease)
 * [OpenPGP Code Point Exhaustion](https://andrewgdotcom.gitlab.io/openpgp-code-point-exhaustion)
 * [Invisible Signatures over Emails](https://andrewgdotcom.gitlab.io/invisible-signatures)
+* [Media Types for OpenPGP](https://andrewgdotcom.gitlab.io/openpgp-media-types)
 
 ### Secondary documents
 
