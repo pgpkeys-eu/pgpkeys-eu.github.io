@@ -223,8 +223,7 @@ type Message struct {
 }
 
 // as per draft-gallagher-openpgp-hkp
-// TODO: needs a better name!
-type MixedKeyring struct {
+type MixedBundle struct {
     Signatures   []*Signature  `json:"signatures,omitempty"`
     Certificates []*PrimaryKey `json:"certificates,omitempty"`
 }
