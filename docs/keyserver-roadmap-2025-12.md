@@ -5,7 +5,7 @@ Keyserver Updates and Roadmap, December 2025
 Hockeypuck 2.3
 --------------
 
-Hockeypuck 2.3 was released on the 1st of December, with several improvements to stability and ease of operation.
+[Hockeypuck](https://hockeypuck.io) 2.3 was released on the 1st of December, with several improvements to stability and ease of operation.
 There are no breaking changes between the 2.2 and 2.3 branches, and SKS sync is supported between 2.2 and 2.3 peers.
 
 The 2.3 release adds support for online reindexing of the database schema, and offline dump-less reloading of the dataset.
