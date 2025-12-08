@@ -200,33 +200,24 @@ Care SHOULD be taken to validate or strip incoming trust packets, to prevent poi
 
 ### SKS considerations
 
-Trust packets MUST be excluded from any digest calculation over a certificate for SKS purposes.
+HKP trust packets MUST be excluded from any digest calculation over a certificate for SKS purposes.
 A keyserver MAY apply different weight to evidence obtained over different channels.
 In particular, a Trust packet synced from a known SKS peer MAY be given more credence than one submitted or obtained over HKP.
 
 For the purposes of [HIP-3], when reconciling two User IDs that have the same most-recent self-certification but disjoint third-party certifications, the copy with the earlier date field in the trust packet SHOULD take precedence.
 
 
-## Use of the HKP Trust Packet to Cache User ID Data
+## Use of the Trust Packet to Cache User ID Data
+
+(NOTE: this will be implemented in a separate SKS trust packet, see https://github.com/hockeypuck/hockeypuck/wiki/HIP-013%3A-In%E2%80%90Band-Metadata-Sync-Using-Trust-Packets/)
 
 We MAY wish to cache User ID data outside the User ID packet, for example if we wanted to serve hard revocations for enumerable domains we could store the domain portion in a Trust packet following the primary key after the corresponding userid has been redacted. [#317]
 This MAY be synced between servers that share an enumerable domain configuration, but SHOULD be removed before serving to clients.
 
 A Trust packet in this position MUST have subtype 1 (KEY).
 
-When storing (and subsequently serving) a key with a redacted User ID:
-    value SHOULD be 0
-    flags SHOULD be 128
-    domsep MUST be 'hkp\x01'
-    keyorg SHOULD be 0
-    keyupdate SHOULD be 0
-
-One or more "domain" notations SHOULD be included, each containing a string representing the email domain of a redacted User ID.
-
-
 # References
 
 * https://gitlab.com/freepg/gnupg/-/blob/master/g10/parse-packet.c#L3423
 * https://gitlab.com/freepg/gnupg/-/blob/master/g10/packet.h#L529
 * https://gitlab.com/freepg/gnupg/-/blob/master/g10/keydb.h#L144
-
