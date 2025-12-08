@@ -4,6 +4,10 @@ PGPKeys.EU Blog
 Latest Posts
 ------------
 
+December 2025:
+
+* [Keyserver Updates and Roadmap, December 2025](keyserver-roadmap-2025-12.html) (Andrew, 2025-12-08)
+
 March 2025:
 
 * [The Principles of User-Friendly Cryptography](user-friendly.html) (Andrew, 2025-03-28)
