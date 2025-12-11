@@ -50,6 +50,7 @@ Documents that may end up as drafts someday.
 * [Authentication Signatures in OpenPGP](authentication.html)
 * [Short-Lived Certificate Annotations in OpenPGP](annotations.html)
 * [OpenPGP Signatures with Additional Data](additional-data.html)
+* [PKSv2](pksv2.html)
 
 ### Informational
 
