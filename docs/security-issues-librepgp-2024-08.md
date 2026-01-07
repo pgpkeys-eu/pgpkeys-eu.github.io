@@ -3,6 +3,8 @@
 The [LibrePGP specification](https://datatracker.ietf.org/doc/html/draft-koch-librepgp) exhibits a number of known theoretical security issues that are not present in [the latest OpenPGP specification](https://datatracker.ietf.org/doc/html/rfc9580).
 It should be stressed however that no practical exploits are yet known.
 
+Also of interest may be MTG AG's [detailed comparison of RFC9580 and LibrePGP](https://github.com/crypto-security-tools/OpenPGP-LibrePGP-comparison/releases/download/v1.4/opgp-lpgp-comp.pdf).
+
 This post will be kept up to date with any further information.
 
 ## v5 Signature Downgrade Attack
@@ -59,4 +61,4 @@ The attack is more efficiently mitigated in RFC9580 by specifying [the use of AE
 AEAD encryption modes automatically provide integrity validation, eliminating the need for explicit validity checks.
 
 Andrew Gallagher, 19th August 2024
-(last updated 11th September 2024)
+(last updated 7th January 2026)
