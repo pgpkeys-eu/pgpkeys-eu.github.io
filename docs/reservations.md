@@ -155,3 +155,5 @@ Andrew Gallagher (29 January 2025)
 
 (Edited 2025-02-01 to fix references and clarify 0xFF)
 (Edited 2025-04-16 to add Donnerhacke references for early subpacket IDs)
+
+Licensed under [CC BY-NC-SA](https://creativecommons.org/licenses/by-nc-sa/4.0/)

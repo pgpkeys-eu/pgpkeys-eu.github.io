@@ -61,3 +61,5 @@ Other news
 The [OpenPGP Replacement Key Signalling Mechanism](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-replacementkey) has recently been adopted by the OpenPGP IETF Working Group.
 
 Andrew Gallagher (1st August, 2024)
+
+Licensed under [CC BY-NC-SA](https://creativecommons.org/licenses/by-nc-sa/4.0/)

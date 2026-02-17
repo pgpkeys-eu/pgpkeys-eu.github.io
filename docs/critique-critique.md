@@ -238,3 +238,5 @@ References
 [^29]: [https://mailarchive.ietf.org/arch/msg/openpgp/SPsdWpf2Kjtkel5z3jfaGAupROI/](https://mailarchive.ietf.org/arch/msg/openpgp/SPsdWpf2Kjtkel5z3jfaGAupROI/)
 [^30]: [https://mailarchive.ietf.org/arch/msg/openpgp/yZqJMLJ0cv_jGlp0NIclIYJ1HQY/](https://mailarchive.ietf.org/arch/msg/openpgp/yZqJMLJ0cv_jGlp0NIclIYJ1HQY/)
 [^31]: [https://www.rfc-editor.org/rfc/rfc9580](https://www.rfc-editor.org/rfc/rfc9580)
+
+Licensed under [CC BY-NC-SA](https://creativecommons.org/licenses/by-nc-sa/4.0/)

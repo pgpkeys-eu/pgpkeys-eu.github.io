@@ -38,3 +38,5 @@ Links
 
 * [PGPKeys.EU OpenPGP keyserver](https://pgpkeys.eu/)
 * [Hockeypuck project](https://hockeypuck.io)
+
+Licensed under [CC BY-NC-SA](https://creativecommons.org/licenses/by-nc-sa/4.0/)

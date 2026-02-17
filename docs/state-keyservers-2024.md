@@ -224,3 +224,5 @@ There is work underway in the following areas:
 * Efforts continue to get keyserver.ubuntu.com back in sync with the rest of the graph.
 
 Andrew Gallagher (2nd January, 2024)
+
+Licensed under [CC BY-NC-SA](https://creativecommons.org/licenses/by-nc-sa/4.0/)

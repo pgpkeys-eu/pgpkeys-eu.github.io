@@ -62,3 +62,5 @@ AEAD encryption modes automatically provide integrity validation, eliminating th
 
 Andrew Gallagher, 19th August 2024
 (last updated 7th January 2026)
+
+Licensed under [CC BY-NC-SA](https://creativecommons.org/licenses/by-nc-sa/4.0/)

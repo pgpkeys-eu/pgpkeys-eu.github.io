@@ -55,3 +55,5 @@ The fourth principle is therefore:
 > Every user must delegate their own cryptographic trust roots, and must not be aware that they have done so.
 
 Andrew Gallagher (28th March, 2025)
+
+Licensed under [CC BY-NC-SA](https://creativecommons.org/licenses/by-nc-sa/4.0/)

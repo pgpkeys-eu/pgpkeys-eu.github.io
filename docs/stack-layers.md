@@ -120,3 +120,5 @@ In OpenPGP, the word "valid" is used liberally - but there are at least five kin
 In addition, there are other forms of breakage that fall outside the common usage of "validity", such as malformed encodings at the packet level (below) and the sequence encoding level (above).
 
 Andrew Gallagher, 6th February 2025
+
+Licensed under [CC BY-NC-SA](https://creativecommons.org/licenses/by-nc-sa/4.0/)

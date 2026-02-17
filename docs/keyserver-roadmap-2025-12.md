@@ -71,3 +71,5 @@ Other news
 The [OpenPGP Key Replacement](https://datatracker.ietf.org/doc/html/draft-ietf-openpgp-replacementkey) draft is nearing the end of the drafting process; the wire format has been stable for some time and publication as an RFC is now waiting for two interoperable implementations.
 
 Andrew Gallagher (8th December, 2025)
+
+Licensed under [CC BY-NC-SA](https://creativecommons.org/licenses/by-nc-sa/4.0/)
