@@ -114,7 +114,7 @@ N      | further data    | any     | application-specific data (optional)
 The basic form of the Trust Packet is two octets long, and consists of only the `trustval` and `sigcache` octets, which MUST be present.
 The most-significant bit of the `sigcache` octet MUST be set, to prevent processing by legacy clients ((TODO: is this necessary?)).
 In the OpenPGP packet format, these SHOULD be followed by four octets of domain separator, the first three of which SHOULD be constant for any given application.
-The fourth octet of the domain separator MAY be used to differentiate between different modes of operation of the same application; it is RECOMMENDED to use the same semantics as GnuPG above.
+The fourth octet of the domain separator MAY be used to differentiate between different modes of operation of the same application.
 An arbitrary number of further octets MAY be appended; the contents are application-dependent.
 
 
@@ -122,7 +122,7 @@ An arbitrary number of further octets MAY be appended; the contents are applicat
 
 HKP trust packets MUST start with the six octets:
     
-    [ value, flags, 'h', 'k', 'p', subtype ]
+    [ value, flags, 'h', 'k', 'p', subject-tag ]
 
 The first octet holds the confidence value that the server attributes to the User ID.
 The second octet contains flags:
@@ -134,14 +134,13 @@ The second octet contains flags:
 
 All other bits are undefined.
 
-The next four octets contain the string "hkp" in UTF-8, followed by the subtype octet, which admits the same values as GnuPG.
-The trust packet MUST be ignored if the subtype octet does not correspond to the type of the preceding packet.
+The next four octets contain the string "hkp" in UTF-8, followed by the subject-tag octet, which MUST be the same as the tag of the preceding non-trust packet.
+The trust packet MUST be ignored if the subject-tag octet does not match.
 
 The remainder of the trust packet consists of zero or more signature subpackets.
 These MAY include:
 
 * embedded signature
-* preferred keyserver
 * notation data
 
 An embedded signature subpacket MAY be used to store signature packets that the local implementation wishes to associate with the preceding packet.
@@ -149,13 +148,13 @@ This is often more convenient than storing an embedded signature in the unhashed
 
 Supported notations include:
 
-* keyorigin (string): (see below)
-* keyupdate (uint32): OpenPGP timestamp
+* origin (string): (see below)
+* date (uint32): OpenPGP timestamp
 * proof (data): (format TBC)
 
 The notation names will be allocated in the user namespace (exact format TBC).
 
-Supported keyorigin values include:
+Supported origin values include:
 
 value       | description
 ------------|------------------------------------------------
@@ -165,7 +164,7 @@ dns         | obtained from DNS lookup (DANE)
 well-known  | fetched from a domain-authoritative web service such as WKD or HKP discovery
 preferred   | fetched from the owner's self-declared preferred keyserver
 
-Other keyorigin values are not currently used.
+Other origin values are not currently used.
 
 
 ## Use of the HKP Trust Packet for User ID verification
@@ -177,7 +176,7 @@ A Trust packet in this position MUST have subtype 2 (UID).
 When submitting a User ID:
     value MUST be 0
     flags MUST be 128
-    domsep MUST be 'hkp\x02'
+    domsep MUST be 'hkp\x0d'
     proof notation SHOULD include an offline proof of User ID ownership (e.g. DKIM signed mail) [HIP-8]
 
 Note that submitting a Trust packet with no proof notation is not useful.
@@ -185,7 +184,7 @@ Note that submitting a Trust packet with no proof notation is not useful.
 When storing (and subsequently serving) a User ID:
     value SHOULD be zero unless the keyserver has performed verification
     flags SHOULD be set according to the verification results
-    domsep MUST be 'hkp\x02'
+    domsep MUST be 'hkp\x0d'
     keyorigin notation SHOULD be set to indicate the source of the certificate
     keyupdate notation SHOULD be the date of submission
     preferred keyserver (if given) SHOULD be the authoritative location of the certificate
@@ -214,7 +213,55 @@ For the purposes of [HIP-3], when reconciling two User IDs that have the same mo
 We MAY wish to cache User ID data outside the User ID packet, for example if we wanted to serve hard revocations for enumerable domains we could store the domain portion in a Trust packet following the primary key after the corresponding userid has been redacted. [#317]
 This MAY be synced between servers that share an enumerable domain configuration, but SHOULD be removed before serving to clients.
 
-A Trust packet in this position MUST have subtype 1 (KEY).
+
+# Examples
+
+## from gpg
+
+Trust Packet, old CTB, 2 header bytes + 12 bytes
+    Value:
+      00000000  00 00 67 70 67 01 00 00  00 00 00 00               ..gpg.......
+
+    00000000  b0                                                 CTB
+    00000001     0c                                              length
+    00000002        00 00 67 70 67 01  00 00 00 00 00 00         value
+
+
+## snippets
+
+quiet sks trust packet: [ b0 LL 00 00 73 6B 73 TT nn nn nn .. ]
+noisy sks trust packet: [ b0 LL 00 00 53 4B 53 TT nn nn nn .. ]
+hkp trust packet:       [ b0 LL 00 00 68 6B 70 TT nn nn nn .. ]
+
+* b0 is the legacy CTB
+* LL is the packet length
+* TT is one of:
+    * 00 (STANDALONE, noisy SKS only!)
+    * 06 (public key)
+    * 02 (signature)
+    * 0d (userid)
+    * 0e (public subkey)
+    * 11 (uat)
+
+notation subpackets:    [ LL .. TT FF 00 00 00 MM MM NN NN mm mm .. nn nn .. ]
+
+* LL is the packet length (in multi-octet subpacket notation)
+* TT is 94 if critical, 14 otherwise
+* FF is 80 if human-readable, 00 otherwise
+* MM MM is the name length
+* NN NN is the value length
+
+notation with "date=00000000" is [ 11 94 00 00 00 00 00 04 00 04 64 61 74 65 00 00 00 00 ]
+
+* qsks on a primary key with one date notation is   [ b0 18 00 00 73 6B 73 06 11 94 00 00 00 00 00 04 00 04 64 61 74 65 00 00 00 00 ]
+* qsks on a userid with one date notation is        [ b0 18 00 00 73 6B 73 0d 11 94 00 00 00 00 00 04 00 04 64 61 74 65 00 00 00 00 ]
+* qsks on a subkey with one date notation is        [ b0 18 00 00 73 6B 73 0e 11 94 00 00 00 00 00 04 00 04 64 61 74 65 00 00 00 00 ]
+* qsks on a signature with one date notation is     [ b0 18 00 00 73 6B 73 02 11 94 00 00 00 00 00 04 00 04 64 61 74 65 00 00 00 00 ]
+
+note that the length of a v4 vtfp is 21 octets (0x0015), and an MD5sum is 16 octets (0x0010)
+
+* bare NSKS with one surrogateFor notation is       [ b0 31 00 00 53 4B 53 00 2a 94 00 00 00 00 00 0c 00 15 73 75 72 72 6F 67 61 74 65 46 6F 72 04 DE AD BE EF DE AD BE EF DE AD BE EF DE AD BE EF DE AD BE EF ]
+* NSKS on a primary key with one parentMD5 notation [ b0 29 00 00 53 4B 53 06 22 94 00 00 00 00 00 09 00 10 70 61 72 65 6E 74 4D 44 35 DE AD BE EF DE AD BE EF DE AD BE EF DE AD BE EF ]
 
 # References
 
