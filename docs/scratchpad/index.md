@@ -13,12 +13,14 @@ Working copies of various OpenPGP Internet Drafts (follow the datatracker links 
 V6 migration:
 
 * [OpenPGP Key Replacement](https://andrewgdotcom.gitlab.io/openpgp-replacementkey)
-* [OpenPGP HTTP Keyserver Protocol](https://andrewgdotcom.gitlab.io/draft-gallagher-openpgp-hkp)
+* [OpenPGP HTTP Keyserver Protocol](https://andrewgdotcom.gitlab.io/openpgp-hkp)
 
 Semantic cleanup:
 
+* [OpenPGP Certificates](https://andrewgdotcom.gitlab.io/openpgp-certificates)
+* [OpenPGP Messages](https://andrewgdotcom.gitlab.io/openpgp-messages)
+* [OpenPGP Signatures](https://andrewgdotcom.gitlab.io/openpgp-signatures)
 * [Revocation in OpenPGP](https://dkg.gitlab.io/openpgp-revocation)
-* [OpenPGP Signatures and Signed Messages](https://andrewgdotcom.gitlab.io/openpgp-signatures)
 * [User Attributes in OpenPGP](https://andrewgdotcom.gitlab.io/openpgp-user-attributes)
 
 Other features:
@@ -26,7 +28,7 @@ Other features:
 * [OpenPGP Literal Data Metadata Integrity](https://andrewgdotcom.gitlab.io/draft-gallagher-openpgp-literal-metadata)
 * [GREASE in OpenPGP](https://andrewgdotcom.gitlab.io/openpgp-grease)
 * [OpenPGP Code Point Exhaustion](https://andrewgdotcom.gitlab.io/openpgp-code-point-exhaustion)
-* [Invisible Signatures over Emails](https://andrewgdotcom.gitlab.io/invisible-signatures)
+* [Unobtrusive Signatures over Emails](https://andrewgdotcom.gitlab.io/unobtrusive-signatures)
 * [Media Types for OpenPGP](https://andrewgdotcom.gitlab.io/openpgp-media-types)
 
 ### Secondary documents
