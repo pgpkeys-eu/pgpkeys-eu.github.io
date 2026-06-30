@@ -18,12 +18,16 @@ Any ambiguity in this backwards parsing opens the possibility of signature malle
 The Obenour attack takes advantage of the fact that [v5 trailers end with an 8-octet length field](https://datatracker.ietf.org/doc/html/draft-koch-librepgp#name-computing-signatures), whereas all previous signature trailers end with a 4-octet field.
 This 8-octet length field is overkill, since in practice the first three octets will always be zero, and the fourth octet will only ever contain zero or (rarely) one.
 It is theoretically possible for an attacker to trick a victim into creating a signature with a specific value in the length field that simulates the trailer of a different signature version. 
-v3 signatures are particularly susceptible, because a) they are only five octets long, and b) the fifth octet from the end can take many valid values including zero.
+v3 signatures are particularly susceptible, because a) the trailer is only five octets long, and b) the fifth octet from the end can take many valid values including zero and one.
 This means that every realistic v5 trailer length value could be mis-parsed as a valid v3 trailer for a signature over a document with three trailing null bytes.
 
 To mitigate this, RFC9580 specifies:
-* [the size of the v6 trailer length field is four octets](https://datatracker.ietf.org/doc/html/rfc9580#name-computing-signatures), matching the v3 and v4 trailer formats and thus removing the parsing ambiguity (truncating to four octets reduces the effective security by less than one bit).
+* [the size of the v6 trailer length field is four octets](https://datatracker.ietf.org/doc/html/rfc9580#name-computing-signatures), matching the v3 and v4 trailer formats and thus removing the parsing ambiguity.
 * [signature versions must match the version of the key generating them](https://datatracker.ietf.org/doc/html/rfc9580#name-signature-packet-type-id-2), ensuring that any future cross-version malleability attack will be invalidated by the version mismatch.
+
+Truncating to four octets of trailer length in v6 is safe, because signature packet lengths have the same upper limit (partial packet lengths are not permitted for signatures).
+The trailer length cannot exceed the maximum length of a signature packet in practice, because all the hashed fields of the trailer must also fit into the signature packet.
+(This argument does not apply to v5 signatures, because in signature types 0x00 and 0x01 the trailer length also covers the literal data metadata fields, with a maximum length of 262 bytes, and the trailer length-of-length can therefore overflow - but only by one bit.)
 
 ## Type 20 "OCB Packet" Malleability Attack
 
@@ -61,6 +65,6 @@ The attack is more efficiently mitigated in RFC9580 by specifying [the use of AE
 AEAD encryption modes automatically provide integrity validation, eliminating the need for explicit validity checks.
 
 Andrew Gallagher, 19th August 2024
-(last updated 7th January 2026)
+(last updated 30th June 2026)
 
 Licensed under [CC BY-NC-SA](https://creativecommons.org/licenses/by-nc-sa/4.0/)
